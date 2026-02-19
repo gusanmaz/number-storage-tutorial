@@ -633,6 +633,15 @@ tr:hover {
     font-size: 0.9rem;
 }
 
+.footer a {
+    color: var(--accent-bright);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
 /* Quiz */
 .quiz-container {
     background: var(--bg-card);
