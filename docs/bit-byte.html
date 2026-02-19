@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bit & Byte | Sayı Sistemleri</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
+            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
+            <ul class="nav-links" id="nav">
+                <li><a href="index.html">Giriş</a></li>
+                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
+                <li><a href="binary.html">Binary</a></li>
+                <li><a href="hexadecimal.html">Hexadecimal</a></li>
+                <li><a href="bit-byte.html" class="active">Bit & Byte</a></li>
+                <li><a href="memory.html">Memory</a></li>
+                <li><a href="programlama.html">Programlama</a></li>
+                <li><a href="renkler.html">Renkler</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Bit & Byte</h1>
+            <p>Verinin en küçük birimleri ve kapasite matematiği</p>
+        </section>
+
+        <h2>Bit Nedir?</h2>
+
+        <p>
+            <strong>Bit</strong> (Binary Digit), bilgisayardaki en küçük veri birimidir. 
+            Sadece iki değer alabilir: <code>0</code> veya <code>1</code>.
+        </p>
+
+        <div class="info-box concept">
+            <strong>Tek Bir Bit</strong><br>
+            1 bit = 2 olası değer (0 veya 1)<br>
+            Bu, bir evet/hayır sorusuna cevap vermek gibidir.
+        </div>
+
+        <h2>Byte Nedir?</h2>
+
+        <p><strong>Byte</strong>, 8 bit'ten oluşan bir gruptur. Modern bilgisayarların temel veri birimidir.</p>
+
+        <div class="content-box highlight">
+            <p style="text-align: center; margin: 0; font-size: 1.2rem;">
+                <strong>1 Byte = 8 Bit = 2 Hex Rakamı</strong>
+            </p>
+        </div>
+
+        <h2>Temel Formül: n Bit = 2ⁿ Değer</h2>
+
+        <p>
+            Bu formül her şeyin temelidir. <strong>n</strong> bit ile <strong>2ⁿ</strong> farklı değer 
+            temsil edilebilir.
+        </p>
+
+        <div class="code-block">
+            <div class="code-header">Formülün Mantığı</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// Her bit 2 seçenek: 0 veya 1</span>
+<span class="line-num">2</span>
+<span class="line-num">3</span>   1 bit  → 2¹ = <span class="dec">2</span> değer     (0, 1)
+<span class="line-num">4</span>   2 bit  → 2² = <span class="dec">4</span> değer     (00, 01, 10, 11)
+<span class="line-num">5</span>   3 bit  → 2³ = <span class="dec">8</span> değer     (000 ... 111)
+<span class="line-num">6</span>   4 bit  → 2⁴ = <span class="dec">16</span> değer    (1 hex rakamı!)
+<span class="line-num">7</span>   8 bit  → 2⁸ = <span class="dec">256</span> değer   (1 byte!)
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="comment">// Değer aralığı: 0'dan (2ⁿ - 1)'e kadar</span></pre>
+            </div>
+        </div>
+
+        <div class="info-box formula">
+            <strong>Önemli!</strong><br>
+            n bit → <strong>2ⁿ farklı değer</strong><br>
+            Aralık: <strong>0</strong>'dan <strong>(2ⁿ - 1)</strong>'e kadar
+        </div>
+
+        <h2>İnteraktif: Kapasite Hesaplayıcı</h2>
+
+        <div class="interactive-section">
+            <h3>🧮 n Bit'te Kaç Değer Var?</h3>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Bit Sayısı</label>
+                    <input type="number" class="input-field" id="bitCount" value="8" min="1" max="32">
+                </div>
+                <button class="btn btn-primary" onclick="calculateCapacity()">Hesapla</button>
+            </div>
+
+            <div id="capacityResult"></div>
+        </div>
+
+        <h2>Yaygın Bit Boyutları</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bit</th>
+                        <th>Hesaplama</th>
+                        <th>Farklı Değer</th>
+                        <th>Aralık</th>
+                        <th>Kullanım</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>2¹</td>
+                        <td><strong>2</strong></td>
+                        <td>0-1</td>
+                        <td>Boolean (true/false)</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>2⁴</td>
+                        <td><strong>16</strong></td>
+                        <td>0-15</td>
+                        <td>1 hex rakamı</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>2⁸</td>
+                        <td><strong>256</strong></td>
+                        <td>0-255</td>
+                        <td>1 byte, ASCII, renk kanalı</td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td>2¹⁶</td>
+                        <td><strong>65,536</strong></td>
+                        <td>0-65,535</td>
+                        <td>Unicode BMP, port numarası</td>
+                    </tr>
+                    <tr>
+                        <td>24</td>
+                        <td>2²⁴</td>
+                        <td><strong>16,777,216</strong></td>
+                        <td>0-16,777,215</td>
+                        <td>RGB renk (True Color)</td>
+                    </tr>
+                    <tr>
+                        <td>32</td>
+                        <td>2³²</td>
+                        <td><strong>~4.3 milyar</strong></td>
+                        <td>0-4,294,967,295</td>
+                        <td>int, IPv4 adresi</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>2 Hex Rakamı = 1 Byte = 256 Değer</h2>
+
+        <p>Bu ilişkiyi iyi anla:</p>
+
+        <div class="code-block">
+            <div class="code-header">Neden 2 Hex = 1 Byte?</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// 1 hex rakamı = 4 bit = 16 değer (0-F)</span>
+<span class="line-num">2</span><span class="comment">// 2 hex rakamı = 8 bit = 1 byte</span>
+<span class="line-num">3</span>
+<span class="line-num">4</span>   <span class="hex">00</span> → 0
+<span class="line-num">5</span>   <span class="hex">01</span> → 1
+<span class="line-num">6</span>   ...
+<span class="line-num">7</span>   <span class="hex">0F</span> → 15
+<span class="line-num">8</span>   <span class="hex">10</span> → 16
+<span class="line-num">9</span>   ...
+<span class="line-num">10</span>   <span class="hex">FF</span> → 255
+<span class="line-num">11</span>
+<span class="line-num">12</span><span class="comment">// Toplam: 16 × 16 = 256 farklı değer</span></pre>
+            </div>
+        </div>
+
+        <div class="info-box example">
+            <strong>Pratik Örnek: Renk Kanalı</strong><br>
+            Her renk kanalı (R, G, B) 1 byte = 2 hex = 0-255 arası<br>
+            <code class="hex">FF</code> = maksimum (255)<br>
+            <code class="hex">00</code> = minimum (0)
+        </div>
+
+        <h2>4 Byte'ta Kaç Değer?</h2>
+
+        <p>
+            4 byte = 32 bit. Bu, birçok programlama dilinde <code>int</code> tipinin boyutudur.
+        </p>
+
+        <div class="code-block">
+            <div class="code-header">4 Byte Hesaplama</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span>   4 byte = 32 bit
+<span class="line-num">2</span>   
+<span class="line-num">3</span>   2³² = <span class="dec">4,294,967,296</span> farklı değer
+<span class="line-num">4</span>   
+<span class="line-num">5</span><span class="comment">// Unsigned (işaretsiz): 0 ile 4,294,967,295 arası</span>
+<span class="line-num">6</span><span class="comment">// Signed (işaretli): -2,147,483,648 ile 2,147,483,647 arası</span>
+<span class="line-num">7</span>
+<span class="line-num">8</span><span class="comment">// Hex gösterimi: 8 hex rakamı</span>
+<span class="line-num">9</span>   Min: <span class="hex">00000000</span>
+<span class="line-num">10</span>   Max: <span class="hex">FFFFFFFF</span></pre>
+            </div>
+        </div>
+
+        <div class="info-box concept">
+            <strong>Neden ~4.3 milyar?</strong><br>
+            2³² = 4,294,967,296 ≈ 4.3 milyar<br>
+            Bu yüzden 32-bit sistemler maksimum 4 GB RAM destekler!
+        </div>
+
+        <h2>Hex Rakam Sayısı ve Byte İlişkisi</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hex Rakam</th>
+                        <th>Bit</th>
+                        <th>Byte</th>
+                        <th>Değer Sayısı</th>
+                        <th>Örnek Kullanım</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1 (<span class="hex">F</span>)</td>
+                        <td>4</td>
+                        <td>0.5</td>
+                        <td>16</td>
+                        <td>Nibble</td>
+                    </tr>
+                    <tr>
+                        <td>2 (<span class="hex">FF</span>)</td>
+                        <td>8</td>
+                        <td>1</td>
+                        <td>256</td>
+                        <td>Renk kanalı, ASCII</td>
+                    </tr>
+                    <tr>
+                        <td>4 (<span class="hex">FFFF</span>)</td>
+                        <td>16</td>
+                        <td>2</td>
+                        <td>65,536</td>
+                        <td>Port numarası</td>
+                    </tr>
+                    <tr>
+                        <td>6 (<span class="hex">FFFFFF</span>)</td>
+                        <td>24</td>
+                        <td>3</td>
+                        <td>16.7 milyon</td>
+                        <td>RGB renk</td>
+                    </tr>
+                    <tr>
+                        <td>8 (<span class="hex">FFFFFFFF</span>)</td>
+                        <td>32</td>
+                        <td>4</td>
+                        <td>~4.3 milyar</td>
+                        <td>IPv4, int</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-box formula">
+            <strong>Hızlı Hesaplama</strong><br>
+            Hex rakam sayısı × 4 = Bit sayısı<br>
+            Hex rakam sayısı ÷ 2 = Byte sayısı
+        </div>
+
+        <h2>Veri Birimleri</h2>
+
+        <div class="code-block">
+            <div class="code-header">Temel İlişkiler</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span>   1 byte   = 8 bit
+<span class="line-num">2</span>   1 KB     = 1024 byte     (2¹⁰)
+<span class="line-num">3</span>   1 MB     = 1024 KB       (2²⁰ byte)
+<span class="line-num">4</span>   1 GB     = 1024 MB       (2³⁰ byte)
+<span class="line-num">5</span>   1 TB     = 1024 GB       (2⁴⁰ byte)</pre>
+            </div>
+        </div>
+
+        <h2>Alıştırma</h2>
+
+        <div class="quiz-container">
+            <div class="quiz-question">
+                <strong>Soru:</strong> 3 hex rakamıyla (<span class="hex">FFF</span>) kaç farklı değer temsil edilebilir?
+            </div>
+            <div class="quiz-options" id="quizOpts">
+                <div class="quiz-option" onclick="checkQuiz(this, 4096)">4,096</div>
+                <div class="quiz-option" onclick="checkQuiz(this, 256)">256</div>
+                <div class="quiz-option" onclick="checkQuiz(this, 65536)">65,536</div>
+                <div class="quiz-option" onclick="checkQuiz(this, 16)">16</div>
+            </div>
+            <div id="quizFeedback" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="hexadecimal.html" class="btn btn-secondary">← Hexadecimal</a>
+            <a href="memory.html" class="btn btn-primary">Memory →</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Sayı Sistemleri Eğitimi • Bilişim MYO Öğrencileri İçin
+    </footer>
+
+    <script>
+        function calculateCapacity() {
+            const bits = parseInt(document.getElementById('bitCount').value);
+            const resultDiv = document.getElementById('capacityResult');
+            
+            if (isNaN(bits) || bits < 1 || bits > 32) {
+                resultDiv.innerHTML = '<div class="result-box" style="border-color: var(--red);">1-32 arası bir değer girin</div>';
+                return;
+            }
+            
+            const values = Math.pow(2, bits);
+            const maxValue = values - 1;
+            const hexDigits = Math.ceil(bits / 4);
+            const bytes = bits / 8;
+            
+            let html = `<div class="code-block"><div class="code-header">Hesaplama</div><div class="code-content"><pre>`;
+            html += `<span class="line-num">1</span>${bits} bit = 2<sup>${bits}</sup> = <span class="dec">${values.toLocaleString()}</span> farklı değer\n`;
+            html += `<span class="line-num">2</span>\n`;
+            html += `<span class="line-num">3</span>Aralık: 0 - ${maxValue.toLocaleString()}\n`;
+            html += `<span class="line-num">4</span>Hex rakam: ${hexDigits}\n`;
+            html += `<span class="line-num">5</span>Byte: ${bytes}`;
+            html += `</pre></div></div>`;
+            
+            html += `<div class="result-box success">
+                <div class="result-row">
+                    <div class="result-item">
+                        <div class="result-label">Bit</div>
+                        <div class="result-value">${bits}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Değer Sayısı</div>
+                        <div class="result-value dec">${values.toLocaleString()}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Max Hex</div>
+                        <div class="result-value hex">${maxValue.toString(16).toUpperCase()}</div>
+                    </div>
+                </div>
+            </div>`;
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        function checkQuiz(element, value) {
+            // 3 hex = 12 bit = 2^12 = 4096
+            const correct = 4096;
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(o => o.style.pointerEvents = 'none');
+            
+            if (value === correct) {
+                element.classList.add('correct');
+                document.getElementById('quizFeedback').innerHTML = 
+                    '<div class="result-box success">✓ Doğru! 3 hex = 12 bit = 2¹² = 4,096 değer</div>';
+            } else {
+                element.classList.add('wrong');
+                document.getElementById('quizFeedback').innerHTML = 
+                    '<div class="result-box" style="border-color: var(--red);">✗ Yanlış. 3 hex × 4 bit = 12 bit = 2¹² = 4,096</div>';
+            }
+        }
+        
+        // Initial
+        calculateCapacity();
+    </script>
+</body>
+</html>

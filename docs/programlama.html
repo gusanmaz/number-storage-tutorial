@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programlamada Sayı Sistemleri | Sayı Sistemleri</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
+            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
+            <ul class="nav-links" id="nav">
+                <li><a href="index.html">Giriş</a></li>
+                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
+                <li><a href="binary.html">Binary</a></li>
+                <li><a href="hexadecimal.html">Hexadecimal</a></li>
+                <li><a href="bit-byte.html">Bit & Byte</a></li>
+                <li><a href="memory.html">Memory</a></li>
+                <li><a href="programlama.html" class="active">Programlama</a></li>
+                <li><a href="renkler.html">Renkler</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Programlamada Sayı Sistemleri</h1>
+            <p>JavaScript ve Python'da binary, octal ve hex kullanımı</p>
+        </section>
+
+        <h2>JavaScript'te Sayı Gösterimi</h2>
+
+        <h3>Literal (Doğrudan) Yazım</h3>
+
+        <div class="code-block">
+            <div class="code-header">JavaScript</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// Binary: 0b prefix</span>
+<span class="line-num">2</span><span class="keyword">let</span> <span class="variable">binary</span> <span class="operator">=</span> <span class="bin">0b1010</span>;        <span class="comment">// 10</span>
+<span class="line-num">3</span><span class="keyword">let</span> <span class="variable">binary2</span> <span class="operator">=</span> <span class="bin">0b11111111</span>;   <span class="comment">// 255</span>
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="comment">// Octal: 0o prefix</span>
+<span class="line-num">6</span><span class="keyword">let</span> <span class="variable">octal</span> <span class="operator">=</span> <span class="oct">0o12</span>;           <span class="comment">// 10</span>
+<span class="line-num">7</span><span class="keyword">let</span> <span class="variable">octal2</span> <span class="operator">=</span> <span class="oct">0o377</span>;         <span class="comment">// 255</span>
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="comment">// Hexadecimal: 0x prefix</span>
+<span class="line-num">10</span><span class="keyword">let</span> <span class="variable">hex</span> <span class="operator">=</span> <span class="hex">0xA</span>;              <span class="comment">// 10</span>
+<span class="line-num">11</span><span class="keyword">let</span> <span class="variable">hex2</span> <span class="operator">=</span> <span class="hex">0xFF</span>;            <span class="comment">// 255</span>
+<span class="line-num">12</span><span class="keyword">let</span> <span class="variable">hex3</span> <span class="operator">=</span> <span class="hex">0xDEADBEEF</span>;      <span class="comment">// 3735928559</span>
+<span class="line-num">13</span>
+<span class="line-num">14</span><span class="comment">// Decimal: prefix yok</span>
+<span class="line-num">15</span><span class="keyword">let</span> <span class="variable">decimal</span> <span class="operator">=</span> <span class="dec">10</span>;           <span class="comment">// 10</span>
+<span class="line-num">16</span>
+<span class="line-num">17</span><span class="comment">// Hepsi aynı değer!</span>
+<span class="line-num">18</span>console.<span class="function">log</span>(<span class="variable">binary</span> <span class="operator">===</span> <span class="variable">octal</span>);   <span class="comment">// true</span>
+<span class="line-num">19</span>console.<span class="function">log</span>(<span class="variable">octal</span> <span class="operator">===</span> <span class="variable">hex</span>);     <span class="comment">// true</span>
+<span class="line-num">20</span>console.<span class="function">log</span>(<span class="variable">hex</span> <span class="operator">===</span> <span class="variable">decimal</span>);  <span class="comment">// true</span></pre>
+            </div>
+        </div>
+
+        <h3>Dönüşüm Fonksiyonları</h3>
+
+        <div class="code-block">
+            <div class="code-header">JavaScript - Decimal'den Diğerlerine</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="keyword">let</span> <span class="variable">num</span> <span class="operator">=</span> <span class="dec">255</span>;
+<span class="line-num">2</span>
+<span class="line-num">3</span><span class="comment">// toString(taban) ile dönüşüm</span>
+<span class="line-num">4</span><span class="variable">num</span>.<span class="function">toString</span>(<span class="number">2</span>);    <span class="comment">// "11111111"  (binary)</span>
+<span class="line-num">5</span><span class="variable">num</span>.<span class="function">toString</span>(<span class="number">8</span>);    <span class="comment">// "377"       (octal)</span>
+<span class="line-num">6</span><span class="variable">num</span>.<span class="function">toString</span>(<span class="number">16</span>);   <span class="comment">// "ff"        (hex - küçük harf)</span>
+<span class="line-num">7</span>
+<span class="line-num">8</span><span class="comment">// Büyük harf hex için</span>
+<span class="line-num">9</span><span class="variable">num</span>.<span class="function">toString</span>(<span class="number">16</span>).<span class="function">toUpperCase</span>();  <span class="comment">// "FF"</span></pre>
+            </div>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">JavaScript - String'den Sayıya</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// parseInt(string, taban)</span>
+<span class="line-num">2</span><span class="function">parseInt</span>(<span class="string">"1010"</span>, <span class="number">2</span>);      <span class="comment">// 10 (binary'den)</span>
+<span class="line-num">3</span><span class="function">parseInt</span>(<span class="string">"12"</span>, <span class="number">8</span>);        <span class="comment">// 10 (octal'den)</span>
+<span class="line-num">4</span><span class="function">parseInt</span>(<span class="string">"A"</span>, <span class="number">16</span>);        <span class="comment">// 10 (hex'den)</span>
+<span class="line-num">5</span><span class="function">parseInt</span>(<span class="string">"FF"</span>, <span class="number">16</span>);       <span class="comment">// 255</span>
+<span class="line-num">6</span>
+<span class="line-num">7</span><span class="comment">// 0x prefix'li string de çalışır</span>
+<span class="line-num">8</span><span class="function">parseInt</span>(<span class="string">"0xFF"</span>, <span class="number">16</span>);     <span class="comment">// 255</span></pre>
+            </div>
+        </div>
+
+        <h2>Python'da Sayı Gösterimi</h2>
+
+        <h3>Literal (Doğrudan) Yazım</h3>
+
+        <div class="code-block">
+            <div class="code-header">Python</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment"># Binary: 0b prefix</span>
+<span class="line-num">2</span><span class="variable">binary</span> <span class="operator">=</span> <span class="bin">0b1010</span>        <span class="comment"># 10</span>
+<span class="line-num">3</span><span class="variable">binary2</span> <span class="operator">=</span> <span class="bin">0b11111111</span>   <span class="comment"># 255</span>
+<span class="line-num">4</span>
+<span class="line-num">5</span><span class="comment"># Octal: 0o prefix</span>
+<span class="line-num">6</span><span class="variable">octal</span> <span class="operator">=</span> <span class="oct">0o12</span>           <span class="comment"># 10</span>
+<span class="line-num">7</span><span class="variable">octal2</span> <span class="operator">=</span> <span class="oct">0o377</span>         <span class="comment"># 255</span>
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="comment"># Hexadecimal: 0x prefix</span>
+<span class="line-num">10</span><span class="variable">hex_num</span> <span class="operator">=</span> <span class="hex">0xA</span>          <span class="comment"># 10</span>
+<span class="line-num">11</span><span class="variable">hex_num2</span> <span class="operator">=</span> <span class="hex">0xFF</span>        <span class="comment"># 255</span>
+<span class="line-num">12</span><span class="variable">hex_num3</span> <span class="operator">=</span> <span class="hex">0xDEADBEEF</span>  <span class="comment"># 3735928559</span>
+<span class="line-num">13</span>
+<span class="line-num">14</span><span class="comment"># Decimal: prefix yok</span>
+<span class="line-num">15</span><span class="variable">decimal</span> <span class="operator">=</span> <span class="dec">10</span>           <span class="comment"># 10</span>
+<span class="line-num">16</span>
+<span class="line-num">17</span><span class="comment"># Karşılaştırma</span>
+<span class="line-num">18</span><span class="function">print</span>(<span class="variable">binary</span> <span class="operator">==</span> <span class="variable">octal</span> <span class="operator">==</span> <span class="variable">hex_num</span> <span class="operator">==</span> <span class="variable">decimal</span>)  <span class="comment"># True</span></pre>
+            </div>
+        </div>
+
+        <h3>Dönüşüm Fonksiyonları</h3>
+
+        <div class="code-block">
+            <div class="code-header">Python - Decimal'den Diğerlerine</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="variable">num</span> <span class="operator">=</span> <span class="dec">255</span>
+<span class="line-num">2</span>
+<span class="line-num">3</span><span class="comment"># Built-in fonksiyonlar</span>
+<span class="line-num">4</span><span class="function">bin</span>(<span class="variable">num</span>)    <span class="comment"># '0b11111111'</span>
+<span class="line-num">5</span><span class="function">oct</span>(<span class="variable">num</span>)    <span class="comment"># '0o377'</span>
+<span class="line-num">6</span><span class="function">hex</span>(<span class="variable">num</span>)    <span class="comment"># '0xff'</span>
+<span class="line-num">7</span>
+<span class="line-num">8</span><span class="comment"># Prefix'siz almak için</span>
+<span class="line-num">9</span><span class="function">bin</span>(<span class="variable">num</span>)[<span class="number">2</span>:]     <span class="comment"># '11111111'</span>
+<span class="line-num">10</span><span class="function">hex</span>(<span class="variable">num</span>)[<span class="number">2</span>:]     <span class="comment"># 'ff'</span>
+<span class="line-num">11</span>
+<span class="line-num">12</span><span class="comment"># Büyük harf hex</span>
+<span class="line-num">13</span><span class="function">hex</span>(<span class="variable">num</span>)[<span class="number">2</span>:].<span class="function">upper</span>()  <span class="comment"># 'FF'</span>
+<span class="line-num">14</span>
+<span class="line-num">15</span><span class="comment"># Format string ile</span>
+<span class="line-num">16</span><span class="string">f"</span>{<span class="variable">num</span>:<span class="string">b}"</span>    <span class="comment"># '11111111' (binary)</span>
+<span class="line-num">17</span><span class="string">f"</span>{<span class="variable">num</span>:<span class="string">o}"</span>    <span class="comment"># '377' (octal)</span>
+<span class="line-num">18</span><span class="string">f"</span>{<span class="variable">num</span>:<span class="string">x}"</span>    <span class="comment"># 'ff' (hex küçük)</span>
+<span class="line-num">19</span><span class="string">f"</span>{<span class="variable">num</span>:<span class="string">X}"</span>    <span class="comment"># 'FF' (hex büyük)</span>
+<span class="line-num">20</span><span class="string">f"</span>{<span class="variable">num</span>:<span class="string">08b}"</span>  <span class="comment"># '11111111' (8 karakter, 0 ile doldur)</span></pre>
+            </div>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">Python - String'den Sayıya</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment"># int(string, taban)</span>
+<span class="line-num">2</span><span class="function">int</span>(<span class="string">"1010"</span>, <span class="number">2</span>)      <span class="comment"># 10 (binary'den)</span>
+<span class="line-num">3</span><span class="function">int</span>(<span class="string">"12"</span>, <span class="number">8</span>)        <span class="comment"># 10 (octal'den)</span>
+<span class="line-num">4</span><span class="function">int</span>(<span class="string">"A"</span>, <span class="number">16</span>)        <span class="comment"># 10 (hex'den)</span>
+<span class="line-num">5</span><span class="function">int</span>(<span class="string">"FF"</span>, <span class="number">16</span>)       <span class="comment"># 255</span>
+<span class="line-num">6</span>
+<span class="line-num">7</span><span class="comment"># Prefix'li string (taban otomatik)</span>
+<span class="line-num">8</span><span class="function">int</span>(<span class="string">"0b1010"</span>, <span class="number">0</span>)    <span class="comment"># 10</span>
+<span class="line-num">9</span><span class="function">int</span>(<span class="string">"0o12"</span>, <span class="number">0</span>)      <span class="comment"># 10</span>
+<span class="line-num">10</span><span class="function">int</span>(<span class="string">"0xFF"</span>, <span class="number">0</span>)      <span class="comment"># 255</span></pre>
+            </div>
+        </div>
+
+        <h2>Özet: Prefix Tablosu</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sistem</th>
+                        <th>JavaScript</th>
+                        <th>Python</th>
+                        <th>Örnek</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Binary</td>
+                        <td><code class="bin">0b</code></td>
+                        <td><code class="bin">0b</code></td>
+                        <td><code class="bin">0b1010</code> = 10</td>
+                    </tr>
+                    <tr>
+                        <td>Octal</td>
+                        <td><code class="oct">0o</code></td>
+                        <td><code class="oct">0o</code></td>
+                        <td><code class="oct">0o12</code> = 10</td>
+                    </tr>
+                    <tr>
+                        <td>Hexadecimal</td>
+                        <td><code class="hex">0x</code></td>
+                        <td><code class="hex">0x</code></td>
+                        <td><code class="hex">0xFF</code> = 255</td>
+                    </tr>
+                    <tr>
+                        <td>Decimal</td>
+                        <td>(prefix yok)</td>
+                        <td>(prefix yok)</td>
+                        <td><code class="dec">255</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>İnteraktif: Dene!</h2>
+
+        <div class="interactive-section">
+            <h3>💻 JavaScript Konsolu</h3>
+            <p style="color: var(--text-muted);">Bir sayı girin ve farklı formatlarda görün</p>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Değer (decimal, 0x, 0b, 0o)</label>
+                    <input type="text" class="input-field" id="codeInput" value="255" placeholder="255 veya 0xFF">
+                </div>
+                <button class="btn btn-primary" onclick="runCode()">Çalıştır</button>
+            </div>
+
+            <div id="codeResult"></div>
+        </div>
+
+        <h2>Pratik Örnek: Renk İşlemleri</h2>
+
+        <div class="code-block">
+            <div class="code-header">JavaScript - Hex Renk Ayrıştırma</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="keyword">const</span> <span class="variable">hexColor</span> <span class="operator">=</span> <span class="string">"#FF5733"</span>;
+<span class="line-num">2</span>
+<span class="line-num">3</span><span class="comment">// R, G, B değerlerini çıkar</span>
+<span class="line-num">4</span><span class="keyword">const</span> <span class="variable">r</span> <span class="operator">=</span> <span class="function">parseInt</span>(<span class="variable">hexColor</span>.<span class="function">slice</span>(<span class="number">1</span>, <span class="number">3</span>), <span class="number">16</span>);  <span class="comment">// 255</span>
+<span class="line-num">5</span><span class="keyword">const</span> <span class="variable">g</span> <span class="operator">=</span> <span class="function">parseInt</span>(<span class="variable">hexColor</span>.<span class="function">slice</span>(<span class="number">3</span>, <span class="number">5</span>), <span class="number">16</span>);  <span class="comment">// 87</span>
+<span class="line-num">6</span><span class="keyword">const</span> <span class="variable">b</span> <span class="operator">=</span> <span class="function">parseInt</span>(<span class="variable">hexColor</span>.<span class="function">slice</span>(<span class="number">5</span>, <span class="number">7</span>), <span class="number">16</span>);  <span class="comment">// 51</span>
+<span class="line-num">7</span>
+<span class="line-num">8</span>console.<span class="function">log</span>(<span class="string">`RGB: </span>${<span class="variable">r</span>}<span class="string">, </span>${<span class="variable">g</span>}<span class="string">, </span>${<span class="variable">b</span>}<span class="string">`</span>);  <span class="comment">// "RGB: 255, 87, 51"</span></pre>
+            </div>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">Python - RGB'den Hex'e</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="variable">r</span>, <span class="variable">g</span>, <span class="variable">b</span> <span class="operator">=</span> <span class="number">255</span>, <span class="number">87</span>, <span class="number">51</span>
+<span class="line-num">2</span>
+<span class="line-num">3</span><span class="comment"># Hex renk kodu oluştur</span>
+<span class="line-num">4</span><span class="variable">hex_color</span> <span class="operator">=</span> <span class="string">f"#</span>{<span class="variable">r</span>:<span class="string">02X}</span>{<span class="variable">g</span>:<span class="string">02X}</span>{<span class="variable">b</span>:<span class="string">02X}"</span>
+<span class="line-num">5</span><span class="function">print</span>(<span class="variable">hex_color</span>)  <span class="comment"># "#FF5733"</span>
+<span class="line-num">6</span>
+<span class="line-num">7</span><span class="comment"># Alternatif yöntem</span>
+<span class="line-num">8</span><span class="variable">hex_color2</span> <span class="operator">=</span> <span class="string">"#"</span> <span class="operator">+</span> <span class="string">""</span>.<span class="function">join</span>(<span class="function">format</span>(<span class="variable">c</span>, <span class="string">"02X"</span>) <span class="keyword">for</span> <span class="variable">c</span> <span class="keyword">in</span> [<span class="variable">r</span>, <span class="variable">g</span>, <span class="variable">b</span>])</pre>
+            </div>
+        </div>
+
+        <div class="info-box concept">
+            <strong>02X ne demek?</strong><br>
+            <code>02</code> = minimum 2 karakter, eksikse 0 ile doldur<br>
+            <code>X</code> = büyük harf hexadecimal<br>
+            Örnek: 15 → "0F", 255 → "FF"
+        </div>
+
+        <div class="nav-buttons">
+            <a href="memory.html" class="btn btn-secondary">← Memory</a>
+            <a href="renkler.html" class="btn btn-primary">Renkler →</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Sayı Sistemleri Eğitimi • Bilişim MYO Öğrencileri İçin
+    </footer>
+
+    <script>
+        function runCode() {
+            const input = document.getElementById('codeInput').value.trim();
+            const resultDiv = document.getElementById('codeResult');
+            
+            let num;
+            try {
+                num = eval(input);
+                if (typeof num !== 'number' || isNaN(num)) throw new Error();
+            } catch (e) {
+                resultDiv.innerHTML = '<div class="result-box" style="border-color: var(--red);">Geçersiz değer</div>';
+                return;
+            }
+            
+            let html = `<div class="code-block"><div class="code-header">Sonuç</div><div class="code-content"><pre>`;
+            html += `<span class="line-num">1</span><span class="keyword">let</span> <span class="variable">num</span> <span class="operator">=</span> ${input};\n`;
+            html += `<span class="line-num">2</span>\n`;
+            html += `<span class="line-num">3</span><span class="variable">num</span>                  <span class="comment">// ${num}</span>\n`;
+            html += `<span class="line-num">4</span><span class="variable">num</span>.<span class="function">toString</span>(<span class="number">2</span>)     <span class="comment">// "${num.toString(2)}"</span>\n`;
+            html += `<span class="line-num">5</span><span class="variable">num</span>.<span class="function">toString</span>(<span class="number">8</span>)     <span class="comment">// "${num.toString(8)}"</span>\n`;
+            html += `<span class="line-num">6</span><span class="variable">num</span>.<span class="function">toString</span>(<span class="number">16</span>)    <span class="comment">// "${num.toString(16)}"</span>`;
+            html += `</pre></div></div>`;
+            
+            html += `<div class="result-box success">
+                <div class="result-row">
+                    <div class="result-item">
+                        <div class="result-label">Binary</div>
+                        <div class="result-value bin">${num.toString(2)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Octal</div>
+                        <div class="result-value oct">${num.toString(8)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Decimal</div>
+                        <div class="result-value dec">${num}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Hex</div>
+                        <div class="result-value hex">${num.toString(16).toUpperCase()}</div>
+                    </div>
+                </div>
+            </div>`;
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        // Initial
+        runCode();
+    </script>
+</body>
+</html>
+

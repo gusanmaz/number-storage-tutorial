@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Renk Kodları | Sayı Sistemleri</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
+            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
+            <ul class="nav-links" id="nav">
+                <li><a href="index.html">Giriş</a></li>
+                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
+                <li><a href="binary.html">Binary</a></li>
+                <li><a href="hexadecimal.html">Hexadecimal</a></li>
+                <li><a href="bit-byte.html">Bit & Byte</a></li>
+                <li><a href="memory.html">Memory</a></li>
+                <li><a href="programlama.html">Programlama</a></li>
+                <li><a href="renkler.html" class="active">Renkler</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Hex Renk Kodları</h1>
+            <p>RGB matematiği ve p5.js'te renk kullanımı</p>
+        </section>
+
+        <h2>RGB Renk Modeli</h2>
+
+        <p>
+            Ekranlarda renkler üç temel rengin karışımıyla oluşturulur: 
+            <span style="color: #ff4444;"><strong>Kırmızı (R)</strong></span>, 
+            <span style="color: #44ff44;"><strong>Yeşil (G)</strong></span> ve 
+            <span style="color: #4488ff;"><strong>Mavi (B)</strong></span>.
+        </p>
+
+        <div class="content-box highlight">
+            <p style="text-align: center; margin: 0; font-size: 1.1rem;">
+                Her kanal: <strong>0-255</strong> arası (1 byte = 2 hex rakamı)<br>
+                Toplam: <strong>256 × 256 × 256 = 16,777,216</strong> renk
+            </p>
+        </div>
+
+        <h2>Hex Renk Formatı</h2>
+
+        <div class="code-block">
+            <div class="code-header">Format: #RRGGBB</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="hex">#FF5733</span>
+<span class="line-num">2</span>  ││││││
+<span class="line-num">3</span>  ││││└┴── <span style="color:#3377ff">Blue:  33₁₆ = 51₁₀</span>
+<span class="line-num">4</span>  ││└┴──── <span style="color:#44ff44">Green: 57₁₆ = 87₁₀</span>
+<span class="line-num">5</span>  └┴────── <span style="color:#ff4444">Red:   FF₁₆ = 255₁₀</span></pre>
+            </div>
+        </div>
+
+        <h2>İnteraktif: Renk Oluşturucu</h2>
+
+        <div class="interactive-section">
+            <h3>🎨 RGB Slider</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span style="color: #ff4444;">🔴 Red (R)</span>
+                            <span id="rVal">128</span>
+                        </div>
+                        <input type="range" class="slider slider-r" id="sliderR" min="0" max="255" value="128" oninput="updateColor()">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span style="color: #44ff44;">🟢 Green (G)</span>
+                            <span id="gVal">128</span>
+                        </div>
+                        <input type="range" class="slider slider-g" id="sliderG" min="0" max="255" value="128" oninput="updateColor()">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span style="color: #4488ff;">🔵 Blue (B)</span>
+                            <span id="bVal">128</span>
+                        </div>
+                        <input type="range" class="slider slider-b" id="sliderB" min="0" max="255" value="128" oninput="updateColor()">
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="color-preview" id="colorPreview" style="background: #808080;">
+                        #808080
+                    </div>
+                    
+                    <div class="result-box" style="margin-top: 1rem;">
+                        <div style="font-family: var(--font-mono); font-size: 0.9rem; text-align: left;">
+                            <div><strong>Hex:</strong> <span id="hexCode">#808080</span></div>
+                            <div><strong>RGB:</strong> <span id="rgbCode">rgb(128, 128, 128)</span></div>
+                            <div><strong>Binary R:</strong> <span id="binR" class="bin">10000000</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>p5.js'te Renk Kullanımı</h2>
+
+        <p>
+            <a href="https://p5js.org" target="_blank" style="color: var(--accent-bright);">p5.js</a>, 
+            Processing tabanlı bir JavaScript kütüphanesidir. Renkleri çeşitli şekillerde tanımlayabilirsiniz:
+        </p>
+
+        <div class="code-block">
+            <div class="code-header">p5.js - Renk Tanımlama Yöntemleri</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// Hex string ile</span>
+<span class="line-num">2</span><span class="function">fill</span>(<span class="string">"#FF5733"</span>);
+<span class="line-num">3</span><span class="function">stroke</span>(<span class="string">"#00FF00"</span>);
+<span class="line-num">4</span><span class="function">background</span>(<span class="string">"#1a1a2e"</span>);
+<span class="line-num">5</span>
+<span class="line-num">6</span><span class="comment">// RGB değerleri ile (0-255)</span>
+<span class="line-num">7</span><span class="function">fill</span>(<span class="number">255</span>, <span class="number">87</span>, <span class="number">51</span>);         <span class="comment">// R, G, B</span>
+<span class="line-num">8</span><span class="function">fill</span>(<span class="number">255</span>, <span class="number">87</span>, <span class="number">51</span>, <span class="number">128</span>);    <span class="comment">// R, G, B, Alpha</span>
+<span class="line-num">9</span>
+<span class="line-num">10</span><span class="comment">// Gri tonları (tek değer)</span>
+<span class="line-num">11</span><span class="function">fill</span>(<span class="number">128</span>);                  <span class="comment">// Gri (R=G=B=128)</span>
+<span class="line-num">12</span><span class="function">fill</span>(<span class="number">128</span>, <span class="number">200</span>);             <span class="comment">// Gri + Alpha</span>
+<span class="line-num">13</span>
+<span class="line-num">14</span><span class="comment">// color() fonksiyonu ile</span>
+<span class="line-num">15</span><span class="keyword">let</span> <span class="variable">turuncu</span> <span class="operator">=</span> <span class="function">color</span>(<span class="string">"#FF5733"</span>);
+<span class="line-num">16</span><span class="keyword">let</span> <span class="variable">mavi</span> <span class="operator">=</span> <span class="function">color</span>(<span class="number">0</span>, <span class="number">100</span>, <span class="number">255</span>);
+<span class="line-num">17</span><span class="function">fill</span>(<span class="variable">turuncu</span>);</pre>
+            </div>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">p5.js - Renk Bileşenlerini Alma</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="keyword">let</span> <span class="variable">c</span> <span class="operator">=</span> <span class="function">color</span>(<span class="string">"#FF5733"</span>);
+<span class="line-num">2</span>
+<span class="line-num">3</span><span class="comment">// Bileşenleri çıkar</span>
+<span class="line-num">4</span><span class="keyword">let</span> <span class="variable">r</span> <span class="operator">=</span> <span class="function">red</span>(<span class="variable">c</span>);     <span class="comment">// 255</span>
+<span class="line-num">5</span><span class="keyword">let</span> <span class="variable">g</span> <span class="operator">=</span> <span class="function">green</span>(<span class="variable">c</span>);   <span class="comment">// 87</span>
+<span class="line-num">6</span><span class="keyword">let</span> <span class="variable">b</span> <span class="operator">=</span> <span class="function">blue</span>(<span class="variable">c</span>);    <span class="comment">// 51</span>
+<span class="line-num">7</span><span class="keyword">let</span> <span class="variable">a</span> <span class="operator">=</span> <span class="function">alpha</span>(<span class="variable">c</span>);   <span class="comment">// 255 (varsayılan)</span>
+<span class="line-num">8</span>
+<span class="line-num">9</span><span class="comment">// Parlaklık ve doygunluk</span>
+<span class="line-num">10</span><span class="keyword">let</span> <span class="variable">parlaklik</span> <span class="operator">=</span> <span class="function">brightness</span>(<span class="variable">c</span>);  <span class="comment">// 0-100</span>
+<span class="line-num">11</span><span class="keyword">let</span> <span class="variable">doygunluk</span> <span class="operator">=</span> <span class="function">saturation</span>(<span class="variable">c</span>);  <span class="comment">// 0-100</span>
+<span class="line-num">12</span><span class="keyword">let</span> <span class="variable">ton</span> <span class="operator">=</span> <span class="function">hue</span>(<span class="variable">c</span>);              <span class="comment">// 0-360</span></pre>
+            </div>
+        </div>
+
+        <h2>Temel Renkler ve Karışımları</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Renk</th>
+                        <th>Hex</th>
+                        <th>RGB</th>
+                        <th>Açıklama</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#FF0000;border-radius:4px;"></div></td>
+                        <td><code class="hex">#FF0000</code></td>
+                        <td>255, 0, 0</td>
+                        <td>Saf Kırmızı</td>
+                    </tr>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#00FF00;border-radius:4px;"></div></td>
+                        <td><code class="hex">#00FF00</code></td>
+                        <td>0, 255, 0</td>
+                        <td>Saf Yeşil</td>
+                    </tr>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#0000FF;border-radius:4px;"></div></td>
+                        <td><code class="hex">#0000FF</code></td>
+                        <td>0, 0, 255</td>
+                        <td>Saf Mavi</td>
+                    </tr>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#FFFF00;border-radius:4px;"></div></td>
+                        <td><code class="hex">#FFFF00</code></td>
+                        <td>255, 255, 0</td>
+                        <td>Sarı (R + G)</td>
+                    </tr>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#FF00FF;border-radius:4px;"></div></td>
+                        <td><code class="hex">#FF00FF</code></td>
+                        <td>255, 0, 255</td>
+                        <td>Magenta (R + B)</td>
+                    </tr>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#00FFFF;border-radius:4px;"></div></td>
+                        <td><code class="hex">#00FFFF</code></td>
+                        <td>0, 255, 255</td>
+                        <td>Cyan (G + B)</td>
+                    </tr>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#FFFFFF;border-radius:4px;border:1px solid #333;"></div></td>
+                        <td><code class="hex">#FFFFFF</code></td>
+                        <td>255, 255, 255</td>
+                        <td>Beyaz (Hepsi max)</td>
+                    </tr>
+                    <tr>
+                        <td><div style="width:30px;height:30px;background:#000000;border-radius:4px;"></div></td>
+                        <td><code class="hex">#000000</code></td>
+                        <td>0, 0, 0</td>
+                        <td>Siyah (Hepsi min)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Hex → RGB Dönüşümü</h2>
+
+        <div class="code-block">
+            <div class="code-header">Manuel Hesaplama: #FF5733</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// Her 2 hex rakamını decimal'e çevir</span>
+<span class="line-num">2</span>
+<span class="line-num">3</span><span style="color:#ff4444">Red:   FF₁₆</span> = 15×16 + 15×1 = 240 + 15 = <span class="dec">255</span>
+<span class="line-num">4</span><span style="color:#44ff44">Green: 57₁₆</span> = 5×16 + 7×1  = 80 + 7   = <span class="dec">87</span>
+<span class="line-num">5</span><span style="color:#4488ff">Blue:  33₁₆</span> = 3×16 + 3×1  = 48 + 3   = <span class="dec">51</span>
+<span class="line-num">6</span>
+<span class="line-num">7</span><span class="comment">// Sonuç</span>
+<span class="line-num">8</span><span class="hex">#FF5733</span> = RGB(<span class="dec">255</span>, <span class="dec">87</span>, <span class="dec">51</span>)</pre>
+            </div>
+        </div>
+
+        <h2>Alfa Kanalı (Şeffaflık)</h2>
+
+        <p>RGBA formatında dördüncü değer şeffaflığı belirler:</p>
+
+        <div class="code-block">
+            <div class="code-header">p5.js - Alfa Kullanımı</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// Alpha: 0 (şeffaf) - 255 (opak)</span>
+<span class="line-num">2</span><span class="function">fill</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>);   <span class="comment">// Tam opak kırmızı</span>
+<span class="line-num">3</span><span class="function">fill</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">128</span>);   <span class="comment">// %50 şeffaf kırmızı</span>
+<span class="line-num">4</span><span class="function">fill</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">50</span>);    <span class="comment">// Çok şeffaf kırmızı</span>
+<span class="line-num">5</span>
+<span class="line-num">6</span><span class="comment">// 8 karakterli hex (RRGGBBAA)</span>
+<span class="line-num">7</span><span class="function">fill</span>(<span class="string">"#FF000080"</span>);      <span class="comment">// 80₁₆ = 128₁₀ = %50</span></pre>
+            </div>
+        </div>
+
+        <h2>Gri Tonları</h2>
+
+        <p>R = G = B olduğunda renk gridir:</p>
+
+        <div style="display: flex; height: 60px; border-radius: 8px; overflow: hidden; margin: 1rem 0;">
+            <div style="flex:1; background:#000;"></div>
+            <div style="flex:1; background:#333;"></div>
+            <div style="flex:1; background:#666;"></div>
+            <div style="flex:1; background:#999;"></div>
+            <div style="flex:1; background:#CCC;"></div>
+            <div style="flex:1; background:#FFF;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">
+            <span>#000</span><span>#333</span><span>#666</span><span>#999</span><span>#CCC</span><span>#FFF</span>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">p5.js - Gri Tonları</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// Tek değer = gri (R=G=B)</span>
+<span class="line-num">2</span><span class="function">fill</span>(<span class="number">0</span>);       <span class="comment">// Siyah</span>
+<span class="line-num">3</span><span class="function">fill</span>(<span class="number">128</span>);     <span class="comment">// Orta gri</span>
+<span class="line-num">4</span><span class="function">fill</span>(<span class="number">255</span>);     <span class="comment">// Beyaz</span>
+<span class="line-num">5</span>
+<span class="line-num">6</span><span class="comment">// Hex'te tekrarlı rakamlar</span>
+<span class="line-num">7</span><span class="function">fill</span>(<span class="string">"#888"</span>);  <span class="comment">// = #888888</span>
+<span class="line-num">8</span><span class="function">fill</span>(<span class="string">"#AAA"</span>);  <span class="comment">// = #AAAAAA</span></pre>
+            </div>
+        </div>
+
+        <div class="info-box formula">
+            <strong>Özet</strong><br>
+            • Hex renk = #RRGGBB (6 karakter = 3 byte = 24 bit)<br>
+            • Her kanal: 00-FF (0-255)<br>
+            • 256³ = 16,777,216 renk kombinasyonu<br>
+            • Gri için: R = G = B
+        </div>
+
+        <div class="nav-buttons">
+            <a href="programlama.html" class="btn btn-secondary">← Programlama</a>
+            <a href="index.html" class="btn btn-primary">🏠 Ana Sayfa</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Sayı Sistemleri Eğitimi • Bilişim MYO Öğrencileri İçin
+    </footer>
+
+    <script>
+        // Color picker
+        function updateColor() {
+            const r = parseInt(document.getElementById('sliderR').value);
+            const g = parseInt(document.getElementById('sliderG').value);
+            const b = parseInt(document.getElementById('sliderB').value);
+            
+            document.getElementById('rVal').textContent = r;
+            document.getElementById('gVal').textContent = g;
+            document.getElementById('bVal').textContent = b;
+            
+            const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0').toUpperCase()).join('');
+            const textColor = (r + g + b) / 3 > 128 ? '#000' : '#fff';
+            
+            const preview = document.getElementById('colorPreview');
+            preview.style.background = hex;
+            preview.style.color = textColor;
+            preview.textContent = hex;
+            
+            document.getElementById('hexCode').textContent = hex;
+            document.getElementById('rgbCode').textContent = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById('binR').textContent = r.toString(2).padStart(8, '0');
+        }
+
+        // Initialize
+        updateColor();
+    </script>
+</body>
+</html>

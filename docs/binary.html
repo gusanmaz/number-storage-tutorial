@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary (İkili) Sistem | Sayı Sistemleri</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
+            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
+            <ul class="nav-links" id="nav">
+                <li><a href="index.html">Giriş</a></li>
+                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
+                <li><a href="binary.html" class="active">Binary</a></li>
+                <li><a href="hexadecimal.html">Hexadecimal</a></li>
+                <li><a href="bit-byte.html">Bit & Byte</a></li>
+                <li><a href="memory.html">Memory</a></li>
+                <li><a href="programlama.html">Programlama</a></li>
+                <li><a href="renkler.html">Renkler</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Binary (İkili) Sistem</h1>
+            <p>Bilgisayarların ana dili: sadece 0 ve 1</p>
+        </section>
+
+        <h2>Binary Neden Var?</h2>
+
+        <p>
+            Bilgisayarın içindeki transistörler sadece iki durumda olabilir: 
+            <strong>açık</strong> veya <strong>kapalı</strong>. Bu iki durumu temsil etmek için 
+            sadece iki rakam gerekli: <code>0</code> (kapalı) ve <code>1</code> (açık).
+        </p>
+
+        <div class="cards-grid">
+            <div class="card">
+                <h4>⚡ Elektrik Sinyali</h4>
+                <p>Yüksek voltaj = 1<br>Düşük voltaj = 0</p>
+            </div>
+            <div class="card">
+                <h4>💡 LED Ampul</h4>
+                <p>Yanıyor = 1<br>Sönük = 0</p>
+            </div>
+            <div class="card">
+                <h4>🧲 Hard Disk</h4>
+                <p>Kuzey kutup = 1<br>Güney kutup = 0</p>
+            </div>
+        </div>
+
+        <h2>İnteraktif: Bit Görselleştirici</h2>
+
+        <div class="interactive-section">
+            <h3>🎮 Bitlere Tıkla, Değeri Gör</h3>
+            <p style="color: var(--text-muted);">Her kutuya tıklayarak 0 ve 1 arasında değiştir</p>
+
+            <div class="bit-visual">
+                <div class="bit-group">
+                    <div class="bit" onclick="toggleBit(this, 7)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">128</span>
+                    </div>
+                    <div class="bit" onclick="toggleBit(this, 6)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">64</span>
+                    </div>
+                    <div class="bit" onclick="toggleBit(this, 5)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">32</span>
+                    </div>
+                    <div class="bit" onclick="toggleBit(this, 4)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">16</span>
+                    </div>
+                </div>
+                <div class="bit-group">
+                    <div class="bit" onclick="toggleBit(this, 3)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">8</span>
+                    </div>
+                    <div class="bit" onclick="toggleBit(this, 2)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">4</span>
+                    </div>
+                    <div class="bit" onclick="toggleBit(this, 1)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">2</span>
+                    </div>
+                    <div class="bit" onclick="toggleBit(this, 0)">
+                        <span class="bit-value">0</span>
+                        <span class="bit-weight">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-box success">
+                <div class="result-row">
+                    <div class="result-item">
+                        <div class="result-label">Binary</div>
+                        <div class="result-value bin" id="binResult">00000000</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Decimal</div>
+                        <div class="result-value dec" id="decResult">0</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Hex</div>
+                        <div class="result-value hex" id="hexResult">00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="calculation" class="code-block" style="margin-top: 1rem;">
+                <div class="code-header">Hesaplama</div>
+                <div class="code-content"><pre id="calcDetail">0 + 0 + 0 + 0 + 0 + 0 + 0 + 0 = <span class="dec">0</span></pre></div>
+            </div>
+        </div>
+
+        <h2>2'nin Kuvvetleri</h2>
+
+        <p>Binary'de her basamak 2'nin bir kuvvetini temsil eder. Bu değerleri bilmek çok işe yarar:</p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Üs</th>
+                        <th>Hesaplama</th>
+                        <th>Değer</th>
+                        <th>Ne İşe Yarar?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2⁰</td><td>1</td><td><strong>1</strong></td><td>En küçük bit değeri</td></tr>
+                    <tr><td>2¹</td><td>2</td><td><strong>2</strong></td><td></td></tr>
+                    <tr><td>2²</td><td>4</td><td><strong>4</strong></td><td></td></tr>
+                    <tr><td>2³</td><td>8</td><td><strong>8</strong></td><td>1 byte = 8 bit</td></tr>
+                    <tr><td>2⁴</td><td>16</td><td><strong>16</strong></td><td>1 hex rakamı = 4 bit</td></tr>
+                    <tr><td>2⁷</td><td>128</td><td><strong>128</strong></td><td>1 byte'ın en yüksek biti</td></tr>
+                    <tr><td>2⁸</td><td>256</td><td><strong>256</strong></td><td>1 byte'da kaç farklı değer var</td></tr>
+                    <tr><td>2¹⁰</td><td>1024</td><td><strong>1024</strong></td><td>≈ 1000 (Kilo)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Binary → Decimal Dönüşümü</h2>
+
+        <p>Sadece <strong>1</strong> olan bitlerin ağırlık değerlerini topla:</p>
+
+        <div class="code-block">
+            <div class="code-header">Örnek: 11010110₂ → ?</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// Her bitin pozisyon değeri</span>
+<span class="line-num">2</span>
+<span class="line-num">3</span>   Bit:     <span class="bin">1</span>   <span class="bin">1</span>   <span class="bin">0</span>   <span class="bin">1</span>   <span class="bin">0</span>   <span class="bin">1</span>   <span class="bin">1</span>   <span class="bin">0</span>
+<span class="line-num">4</span>   Ağırlık: 128  64  32  16   8   4   2   1
+<span class="line-num">5</span>
+<span class="line-num">6</span><span class="comment">// Sadece 1 olanları topla:</span>
+<span class="line-num">7</span>   128 + 64 + 16 + 4 + 2 = <span class="dec">214</span></pre>
+            </div>
+        </div>
+
+        <div class="info-box concept">
+            <strong>Pratik İpucu</strong><br>
+            Sağdan sola ağırlıklar: 1, 2, 4, 8, 16, 32, 64, 128...<br>
+            Her adımda 2 ile çarpılıyor!
+        </div>
+
+        <h2>Decimal → Binary Dönüşümü</h2>
+
+        <p>En büyük 2'nin kuvvetinden başla, sığanları çıkar:</p>
+
+        <div class="code-block">
+            <div class="code-header">Örnek: 42₁₀ → ?</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// 42'den küçük veya eşit en büyük 2'nin kuvveti: 32</span>
+<span class="line-num">2</span>
+<span class="line-num">3</span>   42 ≥ 32? Evet  → bit 5 = <span class="bin">1</span>    42 - 32 = 10
+<span class="line-num">4</span>   10 ≥ 16? Hayır → bit 4 = <span class="bin">0</span>
+<span class="line-num">5</span>   10 ≥ 8?  Evet  → bit 3 = <span class="bin">1</span>    10 - 8 = 2
+<span class="line-num">6</span>    2 ≥ 4?  Hayır → bit 2 = <span class="bin">0</span>
+<span class="line-num">7</span>    2 ≥ 2?  Evet  → bit 1 = <span class="bin">1</span>    2 - 2 = 0
+<span class="line-num">8</span>    0 ≥ 1?  Hayır → bit 0 = <span class="bin">0</span>
+<span class="line-num">9</span>
+<span class="line-num">10</span><span class="comment">// Sonuç:</span>
+<span class="line-num">11</span>   42₁₀ = <span class="bin">101010</span>₂
+<span class="line-num">12</span>
+<span class="line-num">13</span><span class="comment">// Doğrulama: 32 + 8 + 2 = 42 ✓</span></pre>
+            </div>
+        </div>
+
+        <h2>Binary ↔ Hex İlişkisi</h2>
+
+        <p>
+            Hexadecimal'in tabanı 16 = 2⁴. Bu demek oluyor ki <strong>her 4 bit = 1 hex rakamı</strong>.
+            Bu ilişki çok önemli!
+        </p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Decimal</th>
+                        <th>Binary (4 bit)</th>
+                        <th>Hex</th>
+                        <th></th>
+                        <th>Decimal</th>
+                        <th>Binary (4 bit)</th>
+                        <th>Hex</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0</td><td><span class="bin">0000</span></td><td><span class="hex">0</span></td>
+                        <td style="width: 20px;"></td>
+                        <td>8</td><td><span class="bin">1000</span></td><td><span class="hex">8</span></td>
+                    </tr>
+                    <tr>
+                        <td>1</td><td><span class="bin">0001</span></td><td><span class="hex">1</span></td>
+                        <td></td>
+                        <td>9</td><td><span class="bin">1001</span></td><td><span class="hex">9</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td><td><span class="bin">0010</span></td><td><span class="hex">2</span></td>
+                        <td></td>
+                        <td>10</td><td><span class="bin">1010</span></td><td><span class="hex">A</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td><td><span class="bin">0011</span></td><td><span class="hex">3</span></td>
+                        <td></td>
+                        <td>11</td><td><span class="bin">1011</span></td><td><span class="hex">B</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td><td><span class="bin">0100</span></td><td><span class="hex">4</span></td>
+                        <td></td>
+                        <td>12</td><td><span class="bin">1100</span></td><td><span class="hex">C</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td><td><span class="bin">0101</span></td><td><span class="hex">5</span></td>
+                        <td></td>
+                        <td>13</td><td><span class="bin">1101</span></td><td><span class="hex">D</span></td>
+                    </tr>
+                    <tr>
+                        <td>6</td><td><span class="bin">0110</span></td><td><span class="hex">6</span></td>
+                        <td></td>
+                        <td>14</td><td><span class="bin">1110</span></td><td><span class="hex">E</span></td>
+                    </tr>
+                    <tr>
+                        <td>7</td><td><span class="bin">0111</span></td><td><span class="hex">7</span></td>
+                        <td></td>
+                        <td>15</td><td><span class="bin">1111</span></td><td><span class="hex">F</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="code-block">
+            <div class="code-header">Binary → Hex: 4'lü grupla</div>
+            <div class="code-content">
+<pre><span class="line-num">1</span><span class="comment">// 11011010₂ → Hex</span>
+<span class="line-num">2</span>
+<span class="line-num">3</span>   <span class="bin">1101</span>  <span class="bin">1010</span>    <span class="comment">← sağdan 4'erli grupla</span>
+<span class="line-num">4</span>     ↓      ↓
+<span class="line-num">5</span>     <span class="hex">D</span>      <span class="hex">A</span>      <span class="comment">← her grubu hex'e çevir</span>
+<span class="line-num">6</span>
+<span class="line-num">7</span>   Sonuç: <span class="hex">DA</span>₁₆</pre>
+            </div>
+        </div>
+
+        <h2>Alıştırma</h2>
+
+        <div class="quiz-container">
+            <div class="quiz-question" id="quizQ">
+                <strong>Soru:</strong> <span class="bin">11001</span>₂ decimal olarak kaçtır?
+            </div>
+            <div class="quiz-options" id="quizOpts">
+                <div class="quiz-option" onclick="checkQuiz(this, 25)">25</div>
+                <div class="quiz-option" onclick="checkQuiz(this, 21)">21</div>
+                <div class="quiz-option" onclick="checkQuiz(this, 29)">29</div>
+                <div class="quiz-option" onclick="checkQuiz(this, 19)">19</div>
+            </div>
+            <div id="quizFeedback" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="taban-kavrami.html" class="btn btn-secondary">← Taban Kavramı</a>
+            <a href="hexadecimal.html" class="btn btn-primary">Hexadecimal →</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Sayı Sistemleri Eğitimi • Bilişim MYO Öğrencileri İçin
+    </footer>
+
+    <script>
+        // Bit toggler
+        function toggleBit(element, position) {
+            const valueSpan = element.querySelector('.bit-value');
+            const newValue = valueSpan.textContent === '0' ? '1' : '0';
+            valueSpan.textContent = newValue;
+            element.classList.toggle('active', newValue === '1');
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const bits = document.querySelectorAll('.bit');
+            let binary = '';
+            let decimal = 0;
+            let calcParts = [];
+            
+            bits.forEach((bit, index) => {
+                const value = parseInt(bit.querySelector('.bit-value').textContent);
+                binary += value;
+                const weight = Math.pow(2, 7 - index);
+                if (value === 1) {
+                    decimal += weight;
+                    calcParts.push(weight);
+                }
+            });
+            
+            document.getElementById('binResult').textContent = binary;
+            document.getElementById('decResult').textContent = decimal;
+            document.getElementById('hexResult').textContent = decimal.toString(16).toUpperCase().padStart(2, '0');
+            
+            const calcStr = calcParts.length > 0 
+                ? calcParts.join(' + ') + ' = <span class="dec">' + decimal + '</span>'
+                : '0 = <span class="dec">0</span>';
+            document.getElementById('calcDetail').innerHTML = calcStr;
+        }
+
+        // Quiz
+        function checkQuiz(element, value) {
+            const correct = 25; // 16 + 8 + 1 = 25
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(o => o.style.pointerEvents = 'none');
+            
+            if (value === correct) {
+                element.classList.add('correct');
+                document.getElementById('quizFeedback').innerHTML = 
+                    '<div class="result-box success">✓ Doğru! 16 + 8 + 0 + 0 + 1 = 25</div>';
+            } else {
+                element.classList.add('wrong');
+                document.getElementById('quizFeedback').innerHTML = 
+                    '<div class="result-box" style="border-color: var(--red);">✗ Yanlış. Doğru cevap: 25 (16+8+1)</div>';
+            }
+        }
+    </script>
+</body>
+</html>
