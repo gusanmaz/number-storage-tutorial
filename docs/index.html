@@ -2,145 +2,122 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sayı Sistemleri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sayı Sistemleri · Bilgisayarlar sayıları nasıl saklar?</title>
+    <meta name="description" content="Binary, hexadecimal, bit ve byte, bellek, ASCII/UTF-8, IEEE 754 ve renk kodlarını etkileşimli görselleştirmelerle öğren.">
+    <link rel="alternate" hreflang="en" href="en/index.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
     <link rel="stylesheet" href="styles.css">
+    <script src="js/common.js" defer></script>
+    <script src="js/pages/intro.js" defer></script>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
-            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
-            <ul class="nav-links" id="nav">
-                <li><a href="index.html" class="active">Giriş</a></li>
-                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
-                <li><a href="binary.html">Binary</a></li>
-                <li><a href="hexadecimal.html">Hexadecimal</a></li>
-                <li><a href="bit-byte.html">Bit & Byte</a></li>
-                <li><a href="memory.html">Memory</a></li>
-                <li><a href="programlama.html">Programlama</a></li>
-                <li><a href="renkler.html">Renkler</a></li>
-            </ul>
+<body data-chapter="intro">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow">Etkileşimli ders notları</div>
+        <h1>Bilgisayarlar sayıları nasıl saklar?</h1>
+        <p class="lead">
+            Klavyede bastığın her harf, ekrandaki her renk, hesap makinesindeki her sayı bilgisayarın içinde
+            yalnızca <strong>0</strong> ve <strong>1</strong>’lerden oluşur. Bu derste bunun nasıl mümkün olduğunu
+            adım adım, kurcalayarak öğreneceksin.
+        </p>
+        <div class="meta"><span>13 bölüm + karma pratik</span><span>Her bölümde etkileşimli görseller</span><span>Otomatik üretilen alıştırmalar</span></div>
+    </header>
+
+    <section class="widget" id="four-bases">
+        <h3 class="widget-title">Bir sayı, dört farklı yazılış</h3>
+        <p class="widget-desc">Bir sayı yaz ve hangi tabanda yazdığını seç. Aynı değerin dört sayı sisteminde nasıl göründüğüne bak.
+            Sayı değişmiyor; yalnızca <em>yazılış biçimi</em> değişiyor.</p>
+        <div class="field-row">
+            <label class="field grow"><span>Sayı</span><input id="fb-input" class="input mono" value="42" spellcheck="false" autocomplete="off"></label>
+            <label class="field"><span>Bu sayı hangi tabanda?</span>
+                <select id="fb-base" class="input">
+                    <option value="10" selected>Onlu (10)</option>
+                    <option value="2">İkili (2)</option>
+                    <option value="8">Sekizli (8)</option>
+                    <option value="16">Onaltılı (16)</option>
+                </select>
+            </label>
         </div>
-    </nav>
-
-    <div class="container">
-        <section class="hero">
-            <h1>Sayı Sistemleri</h1>
-            <p>Bilgisayar bilimlerinin temel taşı: Binary, Hexadecimal ve daha fazlası</p>
-        </section>
-
-        <div class="content-box highlight">
-            <h2 style="margin-top: 0; border: none;">Neden Sayı Sistemleri?</h2>
-            <p>
-                Bilgisayarlar elektrik sinyalleriyle çalışır: <strong>akım var</strong> veya <strong>akım yok</strong>. 
-                Bu iki durumu temsil etmek için sadece iki rakam yeterli: <code>0</code> ve <code>1</code>.
-                İşte bu yüzden bilgisayarlar <strong>binary (ikili)</strong> sistemi kullanır.
-            </p>
-            <p>
-                Ama biz insanlar için uzun binary sayıları okumak zor. <code>11111111</code> yazmak yerine 
-                <code>FF</code> yazmak çok daha pratik. İşte bu yüzden <strong>hexadecimal (16'lık)</strong> sistem 
-                programcıların vazgeçilmezi oldu.
-            </p>
+        <div class="controls" id="fb-samples" aria-label="Örnek sayılar">
+            <span class="muted" style="font-size:.85rem">Örnekler:</span>
         </div>
+        <div id="fb-msg" class="msg bad" hidden></div>
+        <div class="four-bases" id="fb-out"></div>
+        <div id="fb-bits"></div>
+        <p class="widget-foot" id="fb-foot"></p>
+    </section>
 
-        <h2>Bu Eğitimde Neler Öğreneceksin?</h2>
+    <h2>Neden farklı sayı sistemleri var?</h2>
+    <p>
+        Biz insanlar <strong>onluk (decimal)</strong> sistemi kullanırız; büyük ihtimalle on parmağımız olduğu için.
+        Bilgisayarın içindeki milyarlarca küçük anahtar (<strong>transistör</strong>) ise yalnızca iki durumu ayırt eder:
+        <em>akım var</em> ya da <em>akım yok</em>. İki durumu yazmak için iki rakam yeter: <code>0</code> ve <code>1</code>.
+        Bu yüzden bilgisayarlar <strong>ikili (binary)</strong> sistemi kullanır.
+    </p>
+    <p>
+        Ama <span class="num bin">1111111111111111</span> gibi uzun bit dizilerini okumak insan için yorucudur ve hata yapmaya açıktır.
+        Programcılar bu yüzden bitleri dörderli gruplayıp kısaca yazan <strong>onaltılık (hexadecimal)</strong> sistemi kullanır:
+        aynı değer hex olarak sadece <span class="num hex">FFFF</span>.
+    </p>
 
-        <div class="cards-grid">
-            <a href="taban-kavrami.html" class="card" style="text-decoration: none; color: inherit;">
-                <h4>📐 Taban Kavramı</h4>
-                <p>Sayı sistemlerinin matematiği. Basamak değeri nasıl çalışır?</p>
-            </a>
-            
-            <a href="binary.html" class="card" style="text-decoration: none; color: inherit;">
-                <h4>🔢 Binary Sistem</h4>
-                <p>Bilgisayarların dili. 0 ve 1 ile her şeyi nasıl ifade ediyoruz?</p>
-            </a>
-            
-            <a href="hexadecimal.html" class="card" style="text-decoration: none; color: inherit;">
-                <h4>🔷 Hexadecimal</h4>
-                <p>Programcıların favorisi. Memory adresleri ve renk kodları.</p>
-            </a>
-            
-            <a href="bit-byte.html" class="card" style="text-decoration: none; color: inherit;">
-                <h4>💾 Bit & Byte</h4>
-                <p>n bit'te kaç değer saklanır? Veri boyutlarının matematiği.</p>
-            </a>
-            
-            <a href="memory.html" class="card" style="text-decoration: none; color: inherit;">
-                <h4>🧠 Memory & Veri Saklama</h4>
-                <p>Veriler bellekte nasıl tutulur? ASCII, IEEE 754, pointerlar.</p>
-            </a>
-            
-            <a href="programlama.html" class="card" style="text-decoration: none; color: inherit;">
-                <h4>💻 Programlamada Kullanım</h4>
-                <p>JavaScript ve Python'da binary, hex nasıl yazılır?</p>
-            </a>
-            
-            <a href="renkler.html" class="card" style="text-decoration: none; color: inherit;">
-                <h4>🎨 Renk Kodları</h4>
-                <p>p5.js ile hex renklerin sırrı. RGB matematiği.</p>
-            </a>
-        </div>
-
-        <h2>Hızlı Bakış: Sayı Sistemleri</h2>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sistem</th>
-                        <th>Taban</th>
-                        <th>Kullanılan Rakamlar</th>
-                        <th>Örnek</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Binary (İkili)</td>
-                        <td><span class="bin">2</span></td>
-                        <td>0, 1</td>
-                        <td><span class="bin">1010</span></td>
-                    </tr>
-                    <tr>
-                        <td>Octal (Sekizlik)</td>
-                        <td><span class="oct">8</span></td>
-                        <td>0, 1, 2, 3, 4, 5, 6, 7</td>
-                        <td><span class="oct">12</span></td>
-                    </tr>
-                    <tr>
-                        <td>Decimal (Onluk)</td>
-                        <td><span class="dec">10</span></td>
-                        <td>0, 1, 2, 3, 4, 5, 6, 7, 8, 9</td>
-                        <td><span class="dec">10</span></td>
-                    </tr>
-                    <tr>
-                        <td>Hexadecimal (16'lık)</td>
-                        <td><span class="hex">16</span></td>
-                        <td>0-9 ve A, B, C, D, E, F</td>
-                        <td><span class="hex">A</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-box concept">
-            <strong>Önemli Kavram</strong><br>
-            Yukarıdaki dört örnek (<span class="bin">1010₂</span>, <span class="oct">12₈</span>, <span class="dec">10₁₀</span>, <span class="hex">A₁₆</span>) 
-            aslında <strong>aynı sayıyı</strong> (on) farklı sistemlerde gösteriyor!
-        </div>
-
-        <div class="nav-buttons">
-            <span></span>
-            <a href="taban-kavrami.html" class="btn btn-primary">Başla: Taban Kavramı →</a>
-        </div>
+    <div class="callout think">
+        <span class="callout-title">Önce bir düşün</span>
+        <p>Elinde yalnızca 3 lamba olsaydı ve her lamba açık ya da kapalı olabilseydi, kaç farklı “mesaj” gösterebilirdin?</p>
+        <details class="reveal"><summary>Cevabı göster</summary>
+            <p>Her lamba için 2 seçenek var: 2 × 2 × 2 = <strong>8</strong> farklı mesaj (000, 001, 010, 011, 100, 101, 110, 111).
+            Bu fikir — <em>n bit ile 2ⁿ farklı değer</em> — dersin tamamında karşına çıkacak.</p>
+        </details>
     </div>
 
-    <footer class="footer">
-        Sayı Sistemleri Eğitimi • Bilgisayarda Sayılar Nasıl Saklanır?
-        <br><br>
-        Bu kitaba katkıda bulunmak ister misin? 🚀<br>
-        <a href="https://github.com/gusanmaz/number-storage-tutorial" target="_blank" rel="noopener noreferrer">github.com/gusanmaz/number-storage-tutorial</a> adresine pull request gönderebilirsin!
-    </footer>
+    <h2>Hızlı bakış: dört sayı sistemi</h2>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Sistem</th><th>Taban</th><th>Rakamlar</th><th>Kodda yazılışı</th><th>Nerede kullanılır?</th></tr></thead>
+            <tbody>
+                <tr><td><strong>İkili</strong> (binary)</td><td class="m bin">2</td><td class="m">0 1</td><td class="m"><span class="bin">0b</span>1010</td><td>Donanımın kendisi, bit işlemleri</td></tr>
+                <tr><td><strong>Sekizli</strong> (octal)</td><td class="m oct">8</td><td class="m">0 – 7</td><td class="m"><span class="oct">0o</span>12</td><td>Unix dosya izinleri (<code>chmod 755</code>)</td></tr>
+                <tr><td><strong>Onlu</strong> (decimal)</td><td class="m dec">10</td><td class="m">0 – 9</td><td class="m">10</td><td>Günlük hayat</td></tr>
+                <tr><td><strong>Onaltılı</strong> (hexadecimal)</td><td class="m hex">16</td><td class="m">0 – 9, A – F</td><td class="m"><span class="hex">0x</span>A</td><td>Bellek adresleri, renk kodları, hata kodları</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout note">
+        <span class="callout-title">Gösterim kuralı</span>
+        <p>Bir sayının hangi tabanda yazıldığı belirsiz olabilir: <code>10</code> on mu, iki mi, on altı mı?
+        Bu derste tabanı küçük bir alt simgeyle göstereceğiz: <span class="num"><span class="bin">1010</span><sub>2</sub></span> = <span class="num"><span class="oct">12</span><sub>8</sub></span> = <span class="num"><span class="dec">10</span><sub>10</sub></span> = <span class="num"><span class="hex">A</span><sub>16</sub></span>.
+        Hepsi <strong>aynı sayıdır</strong>. Renkler de yol gösterir: <span class="bin">pembe = ikili</span>, <span class="oct">yeşil = sekizli</span>, <span class="dec">mavi = onlu</span>, <span class="hex">turuncu = onaltılı</span>.</p>
+    </div>
+
+    <h2>Yol haritası</h2>
+    <p>Bölümler birbirinin üzerine kurulur; sırayla gitmeni öneririz. Bir bölümü bitirince sonundaki
+        <strong>“Bu bölümü tamamladım”</strong> düğmesine bas — ilerlemen bu tarayıcıda saklanır.</p>
+    <div class="cards" id="roadmap">
+        <a class="card" data-id="bases" href="taban-kavrami.html"><span class="card-num">01</span><h3>Taban Kavramı</h3><p>Basamak değeri, sayaç gibi sayma, herhangi bir tabana dönüştürme.</p></a>
+        <a class="card" data-id="binary" href="binary.html"><span class="card-num">02</span><h3>İkili Sistem</h3><p>Bitlerle sayı kurmak, binary toplama ve elde.</p></a>
+        <a class="card" data-id="hex" href="hexadecimal.html"><span class="card-num">03</span><h3>Onaltılık Sistem</h3><p>4 bit = 1 hex rakamı. Uzun binary’yi kısaltmanın yolu.</p></a>
+        <a class="card" data-id="bitbyte" href="bit-byte.html"><span class="card-num">04</span><h3>Bit ve Byte</h3><p>n bit’te kaç değer var? KB mı KiB mi? Diskin neden “eksik”?</p></a>
+        <a class="card" data-id="negative" href="negatif-sayilar.html"><span class="card-num">05</span><h3>Negatif Sayılar ve Taşma</h3><p>İkiye tümleyen, sayı çemberi ve gerçek hayattan taşma hataları.</p></a>
+        <a class="card" data-id="float" href="ondalikli-sayilar.html"><span class="card-num">06</span><h3>Ondalıklı Sayılar</h3><p>IEEE 754 ve <code>0.1 + 0.2 ≠ 0.3</code> gizemi.</p></a>
+        <a class="card" data-id="text" href="metin-kodlama.html"><span class="card-num">07</span><h3>Metin: ASCII ve UTF-8</h3><p>Harfler nasıl sayıya dönüşür? Türkçe karakterler neden bozulur?</p></a>
+        <a class="card" data-id="colors" href="renkler.html"><span class="card-num">08</span><h3>Renkler ve Görüntüler</h3><p>#RRGGBB, RGB ışık karışımı, pikseller ve görüntü boyutu.</p></a>
+        <a class="card" data-id="sound" href="ses.html"><span class="card-num">09</span><h3>Ses</h3><p>Örnekleme, bit derinliği ve Nyquist — kulağınla dinleyerek.</p></a>
+        <a class="card" data-id="memory" href="memory.html"><span class="card-num">10</span><h3>Bellek</h3><p>Adresler, byte sırası, diziler ve pointer’lar. Bellek simülatörü.</p></a>
+        <a class="card" data-id="refs" href="referanslar.html"><span class="card-num">11</span><h3>Değişkenler ve Referanslar</h3><p>Python ve JavaScript’te değişkenler belleği nasıl gösterir?</p></a>
+        <a class="card" data-id="files" href="dosyalar.html"><span class="card-num">12</span><h3>Dosyalar</h3><p>Her şey byte: hex görüntüleyici, dosya imzaları, sıkıştırma.</p></a>
+        <a class="card" data-id="prog" href="programlama.html"><span class="card-num">13</span><h3>Kodda Sayılar ve Bitler</h3><p>0x, 0b, 0o; dönüşüm fonksiyonları; bit operatörleri ve maskeler.</p></a>
+        <a class="card" data-id="practice" href="pratik.html"><span class="card-num">14</span><h3>Karma Pratik</h3><p>Tüm konulardan sınırsız soru ve tek sayfalık özet kartı.</p></a>
+    </div>
+
+    <h2>Bu dersten en iyi şekilde nasıl yararlanırsın?</h2>
+    <ul>
+        <li><strong>Kurcala.</strong> Her bölümde “Etkileşimli” etiketli kutular var. Değerleri değiştir, adım adım oynat, ne olduğunu gözle.</li>
+        <li><strong>Tahmin et, sonra kontrol et.</strong> “Önce bir düşün” kutularında cevaba bakmadan önce kendi tahminini yap. Öğrenme en çok burada olur.</li>
+        <li><strong>Kâğıt kalem kullan.</strong> Dönüşümleri birkaç kez elle yapmak, en hızlı ve en kalıcı öğrenme yoludur.</li>
+        <li><strong>Alıştırmaları çöz.</strong> Sorular rastgele üretilir; istediğin kadar pratik yapabilirsin. Takılırsan “İpucu” düğmesi var.</li>
+    </ul>
+
+</main>
 </body>
 </html>

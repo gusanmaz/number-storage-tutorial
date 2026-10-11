@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Text: ASCII &amp; UTF-8 · Number Systems</title>
+    <meta name="description" content="How do letters become numbers? The ASCII table, Unicode, UTF-8 encoding, why text gets garbled and how strings sit in memory.">
+    <link rel="alternate" hreflang="tr" href="../metin-kodlama.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../js/common.js" defer></script>
+    <script src="../js/generators.js" defer></script>
+    <script src="../js/pages/text.js" defer></script>
+</head>
+<body data-chapter="text">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Text: ASCII &amp; UTF-8</h1>
+        <p class="lead">A computer doesn’t know the letter “A”; it only knows numbers. Storing text means agreeing on a
+            <strong>letter ↔ number table</strong>. In this chapter you will learn those tables — and why accented letters sometimes turn into “Ã©”.</p>
+        <div class="meta"><span>⏱ ~35 min</span><span>Prerequisites: Hex, Bits &amp; Bytes</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">By the end of this chapter you will</div>
+        <ul>
+            <li>be able to explain the layout of the ASCII table and the clever design decisions inside it;</li>
+            <li>know the difference between a Unicode code point and UTF-8 bytes;</li>
+            <li>calculate how many bytes a text takes in UTF-8;</li>
+            <li>diagnose garbled-text (mojibake) problems.</li>
+        </ul>
+    </section>
+
+    <h2>Letters are really numbers</h2>
+    <p>
+        When you press <kbd>A</kbd>, the computer writes the number <span class="num dec">65</span> (binary <span class="num bin">01000001</span>) into memory.
+        When drawing it on screen, it looks up “what does character number 65 look like?” in a table.
+        The table that maps numbers to characters is called a <strong>character encoding</strong>. If the writer and the reader use different tables, gibberish appears.
+    </p>
+
+    <h2>ASCII: the first common 7-bit language</h2>
+    <p>
+        Standardised in 1963, <strong>ASCII</strong> (American Standard Code for Information Interchange) uses 7 bits to define
+        <strong>128 characters</strong>: the English alphabet, digits, punctuation and 33 invisible “control characters”.
+        Since a byte has 8 bits, every ASCII character fits comfortably in one byte.
+    </p>
+    <section class="widget" id="ascii">
+        <h3 class="widget-title">The ASCII table</h3>
+        <p class="widget-desc">Click a character or press a key on your keyboard. Use the buttons above to highlight groups of characters.</p>
+        <div class="controls" id="as-filters"></div>
+        <div class="ascii-grid" id="as-grid" role="grid" aria-label="ASCII"></div>
+        <div class="ascii-detail" id="as-detail" aria-live="polite"></div>
+    </section>
+
+    <h3>Hidden cleverness in the table</h3>
+    <div class="compare">
+        <div>
+            <h4>Digits: <code>'0'</code> = 0x30</h4>
+            <p style="margin:0">Digit characters run from <span class="hex">0x30</span> to <span class="hex">0x39</span>. The last hex digit is the digit itself!
+            So <code>'7' − '0'</code> = 55 − 48 = <strong>7</strong>. That’s how programmers turn a character into a number.</p>
+        </div>
+        <div>
+            <h4>Upper/lower case: one bit apart</h4>
+            <p style="margin:0"><code>'A'</code> = <span class="bin">0<b>1</b>0</span>00001, <code>'a'</code> = <span class="bin">0<b>1</b>1</span>00001. The difference is 32,
+            i.e. just <strong>bit 5</strong>. Changing case means flipping a single bit.</p>
+        </div>
+    </div>
+    <section class="widget" id="case">
+        <h3 class="widget-title">The case bit</h3>
+        <p class="widget-desc">Type a letter and flip the highlighted bit (worth 32).</p>
+        <div class="field-row"><label class="field"><span>Letter</span><input id="case-in" class="input mono" value="G" maxlength="1" style="width:5rem;text-align:center;font-size:1.3rem"></label></div>
+        <div id="case-bits"></div>
+        <div class="case-out" id="case-out"></div>
+    </section>
+
+    <h3>Invisible characters</h3>
+    <p>The first 32 codes (0–31) and 127 draw nothing; they were designed to <strong>control</strong> teleprinters and terminals. Most are obsolete, but a few you will meet every day:</p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Dec</th><th>Hex</th><th>Name</th><th>In code</th><th>What it does</th></tr></thead>
+            <tbody>
+                <tr><td class="m">0</td><td class="m hex">00</td><td>NUL</td><td><code>\0</code></td><td>End-of-string marker in C</td></tr>
+                <tr><td class="m">9</td><td class="m hex">09</td><td>TAB</td><td><code>\t</code></td><td>Tab</td></tr>
+                <tr><td class="m">10</td><td class="m hex">0A</td><td>LF</td><td><code>\n</code></td><td>New line (Linux, macOS)</td></tr>
+                <tr><td class="m">13</td><td class="m hex">0D</td><td>CR</td><td><code>\r</code></td><td>Carriage return; Windows new line is <code>\r\n</code></td></tr>
+                <tr><td class="m">27</td><td class="m hex">1B</td><td>ESC</td><td><code>\x1b</code></td><td>Starts terminal color and cursor commands</td></tr>
+                <tr><td class="m">127</td><td class="m hex">7F</td><td>DEL</td><td><code>\x7f</code></td><td>Delete (all holes punched on paper tape = 1111111)</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout warn">
+        <span class="callout-title">The line-ending wars</span>
+        <p>Windows ends lines with two bytes (<code>0D 0A</code>), Linux and macOS with one (<code>0A</code>). That is why lines may merge or show <code>^M</code>
+        when you open a file on another system. Git’s <code>core.autocrlf</code> setting manages this difference.</p>
+    </div>
+<pre class="code" data-lang="py">
+print("Line 1\nLine 2")             # \n new line
+print("Name:\tAda")                 # \t tab
+print("\x48\x65\x6C\x6C\x6F")       # Hello  (hex escape: \xNN)
+print("éü")               # éü     (Unicode escape: \uNNNN)
+print(ord("A"), chr(97))            # 65 a   (character ↔ code)
+</pre>
+
+    <h2>ASCII is not enough: Unicode</h2>
+    <p>
+        128 characters have no room for é, ü, ñ, ç or ş, and none at all for Greek, Arabic, Chinese or emoji. In the 1980s every region used the 8th bit to make its own table:
+        <strong>ISO-8859-1</strong> (Western Europe), <strong>Windows-1252</strong>, <strong>ISO-8859-9</strong> (Turkish)… But the same byte meant “é” in one table and something else in another; files broke as they travelled.
+    </p>
+    <p>
+        <strong>Unicode</strong> ended that chaos by giving every character in the world one permanent number, called a <strong>code point</strong>,
+        written in hex with <code>U+</code>: <code>U+0041</code> = A, <code>U+00E9</code> = é, <code>U+1F600</code> = 😀.
+        Unicode has room for 1,114,112 code points (U+0000 … U+10FFFF).
+    </p>
+    <div class="callout note">
+        <span class="callout-title">Code point ≠ bytes</span>
+        <p>Unicode only answers “which character has which number”. <strong>How that number is written as bytes</strong> is a separate decision:
+        UTF-8, UTF-16 and UTF-32 are three different ways.</p>
+    </div>
+
+    <h2>UTF-8: clever variable-length encoding</h2>
+    <p>UTF-8 writes small code points with few bytes and large ones with more. The leading bits of the first byte tell how many bytes the character uses:</p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Code point range</th><th>Bytes</th><th>Bit pattern</th><th>Examples</th></tr></thead>
+            <tbody>
+                <tr><td class="m">U+0000 – U+007F</td><td class="m">1</td><td class="m"><b class="hex">0</b>xxxxxxx</td><td>A, 7, ? (identical to ASCII)</td></tr>
+                <tr><td class="m">U+0080 – U+07FF</td><td class="m">2</td><td class="m"><b class="hex">110</b>xxxxx <b class="hex">10</b>xxxxxx</td><td>é ü ñ ç ş, Ω</td></tr>
+                <tr><td class="m">U+0800 – U+FFFF</td><td class="m">3</td><td class="m"><b class="hex">1110</b>xxxx <b class="hex">10</b>xxxxxx <b class="hex">10</b>xxxxxx</td><td>€, ₹, 中, ア</td></tr>
+                <tr><td class="m">U+10000 – U+10FFFF</td><td class="m">4</td><td class="m"><b class="hex">11110</b>xxx <b class="hex">10</b>xxxxxx ×3</td><td>😀 🚀 𝄞</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>The “x” slots are filled with the bits of the code point, in order. Type your own text below and see how each character is packed:</p>
+    <section class="widget" id="utf8">
+        <h3 class="widget-title">UTF-8 encoder</h3>
+        <div class="field-row"><label class="field grow"><span>Text</span><input id="u8-in" class="input" value="Aé€😀" spellcheck="false"></label></div>
+        <div class="controls" id="u8-presets"></div>
+        <div class="stats" id="u8-stats"></div>
+        <div class="u8-list" id="u8-list"></div>
+        <div class="expr" id="u8-hex"></div>
+    </section>
+    <div class="callout tip">
+        <span class="callout-title">Why is UTF-8 everywhere today?</span>
+        <ul>
+            <li><strong>Backwards compatible:</strong> pure ASCII text is byte-for-byte identical in UTF-8.</li>
+            <li><strong>Efficient:</strong> English text and source code take 1 byte per character.</li>
+            <li><strong>Self-synchronising:</strong> bytes starting with <code>10</code> are “continuation” bytes; even if you start reading mid-stream you can find character boundaries.</li>
+            <li>Today more than 98% of web pages use UTF-8.</li>
+        </ul>
+    </div>
+
+    <h2>Garbled text (mojibake)</h2>
+    <p>
+        If you’ve seen <code>cafÃ©</code> instead of “café”, the cause is simple: the text was <strong>written</strong> as UTF-8 but
+        <strong>read</strong> as Latin-1 / Windows-1252. UTF-8’s 2-byte “é” is drawn as two separate characters from the old table.
+        The Japanese name for this is <em>mojibake</em> (文字化け, “character transformation”).
+    </p>
+    <section class="widget" id="moji">
+        <h3 class="widget-title">Read it with the wrong table</h3>
+        <div class="field-row"><label class="field grow"><span>Correct text</span><input id="mj-in" class="input" value="café naïve façade Ünïcödé" spellcheck="false"></label></div>
+        <div id="mj-out"></div>
+    </section>
+    <div class="callout mistake">
+        <span class="callout-title">A case-conversion trap: the Turkish i</span>
+        <p>In most languages the uppercase of “i” is “I”, but in Turkish it is “İ” (and the lowercase of “I” is the dotless “ı”).
+        Programming languages apply English rules by default: in JavaScript <code>"i".toUpperCase()</code> → <code>"I"</code>, while
+        <code>"i".toLocaleUpperCase("tr")</code> → <code>"İ"</code>. Case-insensitive comparisons can therefore behave differently depending on the user’s locale.</p>
+    </div>
+
+    <h2>Strings in memory</h2>
+    <p>When storing text in memory we also need to know <em>where it ends</em>. Two common approaches:</p>
+    <div class="compare">
+        <div>
+            <h4>C: null terminator</h4>
+            <div class="mem-strip"><span>48<small>'H'</small></span><span>69<small>'i'</small></span><span class="nul">00<small>\0</small></span></div>
+            <p style="margin:.5rem 0 0">The string ends with a byte whose value is 0. <code>strlen("Hi")</code> = 2, but it takes 3 bytes.
+            Forget the trailing 0 and the program keeps reading memory: the classic source of security holes.</p>
+        </div>
+        <div>
+            <h4>Python, JS, Java: length is stored</h4>
+            <div class="mem-strip"><span class="len">02<small>length</small></span><span>48<small>'H'</small></span><span>69<small>'i'</small></span></div>
+            <p style="margin:.5rem 0 0">The length is kept alongside the text. Asking for the length is instant, and a string may even contain <code>\0</code>.</p>
+        </div>
+    </div>
+    <div class="callout warn">
+        <span class="callout-title">Characters ≠ bytes ≠ JS .length</span>
+        <p>JavaScript strings use UTF-16 internally, and <code>.length</code> counts 16-bit units. Characters above U+FFFF take two units:</p>
+    </div>
+    <div class="tabs" data-sync="lang">
+        <div class="tab-panel" data-label="JavaScript">
+<pre class="code" data-lang="js">
+"é".length                              // 1
+"😀".length                             // 2  (!) two UTF-16 units
+[..."😀"].length                         // 1  real character count
+new TextEncoder().encode("é").length     // 2  UTF-8 bytes
+"é".codePointAt(0).toString(16)          // "e9" → U+00E9
+</pre>
+        </div>
+        <div class="tab-panel" data-label="Python">
+<pre class="code" data-lang="py">
+len("é")                     # 1  character
+len("é".encode("utf-8"))     # 2  bytes
+"é".encode("utf-8")          # b'\xc3\xa9'
+hex(ord("é"))                # '0xe9'  → U+00E9
+b'\xc3\xa9'.decode("cp1252") # 'Ã©'  ← mojibake!
+</pre>
+        </div>
+    </div>
+
+    <div id="practice"></div>
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>Text = a sequence of numbers + an encoding that maps them to characters.</li>
+            <li>ASCII is 7 bits (128 characters). Digits start at 0x30, uppercase at 0x41, lowercase at 0x61; the case difference is 32 (one bit).</li>
+            <li>Unicode gives every character a code point (U+XXXX); UTF-8 writes it in 1–4 bytes and is ASCII-compatible.</li>
+            <li>Mojibake comes from writing and reading with different encodings.</li>
+            <li>C strings end with <code>\0</code>; higher-level languages store the length separately.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="1">
+            <p>The ASCII code of <code>'D'</code> is 68. What is <code>'d'</code>?</p>
+            <ul><li>69</li><li>100</li><li>36</li><li>132</li></ul>
+            <div class="quiz-explain">Lowercase = uppercase + 32 → 68 + 32 = 100.</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p>How many bytes does the word “Welcome” take in UTF-8?</p>
+            <ul><li>14</li><li>8</li><li>7</li><li>28</li></ul>
+            <div class="quiz-explain">All ASCII characters: 7 characters × 1 byte = 7 bytes.</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>How many bytes does “naïveté” take in UTF-8?</p>
+            <ul><li>9</li><li>7</li><li>14</li><li>8</li></ul>
+            <div class="quiz-explain">n, a, v, t, e: 1 byte each; ï and é: 2 bytes each → 5 + 4 = 9.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>What does a UTF-8 byte of the form <code>10xxxxxx</code> mean?</p>
+            <ul><li>It is an ASCII character</li><li>It is the first byte of a 2-byte character</li><li>It is an invalid byte</li><li>It is a continuation byte of a character</li></ul>
+            <div class="quiz-explain">Bytes starting with <code>10</code> are always continuations of a multi-byte character.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>A website shows “Ã§a” instead of “ça”. What is the most likely cause?</p>
+            <ul><li>The file is corrupted</li><li>UTF-8 text was read as Latin-1/Windows-1252</li><li>A missing font</li><li>The text was written in UTF-16</li></ul>
+            <div class="quiz-explain">“ç” is <code>C3 A7</code> in UTF-8. In Windows-1252, C3 = Ã and A7 = §.</div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

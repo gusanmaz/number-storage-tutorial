@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Numbers &amp; Bits in Code · Number Systems</title>
+    <meta name="description" content="0b, 0o, 0x literals in JavaScript and Python, base conversion functions, bitwise operators (AND, OR, XOR, shifts), masks and common pitfalls.">
+    <link rel="alternate" hreflang="tr" href="../programlama.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../js/common.js" defer></script>
+    <script src="../js/generators.js" defer></script>
+    <script src="../js/pages/prog.js" defer></script>
+</head>
+<body data-chapter="prog">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Numbers &amp; Bits in Code</h1>
+        <p class="lead">Time to put what you’ve learned into code. In this chapter you’ll write numbers in different bases, convert between them and work with individual bits
+            in JavaScript and Python. (Pick the language with the tabs above each example; your choice is remembered across the page.)</p>
+        <div class="meta"><span>⏱ ~35 min</span><span>Prerequisites: Binary, Hex, Negative Numbers</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">By the end of this chapter you will</div>
+        <ul>
+            <li>write binary, octal and hex numbers in code and convert between text and numbers;</li>
+            <li>explain what AND, OR, XOR, NOT and the shift operators do to each bit;</li>
+            <li>use masks to read, set, clear and toggle bits;</li>
+            <li>know the number pitfalls of JavaScript and Python (the 2⁵³ limit, how negatives are shown…).</li>
+        </ul>
+    </section>
+
+    <h2>Number literals</h2>
+    <p>Both languages use the same prefixes. They all produce ordinary numbers of the same type; the base is only the <em>way it is written</em>.</p>
+    <div class="tabs" data-sync="lang">
+        <div class="tab-panel" data-label="JavaScript">
+<pre class="code" data-lang="js">
+const a = 0b1010;      // binary  → 10
+const b = 0o12;        // octal   → 10
+const c = 0xA;         // hex     → 10
+const d = 10;          // decimal → 10
+console.log(a === b && b === c && c === d);   // true
+
+const million = 1_000_000;  // underscores are for readability only
+const mask    = 0b1111_0000;
+</pre>
+        </div>
+        <div class="tab-panel" data-label="Python">
+<pre class="code" data-lang="py">
+a = 0b1010      # binary  → 10
+b = 0o12        # octal   → 10
+c = 0xA         # hex     → 10
+d = 10          # decimal → 10
+print(a == b == c == d)    # True
+
+million = 1_000_000        # underscores are for readability only
+mask    = 0b1111_0000
+</pre>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Base</th><th>Prefix</th><th>Example</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td>Binary</td><td class="m bin">0b</td><td class="m">0b1111_1111</td><td class="m">255</td></tr>
+                <tr><td>Octal</td><td class="m oct">0o</td><td class="m">0o377</td><td class="m">255</td></tr>
+                <tr><td>Hex</td><td class="m hex">0x</td><td class="m">0xFF</td><td class="m">255</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Conversion functions</h2>
+    <div class="tabs" data-sync="lang">
+        <div class="tab-panel" data-label="JavaScript">
+<pre class="code" data-lang="js">
+const n = 255;
+// number → string
+n.toString(2);                    // "11111111"
+n.toString(16);                   // "ff"
+n.toString(16).toUpperCase();     // "FF"
+n.toString(2).padStart(16, "0");  // "0000000011111111"
+
+// string → number
+parseInt("11111111", 2);          // 255
+parseInt("ff", 16);               // 255
+parseInt("0xFF");                 // 255  (recognises the 0x prefix)
+Number("0b1010");                 // 10   (Number recognises all prefixes)
+</pre>
+        </div>
+        <div class="tab-panel" data-label="Python">
+<pre class="code" data-lang="py">
+n = 255
+# number → string
+bin(n)              # '0b11111111'
+hex(n)              # '0xff'
+oct(n)              # '0o377'
+format(n, "b")      # '11111111'  (no prefix)
+f"{n:08b}"          # '11111111'  pad to 8 digits
+f"{n:04X}"          # '00FF'      uppercase hex, 4 digits
+f"{n:#x}"           # '0xff'
+
+# string → number
+int("11111111", 2)  # 255
+int("ff", 16)       # 255
+int("0xff", 0)      # 255  (base 0 = infer from prefix)
+</pre>
+        </div>
+    </div>
+
+    <section class="widget" id="conv">
+        <h3 class="widget-title">Console: type a number, see it in two languages</h3>
+        <p class="widget-desc">Type a decimal, <code>0x…</code>, <code>0b…</code>, <code>0o…</code> or negative integer. (No <code>eval</code> here; your input is only parsed as a number.)</p>
+        <div class="field-row"><label class="field grow"><span>Value</span><input id="cv-in" class="input mono" value="0xFF" spellcheck="false"></label></div>
+        <div class="console-grid" id="cv-out"></div>
+    </section>
+
+    <h2>Bitwise operators</h2>
+    <p>Bitwise operators process the bits <strong>at the same position</strong> in two numbers, one by one. The rules:</p>
+    <div class="table-wrap">
+        <table class="compact center-cells">
+            <thead><tr><th>a</th><th>b</th><th>a &amp; b (AND)</th><th>a | b (OR)</th><th>a ^ b (XOR)</th></tr></thead>
+            <tbody>
+                <tr><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td></tr>
+                <tr><td class="m">0</td><td class="m">1</td><td class="m">0</td><td class="m">1</td><td class="m">1</td></tr>
+                <tr><td class="m">1</td><td class="m">0</td><td class="m">0</td><td class="m">1</td><td class="m">1</td></tr>
+                <tr><td class="m">1</td><td class="m">1</td><td class="m"><b>1</b></td><td class="m">1</td><td class="m">0</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p><code>~a</code> (NOT) flips every bit. <code>a &lt;&lt; n</code> shifts the bits n places left (× 2ⁿ), <code>a &gt;&gt; n</code> shifts them right (÷ 2ⁿ, rounding down).</p>
+
+    <section class="widget" id="bw">
+        <h3 class="widget-title">Bitwise playground</h3>
+        <p class="widget-desc">Click the bits of A and B and choose an operator. See why each result bit is 1.</p>
+        <div class="bw-row"><span class="bw-lbl">A</span><div id="bw-a"></div><span class="bw-val" id="bw-av"></span></div>
+        <div class="bw-ops" id="bw-ops" role="group" aria-label="Operator"></div>
+        <div class="bw-row" id="bw-brow"><span class="bw-lbl">B</span><div id="bw-b"></div><span class="bw-val" id="bw-bv"></span></div>
+        <div class="bw-line"></div>
+        <div class="bw-row"><span class="bw-lbl">=</span><div id="bw-r"></div><span class="bw-val" id="bw-rv"></span></div>
+        <div class="step-note" id="bw-note"></div>
+        <div class="tabs" data-sync="lang" id="bw-code">
+            <div class="tab-panel" data-label="JavaScript"><pre class="plain" id="bw-js"></pre></div>
+            <div class="tab-panel" data-label="Python"><pre class="plain" id="bw-py"></pre></div>
+        </div>
+    </section>
+
+    <h2>Masks: reading and changing a single bit</h2>
+    <p>
+        A <strong>mask</strong> is a number that is 1 only in the positions we care about. <code>1 &lt;&lt; n</code> gives a mask with only bit n set.
+        These four patterns appear everywhere, from games to operating systems:
+    </p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Goal</th><th>Pattern</th><th>Why it works</th></tr></thead>
+            <tbody>
+                <tr><td>Is bit n set?</td><td class="m">(x &gt;&gt; n) &amp; 1</td><td>Moves the bit to the far right and clears the others</td></tr>
+                <tr><td>Set bit n (make it 1)</td><td class="m">x | (1 &lt;&lt; n)</td><td>OR-ing in a 1 leaves the other bits alone</td></tr>
+                <tr><td>Clear bit n (make it 0)</td><td class="m">x &amp; ~(1 &lt;&lt; n)</td><td>The inverted mask: that bit 0, the rest 1</td></tr>
+                <tr><td>Toggle bit n</td><td class="m">x ^ (1 &lt;&lt; n)</td><td>XOR with 1 flips, XOR with 0 keeps</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout real">
+        <span class="callout-title">Masks in the real world</span>
+        <ul>
+            <li><strong>Colors:</strong> extract the green channel from <code>0xRRGGBB</code>: <code>(color &gt;&gt; 8) &amp; 0xFF</code>.</li>
+            <li><strong>Permissions:</strong> on Linux, <code>mode &amp; 0o200</code> checks whether the owner can write (rwx = 4, 2, 1).</li>
+            <li><strong>Flags:</strong> a game can store states like <code>JUMPING = 1, ON_GROUND = 2, HURT = 4</code> in one number: <code>state |= HURT</code>.</li>
+            <li><strong>Even/odd:</strong> <code>x &amp; 1</code> is 1 for odd numbers — the bitwise version of <code>x % 2</code>.</li>
+            <li><strong>Networks:</strong> IP address <code>&amp;</code> subnet mask = network address.</li>
+        </ul>
+    </div>
+<pre class="code" data-lang="js">
+const color = 0xFF8800;
+const r = (color >> 16) & 0xFF;   // 255
+const g = (color >> 8)  & 0xFF;   // 136
+const b =  color        & 0xFF;   // 0
+const back = (r &lt;&lt; 16) | (g &lt;&lt; 8) | b;   // 0xFF8800 again
+</pre>
+
+    <h2>Language-specific pitfalls</h2>
+    <div class="compare">
+        <div>
+            <h4>JavaScript</h4>
+            <ul style="margin:0">
+                <li>All numbers are 64-bit <code>double</code>s. Integers above 2⁵³ can’t be stored exactly: <code>2**53 + 1 === 2**53</code> → <code>true</code>. Use <code>BigInt</code> (<code>123n</code>) for big integers.</li>
+                <li>Bitwise operators first convert numbers to <strong>32-bit signed</strong> integers: <code>1 &lt;&lt; 31</code> → <code>-2147483648</code>. Use <code>&gt;&gt;&gt; 0</code> for an unsigned result.</li>
+                <li><code>(-5).toString(2)</code> → <code>"-101"</code>; to see two’s complement use <code>(-5 &gt;&gt;&gt; 0).toString(2)</code>.</li>
+                <li><code>parseInt("12px")</code> → 12 but <code>Number("12px")</code> → <code>NaN</code>.</li>
+            </ul>
+        </div>
+        <div>
+            <h4>Python</h4>
+            <ul style="margin:0">
+                <li>Integers are unbounded; they never overflow. But <code>float</code> is still a 64-bit double.</li>
+                <li><code>bin(-5)</code> → <code>'-0b101'</code>. Python doesn’t show two’s complement; for an 8-bit view use <code>bin(-5 &amp; 0xFF)</code> → <code>'0b11111011'</code>.</li>
+                <li><code>~5</code> → <code>-6</code> (because ~x = −x − 1).</li>
+                <li><code>/</code> always gives a float (<code>7 / 2 = 3.5</code>); use <code>//</code> for integer division.</li>
+            </ul>
+        </div>
+    </div>
+    <section class="widget" id="js-limit">
+        <h3 class="widget-title">The limits of JavaScript numbers</h3>
+        <div class="field-row"><label class="field grow"><span>Type an integer</span><input id="jl-in" class="input mono" value="9007199254740993" spellcheck="false"></label></div>
+        <div class="stats" id="jl-out"></div>
+    </section>
+
+    <div id="practice"></div>
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>Prefixes: <code>0b</code> binary, <code>0o</code> octal, <code>0x</code> hex. They all produce the same number type.</li>
+            <li>JS: <code>n.toString(base)</code>, <code>parseInt(text, base)</code>. Python: <code>bin/hex/oct</code>, <code>format</code>/f-strings, <code>int(text, base)</code>.</li>
+            <li>&amp; (both 1), | (at least one 1), ^ (different → 1), ~ (flip), &lt;&lt; (× 2ⁿ), &gt;&gt; (÷ 2ⁿ).</li>
+            <li>Mask patterns: read <code>(x&gt;&gt;n)&amp;1</code>, set <code>x|(1&lt;&lt;n)</code>, clear <code>x&amp;~(1&lt;&lt;n)</code>, toggle <code>x^(1&lt;&lt;n)</code>.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="1">
+            <p>What is <code>0b1100 &amp; 0b1010</code>?</p>
+            <ul><li>0b1110 (14)</li><li>0b1000 (8)</li><li>0b0110 (6)</li><li>0b0010 (2)</li></ul>
+            <div class="quiz-explain">Only the bit that is 1 in both numbers (the leftmost) stays 1.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>What is <code>5 &lt;&lt; 3</code>?</p>
+            <ul><li>8</li><li>15</li><li>53</li><li>40</li></ul>
+            <div class="quiz-explain">Shifting left by 3 multiplies by 2³ = 8: 5 × 8 = 40.</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>What does <code>int("1F", 16)</code> return in Python?</p>
+            <ul><li>31</li><li>"31"</li><li>116</li><li>An error</li></ul>
+            <div class="quiz-explain">1 × 16 + 15 = 31 (as a number).</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p>What is <code>x ^ x</code> always equal to?</p>
+            <ul><li>x</li><li>A number with all bits 1</li><li>0</li><li>2x</li></ul>
+            <div class="quiz-explain">XOR-ing identical bits always gives 0. (A classic way to zero a register in assembly.)</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>Why is <code>0.1 * 3 === 0.3</code> <code>false</code> in JavaScript?</p>
+            <ul><li>There’s a bug in JavaScript</li><li>Numbers are IEEE 754 doubles, so 0.1 can’t be stored exactly</li><li>You should use == instead of ===</li><li>0.3 is a string</li></ul>
+            <div class="quiz-explain">Remember the Floating Point chapter: 0.1 * 3 = 0.30000000000000004.</div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

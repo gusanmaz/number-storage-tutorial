@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Negative Numbers &amp; Overflow · Number Systems</title>
+    <meta name="description" content="How does a computer store a minus sign? Two's complement, the number wheel and real-world overflow bugs.">
+    <link rel="alternate" hreflang="tr" href="../negatif-sayilar.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../js/common.js" defer></script>
+    <script src="../js/generators.js" defer></script>
+    <script src="../js/pages/negative.js" defer></script>
+</head>
+<body data-chapter="negative">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Negative Numbers &amp; Overflow</h1>
+        <p class="lead">Memory has no special symbol for a minus sign — only bits. So how is <span class="num">−5</span> stored?
+            The answer is a clever trick used by almost every computer: <strong>two’s complement</strong>.</p>
+        <div class="meta"><span>⏱ ~30 min</span><span>Prerequisites: Binary, Bits &amp; Bytes</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">By the end of this chapter you will</div>
+        <ul>
+            <li>be able to explain why a simple “sign bit” is not good enough;</li>
+            <li>convert numbers to and from 8-bit two’s complement;</li>
+            <li>calculate the ranges of signed and unsigned integers;</li>
+            <li>understand what overflow is and why it is dangerous.</li>
+        </ul>
+    </section>
+
+    <h2>First idea: reserve a bit for the sign</h2>
+    <p>
+        The obvious solution is to use the leftmost bit as the sign: <code>0</code> = plus, <code>1</code> = minus, and the remaining 7 bits as the magnitude.
+        This is called <strong>sign–magnitude</strong>. <span class="num">+5</span> = <span class="mono"><b class="bad">0</b>0000101</span>,
+        <span class="num">−5</span> = <span class="mono"><b class="bad">1</b>0000101</span>. Simple, but it has two big problems:
+    </p>
+    <div class="compare">
+        <div>
+            <h4>1. Two zeros</h4>
+            <p class="mono" style="margin:0">00000000 = +0<br>10000000 = −0</p>
+            <p style="margin:.4rem 0 0">Two different bit patterns for the same value. Every comparison must check both, and one value is wasted.</p>
+        </div>
+        <div>
+            <h4>2. Addition breaks</h4>
+            <p class="mono" style="margin:0">&nbsp;&nbsp;00000011 (+3)<br>+ 10000011 (−3)<br>= 10000110 (−6 ?!)</p>
+            <p style="margin:.4rem 0 0">Ordinary binary addition gives the wrong answer. The CPU would need a separate subtraction circuit.</p>
+        </div>
+    </div>
+
+    <h2>The fix: two’s complement</h2>
+    <p>
+        The idea is surprisingly simple: give the leftmost bit a weight of <strong>−128 instead of +128</strong>. Every other bit stays the same.
+        Now whenever the leftmost bit is 1, the number automatically becomes negative.
+    </p>
+    <section class="widget" id="signed">
+        <h3 class="widget-title">Same bits, two readings</h3>
+        <p class="widget-desc">Click the bits. Compare the <strong>unsigned</strong> (leftmost bit +128) and <strong>signed</strong> (leftmost bit −128) readings of the same 8 bits.</p>
+        <div id="sg-bits"></div>
+        <div class="stats" id="sg-stats"></div>
+        <div class="expr" id="sg-expr"></div>
+        <div class="controls" id="sg-presets"><span class="muted" style="font-size:.85rem">Presets:</span></div>
+    </section>
+    <div class="callout tip">
+        <span class="callout-title">Did you notice?</span>
+        <ul>
+            <li>If the leftmost bit is 1, the number is <strong>negative</strong>. That’s why it is still called the “sign bit”.</li>
+            <li><code>11111111</code> = −128 + 127 = <strong>−1</strong>. All ones is always −1.</li>
+            <li>Zero has only one pattern: <code>00000000</code>. There is no “−0”.</li>
+            <li>Numbers 0–127 look the same in both readings.</li>
+        </ul>
+    </div>
+
+    <h2>Negating a number: flip, then add 1</h2>
+    <p>For hand calculation there is a handy rule. To find the negative of a number:</p>
+    <ol>
+        <li>Write the number (its positive form) in 8 bits.</li>
+        <li><strong>Flip</strong> every bit (0 → 1, 1 → 0). This is the “one’s complement”.</li>
+        <li><strong>Add 1</strong>.</li>
+    </ol>
+    <section class="widget" id="neg">
+        <h3 class="widget-title">Flip, add 1 — step by step</h3>
+        <div class="field-row">
+            <label class="field grow"><span>Number to negate (−127 … 127)</span><input id="neg-n" class="input mono" type="number" min="-127" max="127" value="5"></label>
+        </div>
+        <div class="neg-rows" id="neg-rows"></div>
+        <div class="step-note" id="neg-note"></div>
+        <div id="neg-stepper"></div>
+    </section>
+    <p>It works in both directions: negate <span class="num">−5</span> (flip + 1) and you are back to <span class="num">+5</span>.</p>
+
+    <h2>Why it works: the number wheel</h2>
+    <p>
+        Imagine laying out the 4-bit numbers around a clock face. After <code>1111</code> comes <code>0000</code>; the wheel wraps around.
+        One step backwards from <code>0000</code> lands on <code>1111</code>. So calling <code>1111</code> “−1” makes perfect sense!
+        Likewise <code>1110</code> = −2, <code>1101</code> = −3… Two’s complement simply assigns the right half of the wheel to positive numbers and the left half to negative ones.
+    </p>
+    <section class="widget" id="wheel">
+        <h3 class="widget-title">4-bit number wheel</h3>
+        <p class="widget-desc">Move around the wheel with +1 and −1. Switch the reading and see what happens when you cross the <strong style="color:var(--bad)">red line</strong>: that is the overflow point.</p>
+        <div class="controls">
+            <div class="seg" id="wh-mode" role="group" aria-label="Reading">
+                <button type="button" aria-pressed="false" data-mode="u">Unsigned (0…15)</button>
+                <button type="button" aria-pressed="true" data-mode="s">Signed (−8…7)</button>
+            </div>
+        </div>
+        <div class="wheel-wrap"><svg id="wh-svg" viewBox="0 0 340 340" width="340" role="img" aria-label="Number wheel"></svg></div>
+        <div class="controls" style="justify-content:center">
+            <button class="btn" type="button" id="wh-m">−1</button>
+            <button class="btn primary" type="button" id="wh-p">+1</button>
+            <button class="btn" type="button" id="wh-p3">+3</button>
+            <button class="btn" type="button" id="wh-play">▶ Play</button>
+        </div>
+        <div class="step-note" id="wh-note" aria-live="polite"></div>
+    </section>
+    <p>
+        On the wheel, <strong>adding x</strong> means x steps clockwise and <strong>subtracting x</strong> means x steps anticlockwise.
+        Going 3 steps anticlockwise lands at the same place as going 13 steps clockwise (16 − 3 = 13). That is why the CPU can
+        <strong>subtract by adding the negative</strong>: <code>7 − 3 = 7 + (−3)</code>. A single adder circuit is enough!
+    </p>
+<pre class="plain"><code>  0111   (+7)
++ 1101   (−3)
+------
+ 10100   → the 5th bit is dropped → 0100 = <b class="dec">+4</b> ✓</code></pre>
+
+    <h2>Signed and unsigned ranges</h2>
+    <p>n-bit two’s complement numbers range over <strong>−2ⁿ⁻¹ … 2ⁿ⁻¹ − 1</strong>. The negative side has one extra number, because zero takes a slot on the positive side.</p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Type (C)</th><th>Bits</th><th>Unsigned</th><th>Signed</th></tr></thead>
+            <tbody>
+                <tr><td class="m">int8_t / uint8_t</td><td class="m">8</td><td class="m">0 … 255</td><td class="m">−128 … 127</td></tr>
+                <tr><td class="m">int16_t / uint16_t</td><td class="m">16</td><td class="m">0 … 65,535</td><td class="m">−32,768 … 32,767</td></tr>
+                <tr><td class="m">int32_t / uint32_t</td><td class="m">32</td><td class="m">0 … 4,294,967,295</td><td class="m">−2,147,483,648 … 2,147,483,647</td></tr>
+                <tr><td class="m">int64_t / uint64_t</td><td class="m">64</td><td class="m">0 … 1.8 × 10¹⁹</td><td class="m">±9.2 × 10¹⁸</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Overflow</h2>
+    <p>
+        If the result of an operation does not fit in the available bits, <strong>overflow</strong> happens and the value “wraps around” the wheel.
+        In an 8-bit signed number, <code>127 + 1</code> becomes <strong>−128</strong>! The program doesn’t crash; it silently computes the wrong answer.
+        That makes overflow one of the sneakiest bugs in software.
+    </p>
+    <div class="tabs" data-sync="lang">
+        <div class="tab-panel" data-label="JavaScript">
+<pre class="code" data-lang="js">
+// JS numbers are normally 64-bit floats; typed arrays let us see 8-bit overflow
+const a = new Int8Array(1);
+a[0] = 127;
+a[0] += 1;
+console.log(a[0]);        // -128  (overflow!)
+
+const u = new Uint8Array([255]);
+u[0] += 1;
+console.log(u[0]);        // 0
+</pre>
+        </div>
+        <div class="tab-panel" data-label="Python">
+<pre class="code" data-lang="py">
+# Python integers grow without limit, they never overflow:
+print(2 ** 100)            # 1267650600228229401496703205376
+
+# But if we mimic C types we can see overflow:
+import ctypes
+print(ctypes.c_int8(127 + 1).value)    # -128
+print(ctypes.c_uint8(255 + 1).value)   # 0
+</pre>
+        </div>
+        <div class="tab-panel" data-label="C">
+<pre class="code" data-lang="c">
+#include &lt;stdint.h&gt;
+uint8_t  u = 255;  u = u + 1;   // 0    (unsigned wrap-around is well defined)
+int8_t   s = 127;  s = s + 1;   // -128 (in practice; the conversion is implementation-defined)
+int      x = 2147483647;
+x = x + 1;                      // UNDEFINED BEHAVIOUR! signed int overflow
+</pre>
+        </div>
+    </div>
+
+    <div class="cards">
+        <div class="card"><span class="card-icon">🎮</span><h4>Pac-Man, level 256 (1980)</h4><p>The level counter was 8 bits. When it overflowed at level 256, half the screen filled with garbage and the game became unplayable.</p></div>
+        <div class="card"><span class="card-icon">🚀</span><h4>Ariane 5 (1996)</h4><p>A 64-bit floating-point velocity value did not fit when converted to a 16-bit signed integer. The rocket self-destructed 37 seconds after launch.</p></div>
+        <div class="card"><span class="card-icon">📺</span><h4>Gangnam Style (2014)</h4><p>YouTube’s view counter was a 32-bit signed integer, max 2,147,483,647. As the video approached that limit, YouTube moved the counter to 64 bits.</p></div>
+        <div class="card"><span class="card-icon">⏰</span><h4>The year 2038 problem</h4><p>Many systems store time as seconds since 1970 in a 32-bit signed integer. On 19 January 2038 at 03:14:07 UTC that number will overflow.</p></div>
+    </div>
+
+    <div id="practice"></div>
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>In two’s complement the leftmost bit has a negative weight (−128 in 8 bits). If it is 1, the number is negative.</li>
+            <li>To negate: flip the bits, add 1.</li>
+            <li>There is a single zero, and the adder circuit also handles subtraction.</li>
+            <li>n-bit signed range: −2ⁿ⁻¹ … 2ⁿ⁻¹ − 1 (8 bits: −128 … 127).</li>
+            <li>If a result doesn’t fit, it overflows and silently wraps around.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="1">
+            <p>What is <code>11111111</code> in 8-bit two’s complement?</p>
+            <ul><li>255</li><li>−1</li><li>−127</li><li>−128</li></ul>
+            <div class="quiz-explain">−128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = −1.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>Which is the 8-bit two’s complement representation of −6?</p>
+            <ul><li>10000110</li><li>11111001</li><li>00000110</li><li>11111010</li></ul>
+            <div class="quiz-explain">6 = 00000110 → flip: 11111001 → +1: 11111010. (10000110 is sign–magnitude.)</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>In an 8-bit signed variable, what is <code>127 + 1</code>?</p>
+            <ul><li>−128</li><li>128</li><li>0</li><li>The program stops with an error</li></ul>
+            <div class="quiz-explain">01111111 + 1 = 10000000 = −128. On the wheel we crossed from positive to negative: overflow.</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p>What is the smallest value of a 16-bit signed integer?</p>
+            <ul><li>−65,536</li><li>−32,767</li><li>−32,768</li><li>0</li></ul>
+            <div class="quiz-explain">−2¹⁵ = −32,768.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>What is the <strong>main</strong> reason CPUs use two’s complement?</p>
+            <ul><li>It fits more positive numbers</li><li>The same circuit can do both addition and subtraction</li><li>It is easier to read</li><li>It uses fewer bits</li></ul>
+            <div class="quiz-explain">a − b = a + (−b). Negative numbers give correct results with plain binary addition; no separate subtraction circuit is needed.</div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

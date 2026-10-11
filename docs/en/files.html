@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Files · Number Systems</title>
+    <meta name="description" content="Every file is a sequence of bytes. Look inside your own files with a hex viewer, decode file signatures (magic numbers) and headers, and learn the basics of compression.">
+    <link rel="alternate" hreflang="tr" href="../dosyalar.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../js/common.js" defer></script>
+    <script src="../js/pages/files.js" defer></script>
+</head>
+<body data-chapter="files">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Files: everything is bytes</h1>
+        <p class="lead">A photo, a song, a Word document or a program… On disk they are all the same thing: <strong>a long sequence of bytes</strong>.
+            In this chapter you will look inside files with a hex viewer and see everything from the previous chapters come together.</p>
+        <div class="meta"><span>⏱ ~30 min</span><span>Prerequisites: Text, Colors, Sound, Memory</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">By the end of this chapter you will</div>
+        <ul>
+            <li>be able to explain that a file’s contents and its name/extension are different things;</li>
+            <li>read a hex dump;</li>
+            <li>recognise a file type from its first bytes (its signature);</li>
+            <li>decode integers, text and byte order in a file header;</li>
+            <li>understand the basic idea of compression (shortening repetition).</li>
+        </ul>
+    </section>
+
+    <h2>File = name + byte sequence</h2>
+    <p>
+        The operating system keeps a few facts about a file: its name, size, dates and permissions. The file’s <strong>contents</strong>, however, are just bytes;
+        there is no magic label inside saying “I am a photo”. What the bytes mean is decided by the <strong>format</strong> known to the program reading them.
+        A text editor reads the same bytes as letters, an image viewer as pixels, a music player as audio samples.
+    </p>
+    <div class="callout mistake">
+        <span class="callout-title">An extension is just a name</span>
+        <p>Renaming <code>photo.jpg</code> to <code>photo.txt</code> doesn’t change a single byte inside; the operating system just opens it with the wrong program.
+        That’s why programs that need to know a file’s type reliably look not at the extension but at the file’s <strong>first bytes</strong>.</p>
+    </div>
+
+    <h2>Hex viewer</h2>
+    <p>
+        Programmers look at a file’s raw contents with a <strong>hex dump</strong>: the position (offset) on the left, the hex values of 16 bytes per row in the middle,
+        and the ASCII form of the same bytes on the right (unprintable ones shown as <code>.</code>). Pick a sample file or open one from your computer.
+    </p>
+    <section class="widget" id="hexview">
+        <h3 class="widget-title">Look inside a file</h3>
+        <p class="widget-desc">Your file is never uploaded; it is only read in this browser tab. The first 512 bytes are shown. Hover over colored regions to see what each field means.</p>
+        <div class="controls" id="hv-samples"></div>
+        <div class="controls">
+            <label class="btn primary file-btn">📂 Open your own file<input type="file" id="hv-file" hidden></label>
+            <span class="muted mono" id="hv-name"></span>
+        </div>
+        <div class="hv-type" id="hv-type"></div>
+        <div class="hv-dump" id="hv-dump"></div>
+        <div class="hv-info" id="hv-info" aria-live="polite"></div>
+        <div class="hv-fields" id="hv-fields"></div>
+    </section>
+    <div class="callout tip">
+        <span class="callout-title">What to look for in the viewer</span>
+        <ul>
+            <li>In <strong>BMP and WAV</strong> headers integers are written <em>little-endian</em> (formats with Windows/Intel roots). <strong>PNG</strong> uses <em>big-endian</em>.</li>
+            <li>Most formats carry readable ASCII letters in their first bytes: <code>BM</code>, <code>RIFF</code>, <code>WAVE</code>, <code>PNG</code>, <code>%PDF</code>.</li>
+            <li>The pixel data at the end of the BMP follows the same logic as the pixel editor’s byte sequence in the Colors chapter (but rows go bottom to top, in BGR order!).</li>
+        </ul>
+    </div>
+
+    <h2>File signatures (magic numbers)</h2>
+    <p>Most file formats begin with a fixed handful of bytes, called a <strong>file signature</strong> or <strong>magic number</strong>:</p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Type</th><th>First bytes (hex)</th><th>ASCII</th><th>Note</th></tr></thead>
+            <tbody>
+                <tr><td>PNG</td><td class="m hex">89 50 4E 47 0D 0A 1A 0A</td><td class="m">.PNG....</td><td>Contains CR LF so that line-ending conversion damage is detected</td></tr>
+                <tr><td>JPEG</td><td class="m hex">FF D8 FF</td><td class="m">...</td><td></td></tr>
+                <tr><td>GIF</td><td class="m hex">47 49 46 38</td><td class="m">GIF8</td><td>GIF87a / GIF89a</td></tr>
+                <tr><td>PDF</td><td class="m hex">25 50 44 46</td><td class="m">%PDF</td><td></td></tr>
+                <tr><td>ZIP, DOCX, XLSX, JAR, APK</td><td class="m hex">50 4B 03 04</td><td class="m">PK..</td><td>Office documents are really ZIP archives! (PK: Phil Katz)</td></tr>
+                <tr><td>BMP</td><td class="m hex">42 4D</td><td class="m">BM</td><td></td></tr>
+                <tr><td>WAV</td><td class="m hex">52 49 46 46 … 57 41 56 45</td><td class="m">RIFF….WAVE</td><td></td></tr>
+                <tr><td>MP3</td><td class="m hex">49 44 33</td><td class="m">ID3</td><td>Files that start with a tag</td></tr>
+                <tr><td>Windows program (.exe)</td><td class="m hex">4D 5A</td><td class="m">MZ</td><td>Initials of Mark Zbikowski</td></tr>
+                <tr><td>Linux program (ELF)</td><td class="m hex">7F 45 4C 46</td><td class="m">.ELF</td><td></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout think">
+        <span class="callout-title">Think first</span>
+        <p>What do you see if you rename a <code>.docx</code> file to <code>.zip</code> and open it?</p>
+        <details class="reveal"><summary>Show answer</summary>
+            <p>A folder structure! Inside are files such as <code>word/document.xml</code> where the text lives and <code>word/media/</code> for images.
+            DOCX is XML files packed with ZIP. The signature (<code>PK</code>) gives it away.</p>
+        </details>
+    </div>
+
+    <h2>Text files and binary files</h2>
+    <div class="compare">
+        <div>
+            <h4>Text file (.txt, .py, .html, .csv)</h4>
+            <p style="margin:0">All bytes are letters, digits, spaces and line endings in some character encoding (usually UTF-8). Any editor can read it.
+            In the hex viewer, the ASCII column shows meaningful text.</p>
+        </div>
+        <div>
+            <h4>Binary file (.png, .mp3, .exe)</h4>
+            <p style="margin:0">The bytes are integers, floats, pixels and audio samples. Open one in a text editor and you’ll see gibberish,
+            because the editor forces these bytes to be read as characters.</p>
+        </div>
+    </div>
+
+    <h2>Compression: the same information in fewer bytes</h2>
+    <p>
+        In the Colors and Sound chapters you saw how big raw data is. The basic idea of compression is to spot <strong>repetition</strong> in the data and shorten it.
+        The simplest method is <strong>RLE</strong> (Run-Length Encoding): write runs of repeated values as “count + value”.
+    </p>
+    <section class="widget" id="rle">
+        <h3 class="widget-title">Compress with RLE</h3>
+        <div class="field-row"><label class="field grow"><span>Data</span><input id="rle-in" class="input mono" value="AAAAAAAABBBCCCCCCCCCCCCD" spellcheck="false"></label></div>
+        <div class="controls" id="rle-presets"></div>
+        <div class="rle-runs" id="rle-runs"></div>
+        <div class="stats" id="rle-stats"></div>
+        <div class="msg" id="rle-msg" hidden></div>
+    </section>
+    <div class="callout note">
+        <span class="callout-title">Real compressors</span>
+        <p>ZIP, PNG and gzip use smarter methods: they write repeated <em>byte sequences</em> as back-references to earlier data (LZ77) and give frequent values short
+        bit codes and rare ones longer codes (Huffman coding). JPEG and MP3 first throw away information the eye/ear won’t notice. But no compressor
+        can shrink truly random data: with no repetition, there’s nothing to shorten.</p>
+    </div>
+
+    <div id="practice"></div>
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>A file’s contents are just bytes; the format gives them meaning, the extension is only a hint.</li>
+            <li>Hex dump: offset + 16 bytes of hex + ASCII. The universal way to inspect files.</li>
+            <li>File types are recognised by signatures in the first bytes (PNG: 89 50 4E 47, PDF: %PDF, ZIP: PK).</li>
+            <li>File headers use everything from earlier chapters: ASCII tags, little/big-endian integers, pixel and audio data.</li>
+            <li>Compression shortens repetition; random data cannot be compressed.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="2">
+            <p>A file starts with the bytes <code>25 50 44 46</code>. What type is it most likely?</p>
+            <ul><li>PNG</li><li>ZIP</li><li>PDF</li><li>MP3</li></ul>
+            <div class="quiz-explain">25 50 44 46 = “%PDF”.</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>A BMP header’s width field is <code>20 03 00 00</code> (little-endian). How many pixels wide is the image?</p>
+            <ul><li>800</li><li>537,067,520</li><li>32</li><li>2003</li></ul>
+            <div class="quiz-explain">Little-endian: 0x00000320 = 3 × 256 + 32 = 800.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>What is the RLE encoding of <code>WWWWWWBBBW</code>?</p>
+            <ul><li>W6B3</li><li>6W3B</li><li>6W4B1W</li><li>6W3B1W</li></ul>
+            <div class="quiz-explain">6 W, 3 B, 1 W.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>What happens if you rename a <code>.jpg</code> file to <code>.png</code>?</p>
+            <ul><li>The file is converted to PNG</li><li>The contents don’t change; it is still JPEG data</li><li>The file gets smaller</li><li>The file is corrupted and never opens again</li></ul>
+            <div class="quiz-explain">Renaming doesn’t touch the bytes. Most viewers check the signature and open it anyway.</div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>
