@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Renk, resim ve ses · Sıfırlar ve Birler</title>
+<meta name="description" content="Üç ışıkla renk, #RRGGBB hex renk kodları, renk derinliği, piksellerin byte’ları, resim boyutu, sesi örneklemek, bit derinliği ve örnekleme hızı. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/media.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/media.js" defer></script>
+</head>
+<body data-chapter="media">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 7</div>
+  <h1>Renk, resim ve ses</h1>
+  <p class="lede">Bir fotoğraf ya da bir şarkı da sonunda sayılardan ibaret. Ama dünyadaki renkler ve sesler sürekli; bilgisayar ise sadece tamsayı sayabiliyor. Aradaki köprüyü kurmanın yolu: <em>örneklemek</em> ve <em>yuvarlamak</em>.</p>
+  <div class="meta"><span>Okuma: ~35 dk</span><span>Önce: Bölüm 2 ve 3</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 7.1</span>Üç ışıkla her renk</h2>
+
+<p class="dropcap">Gözümüzün retinasında üç tür renk algılayıcı hücre (koni) var. Kabaca biri kırmızıya, biri yeşile, biri maviye duyarlı. Beynimiz gördüğümüz her rengi bu üç sinyalin oranından çıkarır. Ekranlar da bu açığı kullanır: her piksel, yan yana duran üç minik ışıktan oluşur. Üçünün parlaklığını ayarlayarak gözümüzü istediğimiz rengi gördüğüne ikna ederiz.</p>
+
+<figure class="fig" id="f-rgb">
+  <div class="fig-in">
+    <div class="rgb-box">
+      <canvas id="rgb-cv" width="360" height="300" aria-label="ışık karışımı"></canvas>
+      <div class="rgb-ctl" id="rgb-ctl"></div>
+    </div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Toplamalı renk karışımı.</b> Kırmızı ve yeşil ışık üst üste gelince sarı, üçü birden tam güçte beyaz olur. Boya karıştırmanın tersi: ışık ekledikçe renk açılır. Her kanal 0–255 arası, yani tam 1 byte.</figcaption>
+</figure>
+
+<p>Her kanal için bir byte ayırınca bir renk <strong>3 byte = 24 bit</strong> tutar. Bu da 2<sup>24</sup> = 16 777 216 farklı renk demek. İnsan gözünün ayırt edebildiği renk sayısının birkaç milyon olduğu düşünülürse, 24 bit çoğu iş için yeterlidir; bu yüzden ona “gerçek renk” (true color) denir.</p>
+
+<h2><span class="sec">§ 7.2</span>#RRGGBB: renklerin hex adresi</h2>
+
+<p>Web sayfalarında ve tasarım programlarında renkleri <span class="h">#FF8800</span> gibi yazarız. Artık bunun ne olduğunu biliyoruz: 3 byte’ın hex yazımı. Her byte tam olarak iki hex rakamı olduğu için renk kodu altı haneye düzgünce bölünür: ilk ikisi kırmızı, ortadaki ikisi yeşil, son ikisi mavi.</p>
+
+<figure class="fig narrow" id="f-hex">
+  <div class="fig-in">
+    <div class="hexed" id="hexed"></div>
+    <div class="chips" id="hex-pre" style="margin-top:.9rem"></div>
+    <div class="readout" id="hex-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Bir renk kodunun anatomisi.</b> Hanelerin üstündeki ve altındaki oklarla oyna. Her byte’ın soldaki hanesi sağdakinden 16 kat etkilidir: <span class="h">80</span> → <span class="h">81</span> değişimini zor fark edersin, <span class="h">80</span> → <span class="h">90</span> değişimi ise belirgindir.</figcaption>
+</figure>
+
+<ul>
+  <li><strong>Kısa yazım:</strong> <span class="h">#F80</span> = <span class="h">#FF8800</span>. Her hane iki kez tekrarlanır.</li>
+  <li><strong>Saydamlık:</strong> <span class="h">#FF880080</span>. Dördüncü byte “alfa” kanalıdır: 00 tamamen saydam, FF tamamen opak, 80 yarı saydam. Böyle bir renk 4 byte = 32 bit tutar.</li>
+  <li><strong>Griler:</strong> üç kanal eşitse renk gridir: <span class="h">#000000</span> siyah, <span class="h">#808080</span> orta gri, <span class="h">#FFFFFF</span> beyaz. Gri için tek byte yeter; siyah-beyaz fotoğraflar bu yüzden üçte bir yer tutar.</li>
+</ul>
+
+<h2><span class="sec">§ 7.3</span>Renk derinliği: kanal başına kaç bit?</h2>
+
+<p>Her kanala 8 bit yerine daha az bit verseydik ne olurdu? Kanal başına 1 bitle sadece 8 renk (siyah, beyaz, kırmızı, yeşil, mavi, sarı, camgöbeği, eflatun) kalır. Eski bilgisayarlar böyleydi. Aşağıdaki gün batımını farklı bit derinlikleriyle göster:</p>
+
+<figure class="fig" id="f-depth">
+  <div class="fig-in">
+    <canvas id="depth-cv" class="depth-cv" width="640" height="300" aria-label="gün batımı"></canvas>
+    <div class="center" style="margin-top:.8rem"><label class="muted" for="depth-r">Kanal başına bit</label> <input type="range" id="depth-r" min="1" max="8" value="3" style="width:14rem"> <b class="mono" id="depth-v"></b></div>
+    <div class="readout" id="depth-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Az bit = bantlanma.</b> Bit sayısı düştükçe yumuşak geçişler basamaklara bölünür. Yuvarlama hatası artık gözle görülür hale gelir. Bölüm 5’teki kayan nokta hikâyesinin görsel hali: sınırlı bit, sınırlı ara değer.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 7.4</span>Bir resim: sayılardan bir ızgara</h2>
+
+<p>Dijital bir resim, <strong>piksel</strong> denen renkli karelerden oluşan bir ızgaradır. Her piksel 3 byte’lık bir renk. Resmi bellekte saklamak için pikselleri satır satır, soldan sağa sıralarız. Aşağıdaki resim 16 × 16 piksel; büyütülmüş hali. Bir piksele dokun.</p>
+
+<figure class="fig" id="f-pix">
+  <div class="fig-in">
+    <div class="pix-wrap">
+      <div class="pix" id="pix" role="grid" aria-label="piksel resmi"></div>
+      <div class="pix-side">
+        <div class="pix-info" id="pix-info"></div>
+        <div class="ctl" id="pix-ctl"></div>
+        <div class="pix-bytes" id="pix-bytes"></div>
+      </div>
+    </div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Bir resmin byte’ları.</b> Seçtiğin pikselin bellekteki yeri: (satır × genişlik + sütun) × 3. Sağda, resim dosyasının ilk byte’ları görünüyor; her üçlü bir piksel. Renk seçip piksellere boyayarak resmi değiştirebilirsin.</figcaption>
+</figure>
+
+<p>Boyutu hesaplamak kolay: genişlik × yükseklik × 3 byte. <span id="k-w"></span> × <span id="k-h"></span> piksellik bir fotoğraf, sıkıştırılmadan <span class="out" data-o="img"></span> tutar. Telefonundaki fotoğraflar bundan çok daha küçüktür, çünkü <strong>sıkıştırılırlar</strong>: PNG hiçbir bilgiyi kaybetmeden tekrarları kısaltır; JPEG ise gözün fark etmeyeceği ayrıntıları atar.</p>
+
+<aside class="aside"><span class="t">Paletli resimler</span>GIF formatı her pikselde 3 byte yerine 1 byte saklar. O byte bir renk değil, 256 renklik bir <em>palet</em> tablosundaki sıra numarasıdır. Yine bir “anlaşma”: numara → renk. ASCII’nin numara → harf tablosuna çok benziyor.</aside>
+
+<h2><span class="sec">§ 7.5</span>Kodda renkler</h2>
+
+<p>Bir rengi tek bir 24 bitlik sayı olarak sakladığımızda kanalları ayırmak bir bit işlemidir: kırmızıyı almak için sayıyı 16 bit sağa kaydırır, son 8 biti maskeleriz. Bit işlemlerini Bölüm 9’da ayrıntılı göreceğiz.</p>
+
+<div class="code-tabs">
+<pre data-lang="js">
+const c = 0xFF8800;                 // turuncu, tek bir sayı
+const r = (c >> 16) & 0xFF;         // 255
+const g = (c >> 8) & 0xFF;          // 136
+const b = c & 0xFF;                 // 0
+const hex = "#" + c.toString(16).padStart(6, "0");   // "#ff8800"
+document.body.style.background = hex;
+document.body.style.color = "rgb(" + r + ", " + g + ", " + b + ")";
+</pre>
+<pre data-lang="p5">
+function setup() {
+  createCanvas(200, 200);
+  background("#1E1E2E");
+  fill(255, 136, 0);              // r, g, b (0-255)
+  ellipse(70, 100, 80);
+  fill("#FF880080");               // alfa ile yarı saydam
+  ellipse(130, 100, 80);
+  let c = color("#0E7C86");
+  print(red(c), green(c), blue(c));  // 14 124 134
+}
+</pre>
+<pre data-lang="py">
+c = 0xFF8800
+r, g, b = (c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF
+print(r, g, b)                         # 255 136 0
+print("#{:02X}{:02X}{:02X}".format(r, g, b))   # #FF8800
+print(bytes.fromhex("FF8800"))        # b'\xff\x88\x00'
+
+from PIL import Image                  # pip install pillow
+img = Image.new("RGB", (2, 1), "#FF8800")
+print(img.tobytes())                   # b'\xff\x88\x00\xff\x88\x00'
+</pre>
+</div>
+
+<h2><span class="sec">§ 7.6</span>Ses: havadaki dalgayı saymak</h2>
+
+<p>Ses, havanın basıncındaki hızlı dalgalanmalardır. Mikrofon bu dalgalanmayı bir elektrik gerilimine çevirir; gerilim, zamanla sürekli değişen bir eğridir. Bilgisayar bu eğriyi saklamak için iki şey yapar:</p>
+<ol>
+  <li><strong>Örnekleme:</strong> eğrinin değerini saniyede belli sayıda ölçer. CD’de bu saniyede 44 100 kez, yani <strong>44,1 kHz</strong>.</li>
+  <li><strong>Nicemleme:</strong> her ölçümü en yakın tamsayıya yuvarlar. CD’de her örnek 16 bitlik işaretli bir tamsayı, −32 768 ile 32 767 arası.</li>
+</ol>
+
+<figure class="fig" id="f-wave">
+  <div class="fig-in">
+    <svg id="wave" class="wave" viewBox="0 0 900 300" role="img" aria-label="ses dalgası"></svg>
+    <div class="wave-ctl">
+      <label>Frekans <input type="range" id="w-f" min="1" max="12" value="2" step="1"> <b class="mono" id="w-fv"></b></label>
+      <label>Örnek/saniye <input type="range" id="w-r" min="4" max="64" value="24"> <b class="mono" id="w-rv"></b></label>
+      <label>Bit derinliği <input type="range" id="w-b" min="1" max="8" value="3"> <b class="mono" id="w-bv"></b></label>
+    </div>
+    <div class="tell" id="w-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Örnekleme ve nicemleme.</b> Gri eğri gerçek ses, turuncu noktalar alınan örnekler, basamaklı çizgi bilgisayarın sakladığı şey. Yatay çizgiler, bit derinliğinin izin verdiği seviyeler. Frekansı örnekleme hızının yarısından yukarı çıkarırsan bir tuhaflık göreceksin.</figcaption>
+</figure>
+
+<p>Son cümledeki tuhaflığın adı <strong>örtüşme</strong> (aliasing). Bir dalgayı doğru yakalamak için her salınımda en az iki örnek gerekir: örnekleme hızı, en yüksek frekansın iki katından fazla olmalı (Nyquist–Shannon teoremi). İnsan kulağı kabaca 20 000 Hz’e kadar duyar; 44 100 Hz’in seçilme sebebi bu. Filmlerde ileri giden araba tekerleklerinin geri dönüyor gibi görünmesi de aynı olaydır: kamera saniyede 24 kare “örnek” alır.</p>
+
+<p>Şimdi farkı kulağınla duy. Aşağıdaki ton, 440 Hz’lik bir la notası; bit derinliğini ve örnekleme hızını değiştirerek çal:</p>
+
+<figure class="fig narrow" id="f-hear">
+  <div class="fig-in">
+    <div class="hear" id="hear"></div>
+    <div class="tell" id="hear-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Kulağınla nicemleme.</b> 16 bit temiz bir ses verir. 4 bitte cızırtı başlar, 2 bitte ses kare dalgaya dönüşür. Düşük örnekleme hızında ise yüksek sesler boğuklaşır ya da yanlış perdede duyulur. Ses kısık başlar; kulaklıkla dikkatli ol.</figcaption>
+</figure>
+
+<p>Sesin boyutu da kolay hesaplanır: örnek/saniye × bit/örnek × kanal sayısı. CD kalitesinde stereo ses saniyede 44 100 × 16 × 2 = 1 411 200 bit tutar. <span id="k-min"></span> dakikalık bir şarkı sıkıştırılmadan <span class="out" data-o="wav"></span> eder. MP3 ve AAC gibi formatlar, kulağın duymayacağı ayrıntıları atarak bunu yaklaşık on kat küçültür.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Medya</th><th>Örnekleme</th><th>Bit</th><th>Ham boyut</th></tr></thead>
+  <tbody>
+    <tr><td>Telefon görüşmesi</td><td class="m">8 kHz, mono</td><td class="m">8</td><td class="m">64 kbit/s</td></tr>
+    <tr><td>Müzik CD’si</td><td class="m">44,1 kHz, stereo</td><td class="m">16</td><td class="m">1,4 Mbit/s</td></tr>
+    <tr><td>Stüdyo kaydı</td><td class="m">96 kHz, stereo</td><td class="m">24</td><td class="m">4,6 Mbit/s</td></tr>
+    <tr><td>Full HD video (ham)</td><td class="m">1920 × 1080, 30 kare/s</td><td class="m">24/piksel</td><td class="m">≈ 1,5 Gbit/s</td></tr>
+  </tbody>
+</table></div>
+
+<p class="key">Renk, resim ve ses için aynı tarif geçerli: sürekli bir şeyi <strong>parçalara böl</strong> (piksel, örnek), her parçayı <strong>sınırlı sayıda bitle yuvarla</strong> (renk derinliği, bit derinliği). Kalite, bu iki ayardan gelir; dosya boyutu da.</p>
+
+<h2><span class="sec">§ 7.7</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p><span class="h">#00FF00</span> hangi renktir?</p>
+    <ul><li>Kırmızı</li><li>Mavi</li><li>Yeşil</li><li>Beyaz</li></ul>
+    <div class="quiz-why">Ortadaki byte yeşil kanal; tam güçte, diğerleri sıfır.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p><span class="h">#FFFF00</span> neden sarıdır?</p>
+    <ul><li>Kırmızı ve yeşil ışık karışınca sarı görünür</li><li>FF sarı demektir</li><li>Mavi kanal sarıyı temsil eder</li><li>Boyalar böyle karışır</li></ul>
+    <div class="quiz-why">Toplamalı karışım: kırmızı + yeşil = sarı.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Kanal başına 2 bitle kaç farklı renk elde edilir?</p>
+    <ul><li>6</li><li>8</li><li>16</li><li>64</li></ul>
+    <div class="quiz-why">Toplam 6 bit: 2<sup>6</sup> = 64. (Her kanal 4 seviye: 4 × 4 × 4.)</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>10 kHz’lik bir sesi doğru kaydetmek için örnekleme hızı en az ne olmalı?</p>
+    <ul><li>10 kHz</li><li>20 kHz’den fazla</li><li>5 kHz</li><li>44,1 kHz tam olarak</li></ul>
+    <div class="quiz-why">Nyquist: en yüksek frekansın iki katından fazla.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>Bit derinliğini 16’dan 8’e düşürmek neyi etkiler?</p>
+    <ul><li>Sesin perdesini</li><li>Sesin süresini</li><li>Her örneğin ne kadar hassas yuvarlandığını (gürültü)</li><li>Kanal sayısını</li></ul>
+    <div class="quiz-why">Daha az seviye → daha büyük yuvarlama hatası → duyulur gürültü.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

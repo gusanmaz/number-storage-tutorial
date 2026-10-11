@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bytes and the measure of information · Zeros &amp; Ones</title>
+<meta name="description" content="Why a byte is 8 bits, how many bits you need, fixed-width boxes and overflow, kB vs KiB, bits vs bytes and a feel for data sizes. An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../byte.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/bytes.js" defer></script>
+</head>
+<body data-chapter="bytes">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 3</div>
+  <h1>Bytes and the measure of information</h1>
+  <p class="lede">Working with single bits is like reading a book letter by letter. Computers move bits around in packs of eight. This chapter is about that pack, its limits, and how we measure the size of data.</p>
+  <div class="meta"><span>Reading: ~20 min</span><span>Before: Chapter 2</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 3.1</span>Why eight?</h2>
+
+<p class="dropcap">A group of bits is called a <strong>byte</strong>, and today almost everywhere a byte is <strong>8 bits</strong>. But that is not a law of nature. Computers of the 1950s used 6-bit characters and 36-bit “words”. In 1956 IBM engineer Werner Buchholz named groups of bits <em>bytes</em>, spelling it with a y instead of “bite” so it would not be confused with “bit”. In 1964 the IBM System/360 family used 8-bit bytes, and that became the standard.</p>
+
+<p>Why is eight a good choice? It does three jobs at once: it is enough to store a letter (with upper and lower case, digits and punctuation), it is a power of two (handy for hardware), and it splits into exactly <strong>two hex digits</strong>. Play with the byte below.</p>
+
+<figure class="fig" id="f-byte">
+  <div class="fig-in">
+    <div id="byte-lamps"></div>
+    <div class="byte-anat" id="byte-anat"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>Anatomy of a byte.</b> Eight bits split into two four-bit halves (<em>nibbles</em>). Each half becomes a single hex digit, which is why a byte is always written with two hex digits: 00 to FF.</figcaption>
+</figure>
+
+<p>A byte can make 2<sup>8</sup> = <strong>256</strong> different patterns. Those patterns can be the numbers 0 to 255, but remember the lens from Chapter 1: the same 256 patterns can just as well be a letter, a shade of gray, the red part of a color, or (as we will see in Chapter 4) a number from −128 to 127.</p>
+
+<aside class="aside side"><span class="t">Terms</span><b>Nibble</b>: 4 bits (half a byte). <b>Word</b>: the size a processor handles in one go; mostly 64 bits today. <b>Byte</b>: the smallest unit with its own address in memory; you cannot address a single bit directly.</aside>
+
+<h2><span class="sec">§ 3.2</span>How many bits do you need?</h2>
+
+<p>In Chapter 1 we defined a bit as “one yes/no question”. The same idea answers the most practical question: <em>how many bits do you need to tell N different things apart?</em> Every bit halves the possibilities; you need as many bits as the number of halvings it takes to get down to a single possibility.</p>
+
+<p>We want to encode <span id="k-items"></span> different things. Let’s keep halving:</p>
+
+<figure class="fig narrow" id="f-halve">
+  <div class="fig-in">
+    <div class="halve" id="halve"></div>
+    <div class="tell" id="halve-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>Every bit halves the possibilities.</b> The number of steps until one possibility is left is the number of bits needed. Mathematicians write it ⌈log₂ N⌉, but it is really just “how many times can I halve this?”</figcaption>
+</figure>
+
+<p>Since the number of bits must be a whole number, some patterns usually stay unused. Numbering 1000 students takes 10 bits, but 10 bits give 1024 patterns: 24 of them are never used. The waste is unavoidable; there is no such thing as 9.97 bits.</p>
+
+<h2><span class="sec">§ 3.3</span>Fixed width: what happens when the box is full?</h2>
+
+<p>On paper a number can have as many digits as you like; you just add digits to the left. In a computer every number has a fixed-size “box”: 8, 16, 32 or 64 bits. To see what happens when the box fills up, push the 8-bit counter below past 255.</p>
+
+<figure class="fig" id="f-odo">
+  <div class="fig-in">
+    <div id="odo-lamps"></div>
+    <div class="readout" id="odo-out"></div>
+    <div class="ctl" id="odo-ctl"></div>
+    <div class="tell" id="odo-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>An eight-bit box.</b> Adding 1 to 255 = 11111111 makes every bit carry in a chain; there is no room for a ninth bit, so that carry is lost and the counter returns to 0. This is called <em>overflow</em>, and Chapter 4 shows its real-world consequences.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>Box</th><th>Distinct values</th><th>Unsigned range</th><th>Where?</th></tr></thead>
+  <tbody>
+    <tr><td class="m">8 bit</td><td class="m">256</td><td class="m">0 – 255</td><td>A color channel, an ASCII character</td></tr>
+    <tr><td class="m">16 bit</td><td class="m">65,536</td><td class="m">0 – 65,535</td><td>Network port numbers, CD audio samples</td></tr>
+    <tr><td class="m">32 bit</td><td class="m">≈ 4.29 billion</td><td class="m">0 – 4,294,967,295</td><td>IPv4 addresses, many integers</td></tr>
+    <tr><td class="m">64 bit</td><td class="m">≈ 1.8 × 10¹⁹</td><td class="m">0 – 18,446,744,073,709,551,615</td><td>Memory addresses, timestamps</td></tr>
+  </tbody>
+</table></div>
+
+<div class="aside"><span class="t">In real life</span>IPv4 addresses are 32 bits: at most 4.29 billion addresses, fewer than there are people on Earth. The regional registries ran out between 2011 and 2019, which is why the world is moving to 128-bit IPv6. 2<sup>128</sup> is big enough to give every grain of sand on Earth billions of addresses.</div>
+
+<h2><span class="sec">§ 3.4</span>Is a kilo 1000 or 1024?</h2>
+
+<p>Because computers work with powers of two, 2<sup>10</sup> = 1024 was long called “kilo”; it was so close to 1000. But in the SI system kilo always means 1000 (kilometer, kilogram). Watch the small difference grow as the units get bigger:</p>
+
+<figure class="fig narrow" id="f-units">
+  <div class="fig-in"><div id="units"></div></div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Decimal and binary prefixes drift apart.</b> In 1998 the IEC defined binary prefixes to clear up the confusion: kibi (KiB), mebi (MiB), gibi (GiB), tebi (TiB). kB/MB/GB = powers of 1000, KiB/MiB/GiB = powers of 1024.</figcaption>
+</figure>
+
+<p>Disk makers use decimal units; Windows computes in binary units but labels the result “GB”. The result: a disk that says <span id="k-disk"></span> GB on the box shows up in Windows as <span class="out" data-o="gib"></span> GB. Not a single byte is missing; two different “kilos” are in use. (macOS has used decimal units since 2009 and shows the capacity printed on the box.)</p>
+
+<h2><span class="sec">§ 3.5</span>Bits or bytes?</h2>
+
+<p>One more trap: internet speeds are measured in <strong>bits</strong> (lowercase <b>b</b>: Mbit/s, Mbps), file sizes in <strong>bytes</strong> (uppercase <b>B</b>: MB). That is a factor of 8. On a <span id="k-speed"></span> Mbit/s connection a <span id="k-file"></span> GB movie downloads in <span class="out" data-o="dl"></span> at best (<span class="out" data-o="mbs"></span> MB per second).</p>
+
+<h2><span class="sec">§ 3.6</span>A feel for scale</h2>
+
+<p>As numbers grow, our intuition fades. On the ladder below every step is roughly a thousand times the previous one.</p>
+
+<figure class="fig" id="f-ladder">
+  <div class="fig-in"><div class="ladder" id="ladder"></div></div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>The data ladder.</b> The examples are rough and depend on details like compression and quality; the point is to feel the orders of magnitude.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 3.7</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="0">
+    <p>How many different values can three hex digits (000–FFF) write?</p>
+    <ul><li>4,096</li><li>256</li><li>48</li><li>65,536</li></ul>
+    <div class="quiz-why">3 hex digits = 12 bits → 2<sup>12</sup> = 4,096.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>What is the minimum number of bits to give each of 40 students their own binary number?</p>
+    <ul><li>5</li><li>40</li><li>6</li><li>8</li></ul>
+    <div class="quiz-why">2<sup>5</sup> = 32 is not enough, 2<sup>6</sup> = 64 is.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>What happens if you add 1 to 255 in an 8-bit counter?</p>
+    <ul><li>It becomes 256</li><li>It stays at 255</li><li>The program crashes</li><li>It becomes 0</li></ul>
+    <div class="quiz-why">There is no room for a ninth bit; the carry is lost and the counter wraps around.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>How many bytes are in 1 GiB?</p>
+    <ul><li>1,000,000,000</li><li>1,073,741,824</li><li>1,024,000,000</li><li>8,589,934,592</li></ul>
+    <div class="quiz-why">2<sup>30</sup> = 1024 × 1024 × 1024.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>At best, how many seconds does a 100 MB file take on a 50 Mbit/s connection?</p>
+    <ul><li>16 s</li><li>2 s</li><li>50 s</li><li>0.5 s</li></ul>
+    <div class="quiz-why">100 MB = 800 Mbit; 800 ÷ 50 = 16.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bellek: uzun bir byte şeridi · Sıfırlar ve Birler</title>
+<meta name="description" content="Bellek adresleri ve hex, aynı byte’ları farklı türlerle okumak, little ve big endian byte sırası, değişkenler, diziler, pointer’lar ve dosyaların içindeki byte’lar. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/memory.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/memory.js" defer></script>
+</head>
+<body data-chapter="memory">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 8</div>
+  <h1>Bellek: uzun bir byte şeridi</h1>
+  <p class="lede">Şimdiye kadar tek tek sayıları, harfleri, renkleri inceledik. Hepsi aynı yerde yaşıyor: numaralandırılmış milyarlarca byte’tan oluşan tek bir şeritte. Bu bölümde o şeridin üstünde yürüyeceğiz.</p>
+  <div class="meta"><span>Okuma: ~40 dk</span><span>Önce: Bölüm 3, 4 ve 6</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 8.1</span>Her byte’ın bir adresi var</h2>
+
+<p class="dropcap">Bilgisayarın ana belleğini (RAM) çok uzun bir sokak gibi düşün. Sokaktaki her evde tam 8 bit, yani bir byte oturuyor ve her evin bir kapı numarası var: <strong>adres</strong>. İşlemci belleğe “şu adresteki byte’ı ver” ya da “şu adrese şunu yaz” der. Başka bir şey bilmez; değişken, dizi, metin gibi kavramların hepsi bu iki komutun üstüne kurulur.</p>
+
+<figure class="fig" id="f-strip">
+  <div class="fig-in">
+    <div class="strip" id="strip"></div>
+    <div class="readout" id="strip-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Belleğin bir dilimi.</b> Her kutu bir byte; altında adresi. Adresler de sayıdır ve neredeyse her zaman hex yazılır: hem kısadır hem de 16’nın katlarına denk gelen sınırlar (…<span class="h">00</span>, …<span class="h">10</span>, …<span class="h">20</span>) bir bakışta görülür. Bir kutuya dokun.</figcaption>
+</figure>
+
+<p>Adresler de bitlerle yazıldığına göre, bir işlemcinin kaç byte’a ulaşabileceği adres bitlerinin sayısına bağlıdır. <span id="k-ab"></span> bitlik adreslerle en fazla <span class="out" data-o="addr"></span> belleğe erişilebilir. 32 bitlik bilgisayarların 4 GB’tan fazla RAM kullanamamasının sebebi buydu. Bugünkü 64 bitlik işlemciler pratikte 48 bit kullanır; o da 256 TiB eder.</p>
+
+<h2><span class="sec">§ 8.2</span>Byte’lar ne olduklarını bilmez</h2>
+
+<p>Bölüm 1’in ana fikrine geri döndük: bir bit deseni kendi anlamını taşımaz. Bellekte yan yana duran 8 byte, bir metin, iki tamsayı, bir ondalıklı sayı ya da bir adres olabilir. Neye bakacağımıza, onu okuyan program karar verir. Aşağıdaki byte’ları düzenle (hex) ve aynı 8 byte’ın farklı okunuşlarına bak.</p>
+
+<figure class="fig" id="f-lens">
+  <div class="fig-in">
+    <div class="hexrow" id="lens-bytes"></div>
+    <div class="chips" id="lens-pre" style="margin-top:.8rem"></div>
+    <div class="tbl lens-t" id="lens-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Aynı 8 byte, sekiz farklı tür.</b> Her satır aynı belleğe farklı bir gözlükle bakıyor. C dilinde <code>(float*)</code> gibi tür dönüşümleri, JavaScript’te <code>DataView</code>, Python’da <code>struct</code> modülü tam olarak bunu yapar: byte’lara dokunmadan yorumu değiştirir.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 8.3</span>Byte sırası: endianness</h2>
+
+<p>Bir byte’tan büyük sayılar birden fazla adrese yayılır. 32 bitlik <span class="h">0x12345678</span> sayısı 4 byte tutar: <span class="h">12</span>, <span class="h">34</span>, <span class="h">56</span>, <span class="h">78</span>. Peki hangisi küçük adrese yazılır? İki cevap var ve ikisi de kullanılıyor:</p>
+<ul>
+  <li><strong>Big endian</strong> (büyük uç önce): en anlamlı byte en küçük adrese. Biz sayıları böyle yazarız; ağ protokolleri de böyle gönderir (“ağ byte sırası”).</li>
+  <li><strong>Little endian</strong> (küçük uç önce): en anlamsız byte en küçük adrese. Intel/AMD (x86) ve neredeyse bütün ARM işlemciler, yani bugün kullandığın cihazların çoğu böyle çalışır.</li>
+</ul>
+
+<figure class="fig" id="f-endian">
+  <div class="fig-in">
+    <div class="center"><span class="muted">0x</span><input id="end-in" class="inp" value="12345678" maxlength="8" spellcheck="false" style="width:9rem;text-align:center" aria-label="hex"> <span class="muted" id="end-dec"></span></div>
+    <div class="endian" id="endian"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Aynı sayı, iki sıralama.</b> Adresler soldan sağa artıyor. Little endian’da byte’lar “ters” görünür, ama bu işlemci için bir kolaylıktır: sayının alt byte’ı her zaman aynı adreste olduğu için 32 bitlik bir sayıyı 8 ya da 16 bit olarak okumak adresi değiştirmeyi gerektirmez.</figcaption>
+</figure>
+
+<aside class="aside hist"><span class="t">Adın hikâyesi</span>“Endian” sözcüğü Jonathan Swift’in <em>Gulliver’in Gezileri</em>’nden geliyor. Romanda iki ülke, haşlanmış yumurtanın büyük ucundan mı (Big-Endians) yoksa küçük ucundan mı (Little-Endians) kırılacağı yüzünden savaşır. Bilgisayarcı Danny Cohen 1980’de bu tartışmanın da aynı derecede keyfî olduğunu söylemek için terimi ödünç aldı.</aside>
+
+<p>Byte sırası, farklı makineler arasında veri taşırken önemli hale gelir. Bir dosya formatı ya da ağ protokolü sırayı mutlaka belirtir: PNG ve ağ paketleri big endian, BMP ve WAV dosyaları little endian’dır.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+import struct, sys
+print(sys.byteorder)                       # 'little' (çoğu bilgisayarda)
+print(struct.pack("<I", 0x12345678).hex(" "))  # 78 56 34 12  (little)
+print(struct.pack(">I", 0x12345678).hex(" "))  # 12 34 56 78  (big)
+print((0x12345678).to_bytes(4, "little"))  # b'xV4\x12'
+print(struct.unpack("<f", bytes.fromhex("0000803f")))  # (1.0,)
+</pre>
+<pre data-lang="js">
+const buf = new ArrayBuffer(4);
+const dv = new DataView(buf);
+dv.setUint32(0, 0x12345678, true);         // true = little endian
+console.log([...new Uint8Array(buf)].map(b => b.toString(16)));
+// ["78", "56", "34", "12"]
+console.log(dv.getUint32(0, false).toString(16));  // "78563412"
+console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 1
+</pre>
+</div>
+
+<h2><span class="sec">§ 8.4</span>Değişkenler, diziler, pointer’lar</h2>
+
+<p>Bir programda <code>int yas = 17;</code> yazdığında derleyici bellekte 4 byte’lık bir yer ayırır ve “yas” adını o yerin adresiyle eşleştirir. Değişken adı, bir adresin insanlar için hatırlanabilir takma adıdır. Bir <strong>dizi</strong> ise aynı türden elemanların bellekte arka arkaya dizilmesidir; <code>dizi[i]</code>’nin adresi basit bir hesaptır:</p>
+
+<p class="formula">adres(dizi[i]) = başlangıç + i × eleman boyutu</p>
+
+<p>Dizilerin sıfırdan başlamasının sebebi de bu formül: ilk elemanın başlangıçtan uzaklığı sıfırdır. Bir <strong>pointer</strong> (işaretçi) ise değeri bir adres olan değişkendir. Aşağıdaki küçük C programını adım adım çalıştır ve belleğin nasıl değiştiğini izle.</p>
+
+<figure class="fig" id="f-prog">
+  <div class="fig-in">
+    <div class="prog">
+      <pre class="prog-code" id="prog-code"></pre>
+      <div class="prog-mem" id="prog-mem"></div>
+    </div>
+    <div class="tell" id="prog-tell"></div>
+    <div id="prog-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Bir program belleği nasıl kullanır?</b> Her renk bir değişken. <code>&amp;x</code> “x’in adresi”, <code>*p</code> “p’nin gösterdiği adresteki değer” demektir. <code>p + 1</code> adresi 1 değil, gösterdiği türün boyutu kadar (burada 4 byte) ilerletir. Byte’ların little endian sırada yazıldığına dikkat et.</figcaption>
+</figure>
+
+<div class="think">
+  <p class="q">Programda <code>dizi[5]</code> yazsaydık ne olurdu? Dizinin sadece 3 elemanı var.</p>
+  <details><summary>Düşündükten sonra aç</summary>
+    <p>C bunu kontrol etmez: formüle göre başlangıç + 5 × 4 adresine gider ve orada ne varsa okur ya da üstüne yazar. Belki başka bir değişkeni bozar, belki program çöker. Bu “dizi sınırı aşımı” (buffer overflow), tarihin en çok istismar edilen güvenlik açıklarından biridir. Python ve JavaScript ise her erişimde sınırı kontrol eder ve hata verir.</p>
+  </details>
+</div>
+
+<p>Pointer’ların kendileri de bellekte durur: 64 bitlik bir sistemde her pointer 8 byte’tır. Hiçbir yeri göstermeyen pointer’a <code>NULL</code> denir ve değeri genellikle 0’dır. 0 adresine erişmeye çalışan program işletim sistemi tarafından durdurulur; meşhur “segmentation fault” hatası budur.</p>
+
+<aside class="aside"><span class="t">Hizalama</span>İşlemciler 4 byte’lık bir sayıyı 4’ün katı olan adreslerden daha hızlı okur. Bu yüzden derleyiciler değişkenlerin arasına bazen boş byte’lar (padding) koyar. Şekildeki <code>short</code> ile <code>char</code>’dan sonraki gri byte’lar bu yüzden boş.</aside>
+
+<h2><span class="sec">§ 8.5</span>Dosyalar da byte dizisidir</h2>
+
+<p>Disk, belleğe göre çok daha yavaş ama kalıcı bir byte şerididir. Bir dosya, bu şeritteki bir byte dizisi ve ona verilmiş bir addır. “Bu bir PNG resmi” bilgisi dosyanın içinde, genellikle ilk birkaç byte’ta yazılıdır. Bu byte’lara <strong>sihirli sayı</strong> (magic number) ya da dosya imzası denir. Dosya uzantısını değiştirmek dosyanın türünü değiştirmez; imza aynı kalır.</p>
+
+<figure class="fig" id="f-hex">
+  <div class="fig-in">
+    <div class="center hexctl" id="hex-ctl"></div>
+    <div class="tell" id="hex-sig"></div>
+    <div class="hexdump" id="hexdump"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Bir hex görüntüleyici.</b> Örneklerden birini seç ya da bilgisayarından bir dosya aç. Dosya hiçbir yere gönderilmez; tarayıcın onu sadece bu sayfada okur. Soldaki sütun dosya içindeki konum (ofset), ortadaki hex byte’lar, sağdaki aynı byte’ların ASCII okunuşu.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>Tür</th><th>İlk byte’lar (hex)</th><th>ASCII</th></tr></thead>
+  <tbody>
+    <tr><td>PNG resmi</td><td class="m">89 50 4E 47 0D 0A 1A 0A</td><td class="m">.PNG....</td></tr>
+    <tr><td>JPEG resmi</td><td class="m">FF D8 FF</td><td class="m">...</td></tr>
+    <tr><td>GIF resmi</td><td class="m">47 49 46 38 39 61</td><td class="m">GIF89a</td></tr>
+    <tr><td>PDF belgesi</td><td class="m">25 50 44 46 2D</td><td class="m">%PDF-</td></tr>
+    <tr><td>ZIP (ve .docx, .xlsx, .jar)</td><td class="m">50 4B 03 04</td><td class="m">PK..</td></tr>
+    <tr><td>WAV sesi</td><td class="m">52 49 46 46 … 57 41 56 45</td><td class="m">RIFF….WAVE</td></tr>
+    <tr><td>Linux programı (ELF)</td><td class="m">7F 45 4C 46</td><td class="m">.ELF</td></tr>
+    <tr><td>Windows programı</td><td class="m">4D 5A</td><td class="m">MZ</td></tr>
+  </tbody>
+</table></div>
+
+<p>PNG’nin imzası özellikle zekice tasarlanmış: ilk byte 128’den büyük (dosyayı yanlışlıkla metin sanan programları uyarmak için), içinde Windows (<span class="h">0D 0A</span>) ve Unix (<span class="h">0A</span>) satır sonları ve <span class="h">1A</span> (eski DOS’ta “dosya sonu”) var. Satır sonlarını “düzelten” hatalı bir aktarım yapılırsa imza bozulur ve hata hemen fark edilir.</p>
+
+<p class="key">Bellek de disk de sadece numaralı byte’lardır. <strong>Adres</strong> nerede olduğunu, <strong>tür</strong> nasıl okunacağını, <strong>byte sırası</strong> çok byte’lı değerlerin dizilişini belirler. Bu üçünü bilen, herhangi bir veriyi byte byte okuyabilir.</p>
+
+<h2><span class="sec">§ 8.6</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="1">
+    <p>Little endian bir makinede 32 bitlik <span class="h">0xAABBCCDD</span> adres 0x100’e yazılıyor. 0x100’deki byte?</p>
+    <ul><li>AA</li><li>DD</li><li>BB</li><li>CC</li></ul>
+    <div class="quiz-why">Küçük uç önce: en anlamsız byte (DD) en küçük adrese.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p><code>int</code> (4 byte) dizisi 0x2000’de başlıyorsa <code>dizi[3]</code> nerededir?</p>
+    <ul><li>0x2003</li><li>0x2012</li><li>0x200C</li><li>0x2030</li></ul>
+    <div class="quiz-why">0x2000 + 3 × 4 = 0x2000 + 12 = 0x200C.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>Bir pointer değişkeninde ne saklanır?</p>
+    <ul><li>Bir bellek adresi</li><li>Değişkenin adı</li><li>Her zaman bir tamsayı değeri</li><li>Dizinin uzunluğu</li></ul>
+    <div class="quiz-why">Pointer’ın değeri bir adrestir; <code>*p</code> o adresteki değeri okur.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Bir dosyanın uzantısını <code>.png</code>’den <code>.txt</code>’ye çevirince ne olur?</p>
+    <ul><li>Dosya metne dönüşür</li><li>Byte’lar yeniden kodlanır</li><li>Dosya bozulur</li><li>Byte’lar aynı kalır; sadece hangi programla açılacağı değişir</li></ul>
+    <div class="quiz-why">İçerik, ilk byte’lardaki imza da dahil, aynen durur.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>16 bitlik adreslerle en fazla kaç byte adreslenebilir?</p>
+    <ul><li>16</li><li>65 536</li><li>256</li><li>4 294 967 296</li></ul>
+    <div class="quiz-why">2<sup>16</sup> = 65 536 = 64 KiB. Commodore 64’ün adı buradan gelir.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

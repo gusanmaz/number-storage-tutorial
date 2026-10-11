@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The hidden order of counting · Zeros &amp; Ones</title>
+<meta name="description" content="Place value, bases with exploding dots, counting in binary, converting to binary with a balance, repeated division, octal and hexadecimal. An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../sayma.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/counting.js" defer></script>
+</head>
+<body data-chapter="counting">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 2</div>
+  <h1>The hidden order of counting</h1>
+  <p class="lede">The way to read switch patterns as numbers is hidden in an idea we all learned in primary school: place value. Once you truly understand it, binary and hexadecimal become mere dialects.</p>
+  <div class="meta"><span>Reading: ~30 min</span><span>Before: Chapter 1</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 2.1</span>Try adding Roman numerals</h2>
+
+<p class="dropcap">Add MCMLXXXIV and XLVII. Hard, isn’t it? In Roman numerals every symbol has a fixed value (M = 1000, C = 100, X = 10…) and a number is read by adding (sometimes subtracting) those values. To add, you first have to translate into some other system in your head.</p>
+
+<p>The system we use today has a different secret: <strong>a digit’s value depends on where it stands.</strong> Of the two “2”s in 2024, one means two thousand and the other twenty. This idea, and the <strong>zero</strong> that makes it work, developed in India. In the 9th century the mathematician al-Khwarizmi, working in Baghdad, wrote a book about the system; the Latin title of its translation (“Algoritmi…”) gave us the word <em>algorithm</em>. The system spread through Europe after Fibonacci’s book of 1202.</p>
+
+<p>The best way to really understand place value is to play with it as a machine.</p>
+
+<h2><span class="sec">§ 2.2</span>Exploding dots</h2>
+
+<p>Below is a machine made of boxes. The rules are simple: <strong>you add dots to the rightmost box; when <span id="k-base"></span> dots pile up in a box they explode</strong>, those dots vanish and a <em>single</em> dot appears in the box to the left. Start with base ten, then drop the base to <b>2</b> and play the same game.</p>
+
+<figure class="fig" id="f-dots">
+  <div class="fig-in">
+    <div class="dots-machine" id="dots"></div>
+    <div class="ctl" id="dots-ctl"></div>
+    <div class="readout" id="dots-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>The exploding dots machine</b> (after James Tanton’s “exploding dots”). The digit under each box is the number of dots in it. The number we write is nothing but those digits side by side.</figcaption>
+</figure>
+
+<p>The machine shows why place value works. A single dot in a box was created by <em>base</em> dots exploding in the box to its right. So every box is worth <em>base times</em> the box to its right. In decimal the boxes are worth 1, 10, 100, 1000; in binary 1, 2, 4, 8, 16…</p>
+
+<p class="formula">value = … + d<sub>3</sub>·b³ + d<sub>2</sub>·b² + d<sub>1</sub>·b¹ + d<sub>0</sub>·b⁰</p>
+
+<p>Here <em>b</em> is the base and the <em>d</em>s are the digits in the boxes. A box can hold at most <em>b − 1</em> dots (one more explodes), which is why the digits of base <em>b</em> run <strong>from 0 to b − 1</strong>. Binary having only 0 and 1 fits the switches of Chapter 1 perfectly: a switch is a box that holds at most one dot.</p>
+
+<div class="think">
+  <p class="q">What do the boxes look like if you add 5 dots to the base-2 machine?</p>
+  <details><summary>Think first, then open</summary>
+    <p>Right to left: 1, 0, 1. So <span class="b">101</span><span class="sub">2</span> = 4 + 0 + 1 = 5. You can check it on the machine.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 2.3</span>Counting in binary</h2>
+
+<p>Counting in binary means flipping the rightmost switch at every step and passing the “carry” to the left when needed. The counter below counts from 0 to 15. Under it, a diagram draws each lamp’s state over time.</p>
+
+<figure class="fig" id="f-count">
+  <div class="fig-in">
+    <div id="cnt-lamps"></div>
+    <div class="readout" id="cnt-out"></div>
+    <div id="cnt-wave"></div>
+    <div class="ctl" id="cnt-ctl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>Each lamp blinks at half the speed of the one to its right.</b> The 1s lamp changes every step, the 2s lamp every two steps, the 4s lamp every four. The clock signals and frequency dividers inside computers use exactly this pattern.</figcaption>
+</figure>
+
+<p>Once you notice the pattern in the diagram you never need to memorize binary numbers: the rightmost bit goes 0101…, the next 0011…, the next 00001111… Each column is a version of the previous one running twice as slowly.</p>
+
+<h2><span class="sec">§ 2.4</span>Reading a binary number</h2>
+
+<p>From right to left the boxes double: 1, 2, 4, 8, 16, 32, 64, 128… To read a binary number you just <strong>add up the values of the lamps that are on</strong>. Lamps that are off add nothing.</p>
+
+<p class="formula"><span class="b">1 1 0 1 0 1 1 0</span> → 128 + 64 + 16 + 4 + 2 = <span class="d">214</span></p>
+
+<p>The other direction, turning a decimal number into binary, is like a balance puzzle. You have one weight each of 128, 64, 32, 16, 8, 4, 2 and 1 grams. One pan holds something that weighs the target number; balance it with weights on the other pan. Target: <span id="k-target"></span>.</p>
+
+<figure class="fig" id="f-scale">
+  <div class="fig-in">
+    <div id="scale"></div>
+    <div class="ctl" id="scale-w"></div>
+    <div class="tell" id="scale-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Converting to binary with a balance.</b> Tap the weights to put them on the pan or take them off. When it balances, the weights on the pan spell the number in binary: used weight 1, unused 0. There is only one of each weight because a box holds at most one dot.</figcaption>
+</figure>
+
+<p>The fastest strategy is to be <strong>greedy</strong>: start with the biggest weight; keep it on the pan if it does not overshoot the target, take it off if it does; then move to the next smaller one. Because every weight is one more than the sum of all smaller ones (128 = 64 + 32 + … + 1 + 1), this strategy always finds the answer, and every number has exactly <em>one</em> binary spelling.</p>
+
+<h2><span class="sec">§ 2.5</span>Converting by division</h2>
+
+<p>The balance method is great for small numbers but requires knowing the list of weights. There is a general method that works in any base, and it too comes straight from exploding dots. When you divide the number by the base, the <strong>remainder</strong> is the dots left unexploded in the rightmost box, and the <strong>quotient</strong> is the number of dots passed to the left. Repeat until the quotient is zero.</p>
+
+<figure class="fig narrow" id="f-div">
+  <div class="fig-in">
+    <div class="fig-title">Convert <span id="k-dn"></span> to base <span id="k-db"></span></div>
+    <div class="div-ladder" id="div-ladder"></div>
+    <div class="cells" id="div-res" style="margin-top:1rem"></div>
+    <div class="tell" id="div-tell"></div>
+    <div id="div-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Repeated division.</b> The first remainder found is the rightmost digit, the last one is the leftmost. That is why we read the remainders from bottom to top.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 2.6</span>Every base is the same game</h2>
+
+<p>Bases 10 and 2 are not special; the machine works in any base. Play with this sentence: <span id="k-bn"></span> is written <span class="out" data-o="bconv"></span> in base <span id="k-bb"></span>.</p>
+
+<figure class="fig narrow" id="f-base">
+  <div class="fig-in">
+    <div class="pv" id="pv"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Place values.</b> Multiply every digit by its box’s value, add, and you get the same number. Change the base and the box values change; the number does not.</figcaption>
+</figure>
+
+<p>Some bases have a special place. Base 8 (<strong>octal</strong>) and base 16 (<strong>hexadecimal</strong>) are powers of two: 8 = 2³, 16 = 2⁴. That means you can switch between them and binary without any arithmetic. Let’s see how.</p>
+
+<aside class="aside side"><span class="t">In everyday life</span>In the Linux command <code>chmod 755</code> every digit is a 3-bit permission group: read (4) + write (2) + execute (1). 7 = <span class="b">111</span> = everything, 5 = <span class="b">101</span> = read and execute.</aside>
+
+<h2><span class="sec">§ 2.7</span>Shorthand for long bits: hexadecimal</h2>
+
+<p>Think of a 32-bit value: <span class="b">11011110101011011011111011101111</span>. A pain to read and to write; missing a bit is far too easy. Converting to decimal (3735928559) makes it shorter but loses the link to the bits: we can no longer see which bits are on.</p>
+
+<p>The solution is surprisingly simple: <strong>group the bits in fours from the right</strong>. 4 bits have 2⁴ = 16 patterns and we give each pattern a single symbol. The digits 0–9 are not enough, so we add the letters A, B, C, D, E, F. Tap the lamps below and change the group size.</p>
+
+<figure class="fig" id="f-group">
+  <div class="fig-in">
+    <div class="center" id="grp-mode"></div>
+    <div class="grp" id="grp"></div>
+    <div class="readout" id="grp-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>Grouping = changing base.</b> Groups of 4 give hex digits, groups of 3 octal digits. If the leftmost group is short, imagine zeros in front; leading zeros do not change the value.</figcaption>
+</figure>
+
+<p>So 32 bits shrink to eight hex digits: <span class="h">DEADBEEF</span>. Every digit corresponds to exactly 4 bits, so you can still see which bits are on. Two hex digits = 8 bits; in the next chapter we will call that group of eight a <em>byte</em>.</p>
+
+<div id="hexchart" class="hexchart"></div>
+
+<p>Programmers write hex numbers with the <code>0x</code> prefix (<code>0xFF</code>), color codes use <code>#</code> (<code>#FF8800</code>), and texts sometimes use a subscript: <span class="h">FF</span><span class="sub">16</span>. The prefix matters: <code>0x10</code> is not ten but <strong>sixteen</strong>.</p>
+
+<h3>Where will you meet hexadecimal?</h3>
+<ul>
+  <li><strong>Colors</strong>: <code>#FF5733</code> is three bytes: red, green, blue (Chapter 7).</li>
+  <li><strong>Memory addresses</strong>: <code>0x7FFE42A0</code> (Chapter 8).</li>
+  <li><strong>Character numbers</strong>: <code>U+00E7</code> = ç (Chapter 6).</li>
+  <li><strong>Network card IDs</strong>: a MAC address <code>00:1A:2B:3C:4D:5E</code>, six bytes.</li>
+  <li><strong>Error codes</strong>: on Windows <code>0x80070005</code> = “Access denied”.</li>
+</ul>
+
+<h2><span class="sec">§ 2.8</span>Bases in code</h2>
+
+<p>In Python and JavaScript you can write numbers directly in different bases. They all produce the same number; the base is only a way of writing it.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+a = 0b1010        # binary  → 10
+b = 0o12          # octal   → 10
+c = 0xA           # hex     → 10
+print(a == b == c == 10)       # True
+
+bin(255), oct(255), hex(255)   # ('0b11111111', '0o377', '0xff')
+f"{255:08b}"                   # '11111111'  pad to 8 digits
+int("11111111", 2)             # 255  text to number
+int("ff", 16)                  # 255
+</pre>
+<pre data-lang="js">
+const a = 0b1010;      // binary → 10
+const b = 0o12;        // octal  → 10
+const c = 0xA;         // hex    → 10
+console.log(a === b && b === c);   // true
+
+(255).toString(2);                 // "11111111"
+(255).toString(16);                // "ff"
+(5).toString(2).padStart(8, "0");  // "00000101"
+parseInt("11111111", 2);           // 255
+parseInt("ff", 16);                // 255
+</pre>
+</div>
+
+<h2><span class="sec">§ 2.9</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p>Which is <em>not</em> a valid number in base 7?</p>
+    <ul><li>660</li><li>1234</li><li>1780</li><li>0</li></ul>
+    <div class="quiz-why">Base 7 digits are 0–6; 7 and 8 are invalid.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>What is <span class="b">100</span><span class="sub">2</span>?</p>
+    <ul><li>100</li><li>4</li><li>2</li><li>8</li></ul>
+    <div class="quiz-why">1·4 + 0·2 + 0·1 = 4. Appending a 0 to a binary number doubles it.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>How is <span class="b">1111 0011</span> written in hex?</p>
+    <ul><li>F3</li><li>E3</li><li>F11</li><li>FC</li></ul>
+    <div class="quiz-why">1111 = F, 0011 = 3.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Why do we read the remainders of repeated division from bottom to top?</p>
+    <ul><li>Tradition</li><li>The last remainder is always 1</li><li>The quotient grows at every step</li><li>The first remainder gives the rightmost digit</li></ul>
+    <div class="quiz-why">The first remainder is the dots left unexploded in the rightmost box: the ones digit.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>Which number comes after <code>FF</code> in hex?</p>
+    <ul><li>FG</li><li>G0</li><li>100</li><li>FF1</li></ul>
+    <div class="quiz-why">Both boxes hold the largest digit; +1 causes a chain of explosions: 100<sub>16</sub> = 256.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saymanın gizli düzeni · Sıfırlar ve Birler</title>
+<meta name="description" content="Basamak değeri, patlayan noktalarla tabanlar, binary saymak, terazi ile binary’ye çevirmek, tekrarlı bölme, sekizli ve onaltılı sistem. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/counting.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/counting.js" defer></script>
+</head>
+<body data-chapter="counting">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 2</div>
+  <h1>Saymanın gizli düzeni</h1>
+  <p class="lede">Anahtar desenlerini sayı olarak okumanın yolu, aslında hepimizin ilkokulda öğrendiği bir fikirde saklı: basamak değeri. Onu bir kez gerçekten anlarsan, ikili ve onaltılı sistem sadece birer lehçe olur.</p>
+  <div class="meta"><span>Okuma: ~30 dk</span><span>Önce: Bölüm 1</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 2.1</span>Roma rakamlarıyla toplama yap</h2>
+
+<p class="dropcap">MCMLXXXIV ile XLVII’yi topla. Zor, değil mi? Roma rakamlarında her sembolün sabit bir değeri vardır (M = 1000, C = 100, X = 10…) ve sayı, sembollerin değerleri toplanarak (bazen çıkarılarak) okunur. Toplamak için önce kafanda başka bir sisteme çevirmen gerekir.</p>
+
+<p>Bugün kullandığımız sistemin sırrı başka: <strong>bir rakamın değeri, bulunduğu yere göre değişir.</strong> 2024’teki iki tane “2”den biri iki bin, diğeri yirmi demektir. Bu fikir ve onu mümkün kılan <strong>sıfır</strong> Hindistan’da gelişti. 9. yüzyılda Bağdat’ta çalışan matematikçi el-Hârizmî bu sistemi anlatan bir kitap yazdı; kitabın Latince çevirisindeki adı (“Algoritmi…”) bugünkü <em>algoritma</em> kelimesinin kaynağıdır. Sistem Avrupa’ya 1202’de Fibonacci’nin kitabıyla yayıldı.</p>
+
+<p>Basamak değerini gerçekten anlamanın en iyi yolu, onu bir makineyle oynamaktır.</p>
+
+<h2><span class="sec">§ 2.2</span>Patlayan noktalar</h2>
+
+<p>Aşağıda kutulardan oluşan bir makine var. Kurallar basit: <strong>en sağdaki kutuya nokta eklersin; bir kutuda <span id="k-base"></span> nokta birikince patlar</strong>, o noktalar yok olur ve hemen solundaki kutuda <em>tek</em> bir nokta belirir. Önce onlu sistemle başla, sonra tabanı <b>2</b>’ye indirip aynı oyunu oyna.</p>
+
+<figure class="fig" id="f-dots">
+  <div class="fig-in">
+    <div class="dots-machine" id="dots"></div>
+    <div class="ctl" id="dots-ctl"></div>
+    <div class="readout" id="dots-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Patlayan noktalar makinesi</b> (James Tanton’un “exploding dots” fikrinden). Her kutunun altındaki rakam, o kutudaki nokta sayısıdır. Yazdığımız sayı, bu rakamların yan yana dizilmesinden başka bir şey değil.</figcaption>
+</figure>
+
+<p>Makine bize basamak değerinin neden işe yaradığını gösteriyor. Bir kutudaki tek bir nokta, sağındaki kutudan <em>taban</em> kadar noktanın patlamasıyla oluştu. Yani her kutu, sağındakinin <em>taban katı</em> değerindedir. Onlu sistemde kutuların değeri 1, 10, 100, 1000; ikili sistemde 1, 2, 4, 8, 16…</p>
+
+<p class="formula">değer = … + d<sub>3</sub>·b³ + d<sub>2</sub>·b² + d<sub>1</sub>·b¹ + d<sub>0</sub>·b⁰</p>
+
+<p>Burada <em>b</em> taban, <em>d</em> kutulardaki rakamlardır. Bir kutuda en fazla <em>b − 1</em> nokta durabilir (bir fazlası patlar); bu yüzden taban <em>b</em>’de rakamlar <strong>0’dan b − 1’e kadardır</strong>. İkili sistemde sadece 0 ve 1 olması, Bölüm 1’deki anahtarlarla mükemmel uyuşur: bir anahtar, en fazla bir noktası olan bir kutudur.</p>
+
+<div class="think">
+  <p class="q">Taban 2’deki makinede 5 nokta eklersen kutular neye benzer?</p>
+  <details><summary>Düşündükten sonra aç</summary>
+    <p>Sağdan sola: 1, 0, 1. Yani <span class="b">101</span><span class="sub">2</span> = 4 + 0 + 1 = 5. Makinede deneyerek kontrol edebilirsin.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 2.3</span>İkili sistemde saymak</h2>
+
+<p>İkili sistemde saymak, her adımda en sağdaki anahtarı çevirmek ve gerekirse “taşıma”yı sola aktarmaktır. Aşağıdaki sayaç 0’dan 15’e kadar sayıyor. Altında her ampulün zaman içindeki durumunu çizen bir diyagram var.</p>
+
+<figure class="fig" id="f-count">
+  <div class="fig-in">
+    <div id="cnt-lamps"></div>
+    <div class="readout" id="cnt-out"></div>
+    <div id="cnt-wave"></div>
+    <div class="ctl" id="cnt-ctl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Her ampul, sağındakinin yarı hızında yanıp söner.</b> 1’lik ampul her adımda, 2’lik her iki adımda, 4’lük her dört adımda değişir. Bilgisayarların içindeki saat sinyalleri ve frekans bölücüler tam olarak bu düzeni kullanır.</figcaption>
+</figure>
+
+<p>Diyagramdaki deseni bir kez fark edersen ikili sayıları ezberlemene gerek kalmaz: en sağdaki bit 0101…, bir solundaki 0011…, sonraki 00001111… diye gider. Her sütun bir öncekinin iki kat yavaş versiyonudur.</p>
+
+<h2><span class="sec">§ 2.4</span>İkili bir sayıyı okumak</h2>
+
+<p>Kutuların değerleri sağdan sola 1, 2, 4, 8, 16, 32, 64, 128… diye ikiye katlanır. Bir ikili sayıyı okumak için <strong>yanan ampullerin değerlerini toplaman</strong> yeter. Sönük ampuller hiçbir şey eklemez.</p>
+
+<p class="formula"><span class="b">1 1 0 1 0 1 1 0</span> → 128 + 64 + 16 + 4 + 2 = <span class="d">214</span></p>
+
+<p>Ters yön, yani onlu bir sayıyı ikiliye çevirmek, bir terazi problemine benzer. Elinde 128, 64, 32, 16, 8, 4, 2 ve 1 gramlık birer ağırlık var. Kefelerden birinde hedef sayı kadar ağırlıkta bir şey duruyor; diğer kefeyi ağırlıklarla dengele. Hedef sayı: <span id="k-target"></span>.</p>
+
+<figure class="fig" id="f-scale">
+  <div class="fig-in">
+    <div id="scale"></div>
+    <div class="ctl" id="scale-w"></div>
+    <div class="tell" id="scale-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Terazi ile ikiliye çevirmek.</b> Ağırlıklara dokunarak kefeye koy ya da kaldır. Denge sağlandığında kefedeki ağırlıklar sayının ikili yazılışını verir: kullanılan ağırlık 1, kullanılmayan 0. Her ağırlıktan sadece bir tane var, çünkü bir kutuda en fazla bir nokta durabilir.</figcaption>
+</figure>
+
+<p>En hızlı strateji <strong>açgözlü</strong> olmaktır: en büyük ağırlıkla başla; hedefi aşmıyorsa kefede bırak, aşıyorsa kaldır; sonra bir küçüğüne geç. Her ağırlık kendisinden küçüklerin toplamından bir fazla olduğu için (128 = 64 + 32 + … + 1 + 1) bu strateji her zaman doğru cevabı bulur ve her sayının <em>tek bir</em> ikili yazılışı vardır.</p>
+
+<h2><span class="sec">§ 2.5</span>Bölerek dönüştürmek</h2>
+
+<p>Terazi yöntemi küçük sayılar için harika, ama ağırlıkların listesini bilmeyi gerektirir. Her tabanda çalışan genel bir yöntem daha var ve yine patlayan noktalardan çıkıyor. Sayıyı tabana böldüğünde <strong>kalan</strong>, en sağdaki kutuda patlamadan kalan noktalardır; <strong>bölüm</strong> ise sola taşınan noktaların sayısı. Bu işlemi bölüm sıfır olana kadar tekrarlarsın.</p>
+
+<figure class="fig narrow" id="f-div">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-dn"></span> sayısını taban <span id="k-db"></span>’ye çevir</div>
+    <div class="div-ladder" id="div-ladder"></div>
+    <div class="cells" id="div-res" style="margin-top:1rem"></div>
+    <div class="tell" id="div-tell"></div>
+    <div id="div-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Tekrarlı bölme.</b> İlk bulunan kalan en sağdaki rakamdır, son bulunan en soldaki. Bu yüzden kalanları sondan başa doğru okuruz.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 2.6</span>Her taban aynı oyun</h2>
+
+<p>Taban 10 ve taban 2 özel değil; makine her tabanda çalışır. Şu cümleyle oyna: <span id="k-bn"></span> sayısı taban <span id="k-bb"></span>’de <span class="out" data-o="bconv"></span> diye yazılır.</p>
+
+<figure class="fig narrow" id="f-base">
+  <div class="fig-in">
+    <div class="pv" id="pv"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Basamak değerleri.</b> Her rakam, kendi kutusunun değeriyle çarpılıp toplanınca aynı sayıyı verir. Taban değişince kutuların değeri değişir, sayı değişmez.</figcaption>
+</figure>
+
+<p>Bazı tabanların özel bir yeri var. Taban 8 (<strong>sekizli</strong>, octal) ve taban 16 (<strong>onaltılı</strong>, hexadecimal) ikinin kuvvetleridir: 8 = 2³, 16 = 2⁴. Bu yüzden ikili sistemle aralarında hiç hesap yapmadan geçiş yapılabilir. Nasıl olduğunu şimdi göreceğiz.</p>
+
+<aside class="aside side"><span class="t">Günlük hayatta</span>Linux’ta <code>chmod 755</code> komutundaki her rakam 3 bitlik bir izin grubudur: okuma (4) + yazma (2) + çalıştırma (1). 7 = <span class="b">111</span> = hepsi, 5 = <span class="b">101</span> = okuma ve çalıştırma.</aside>
+
+<h2><span class="sec">§ 2.7</span>Uzun bitlere kısaltma: onaltılık sistem</h2>
+
+<p>32 bitlik bir değeri düşün: <span class="b">11011110101011011011111011101111</span>. Okuması da yazması da eziyet; bir biti kaçırmak çok kolay. Onlu sisteme çevirirsek (3735928559) kısalır ama bitlerle bağlantı kaybolur: hangi bitin açık olduğunu artık göremeyiz.</p>
+
+<p>Çözüm şaşırtıcı derecede basit: bitleri <strong>sağdan dörderli gruplamak</strong>. 4 bitin 2⁴ = 16 farklı deseni vardır ve her desene tek bir sembol veririz. 0–9 rakamları yetmediği için A, B, C, D, E, F harflerini de ekleriz. Aşağıdaki ampullere dokun ve gruplama boyutunu değiştir.</p>
+
+<figure class="fig" id="f-group">
+  <div class="fig-in">
+    <div class="center" id="grp-mode"></div>
+    <div class="grp" id="grp"></div>
+    <div class="readout" id="grp-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Gruplamak = taban değiştirmek.</b> 4’erli gruplar onaltılık, 3’erli gruplar sekizlik rakamlar verir. En soldaki grup eksik kalırsa başına 0 eklenmiş gibi düşünülür; baştaki sıfırlar değeri değiştirmez.</figcaption>
+</figure>
+
+<p>Böylece 32 bit, sekiz onaltılık rakama iner: <span class="h">DEADBEEF</span>. Her rakam tam olarak 4 bite karşılık geldiği için hangi bitin açık olduğunu hâlâ görebilirsin. İki onaltılık rakam = 8 bit; bir sonraki bölümde bu sekizliye <em>byte</em> diyeceğiz.</p>
+
+<div id="hexchart" class="hexchart"></div>
+
+<p>Programcılar onaltılık sayıları <code>0x</code> önekiyle yazar (<code>0xFF</code>), renk kodlarında <code>#</code> kullanılır (<code>#FF8800</code>), metinlerde bazen alt simge görürsün: <span class="h">FF</span><span class="sub">16</span>. Önek önemlidir: <code>0x10</code> on değil, <strong>on altıdır</strong>.</p>
+
+<h3>Onaltılık nerelerde karşına çıkacak?</h3>
+<ul>
+  <li><strong>Renkler</strong>: <code>#FF5733</code> üç byte’tır: kırmızı, yeşil, mavi (Bölüm 7).</li>
+  <li><strong>Bellek adresleri</strong>: <code>0x7FFE42A0</code> (Bölüm 8).</li>
+  <li><strong>Karakter numaraları</strong>: <code>U+00E7</code> = ç (Bölüm 6).</li>
+  <li><strong>Ağ kartı kimlikleri</strong>: MAC adresi <code>00:1A:2B:3C:4D:5E</code>, altı byte.</li>
+  <li><strong>Hata kodları</strong>: Windows’ta <code>0x80070005</code> = “Erişim engellendi”.</li>
+</ul>
+
+<h2><span class="sec">§ 2.8</span>Kodda tabanlar</h2>
+
+<p>Python’da ve JavaScript’te sayıları doğrudan farklı tabanlarda yazabilirsin. Hepsi aynı sayıyı üretir; taban sadece yazılış biçimidir.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+a = 0b1010        # ikili   → 10
+b = 0o12          # sekizli → 10
+c = 0xA           # onaltılı → 10
+print(a == b == c == 10)       # True
+
+bin(255), oct(255), hex(255)   # ('0b11111111', '0o377', '0xff')
+f"{255:08b}"                   # '11111111'  8 haneye tamamla
+int("11111111", 2)             # 255  metinden sayıya
+int("ff", 16)                  # 255
+</pre>
+<pre data-lang="js">
+const a = 0b1010;      // ikili   → 10
+const b = 0o12;        // sekizli → 10
+const c = 0xA;         // onaltılı → 10
+console.log(a === b && b === c);   // true
+
+(255).toString(2);                 // "11111111"
+(255).toString(16);                // "ff"
+(5).toString(2).padStart(8, "0");  // "00000101"
+parseInt("11111111", 2);           // 255
+parseInt("ff", 16);                // 255
+</pre>
+</div>
+
+<h2><span class="sec">§ 2.9</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p>Taban 7’de hangisi geçerli bir sayı <em>değildir</em>?</p>
+    <ul><li>660</li><li>1234</li><li>1780</li><li>0</li></ul>
+    <div class="quiz-why">Taban 7’de rakamlar 0–6’dır; 7 ve 8 geçersiz.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p><span class="b">100</span><span class="sub">2</span> kaçtır?</p>
+    <ul><li>100</li><li>4</li><li>2</li><li>8</li></ul>
+    <div class="quiz-why">1·4 + 0·2 + 0·1 = 4. İkili bir sayının sağına 0 eklemek değerini iki katına çıkarır.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p><span class="b">1111 0011</span> onaltılık olarak nasıl yazılır?</p>
+    <ul><li>F3</li><li>E3</li><li>F11</li><li>FC</li></ul>
+    <div class="quiz-why">1111 = F, 0011 = 3.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Tekrarlı bölmede kalanları neden sondan başa okuruz?</p>
+    <ul><li>Bir gelenek olduğu için</li><li>Son kalan hep 1 olduğu için</li><li>Bölüm her adımda büyüdüğü için</li><li>İlk kalan en sağdaki basamağı verdiği için</li></ul>
+    <div class="quiz-why">İlk bölmede kalan, en sağ kutuda patlamadan kalan noktalardır, yani birler basamağı.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>Onaltılık sistemde <code>FF</code>’den sonra hangi sayı gelir?</p>
+    <ul><li>FG</li><li>G0</li><li>100</li><li>FF1</li></ul>
+    <div class="quiz-why">İki kutu da en büyük rakamda; +1 zincirleme patlama yaratır: 100<sub>16</sub> = 256.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One switch, two worlds · Zeros &amp; Ones</title>
+<meta name="description" content="What is a bit, why do computers use two states, how much information does a bit carry, and why can the same bit pattern mean different things? An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../anahtarlar.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/switches.js" defer></script>
+</head>
+<body data-chapter="switches">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 1</div>
+  <h1>One switch, two worlds</h1>
+  <p class="lede">Inside a computer there are no letters, no colors, not even numbers really. There are only billions of tiny switches turning on and off. Everything starts here.</p>
+  <div class="meta"><span>Reading: ~20 min</span><span>Prerequisites: curiosity</span></div>
+</header>
+
+<article class="prose">
+
+<p class="dropcap">While you read this sentence, switches inside your device are flipping on and off billions of times a second. The shapes of the letters on the screen, the background color, how far down you have scrolled… all of it is held in the current state of those switches. This essay makes one single claim, and we will spend the rest of it unpacking it:</p>
+
+<p class="key">Everything in a computer is <strong>patterns of switches</strong> plus <strong>agreements</strong> about how to read those patterns.</p>
+
+<p>Let’s start with the smallest piece: a single switch. Tap the lamp below.</p>
+
+<figure class="fig narrow" id="f-switch">
+  <div class="fig-in">
+    <div class="center" id="sw-lamp"></div>
+    <div class="tell" id="sw-tell">Off. Let’s call this state <b>0</b>.</div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>One bit.</b> It has two states: off and on. We call them 0 and 1, but “0” and “1” are only labels; we could just as well say “no/yes” or “dark/light”.</figcaption>
+</figure>
+
+<p>This single switch is called a <strong>bit</strong>, short for <em>binary digit</em>. A bit is the smallest possible piece of information. There cannot be anything smaller, because something with only one state says nothing: a lamp that never changes cannot tell you anything.</p>
+
+<h2><span class="sec">§ 1.1</span>What can one bit say?</h2>
+
+<p>Anything with two options: yes or no, true or false, heads or tails, door open or closed. In programming this is called a <em>boolean</em> and written <code>true</code>/<code>false</code>. But a single bit can answer exactly one such question.</p>
+
+<aside class="aside hist side"><span class="t">History</span>In 1775 American revolutionaries signaled which route British troops were taking out of Boston with lanterns hung in a church steeple: “One if by land, two if by sea.” That is literally an <b>encoding</b>: an agreement made in advance.</aside>
+
+<p>What if we want to say more? Which day of the week it is, say, or a letter, or a color? The answer is simple: we use <strong>more switches</strong>.</p>
+
+<h2><span class="sec">§ 1.2</span>More switches</h2>
+
+<p>Suppose we have <span id="k-n"></span> switches. With them we can make exactly <span class="out" data-o="pat">8</span> different patterns. Drag the number left and right (or press the arrows) to add and remove switches and watch how the patterns multiply.</p>
+
+<figure class="fig" id="f-grow">
+  <div class="fig-in">
+    <div class="grow" id="grow"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>Every new switch doubles the number of patterns.</b> Why? All the old patterns can be made once more with the new switch off (left group) and once more with it on (right group). Two copies of the old list.</figcaption>
+</figure>
+
+<p>This doubling is perhaps the most used fact in computer science. 1 switch, 2 patterns; 2 switches, 4; 3 switches, 8… Each time we multiply by two:</p>
+
+<p class="formula">n switches → 2 × 2 × … × 2 = 2<sup>n</sup> patterns</p>
+
+<p>Doubling looks slow at first but speeds up incredibly. <span class="out" data-o="nn">3</span> switches: <span class="out" data-o="pat2">8</span> patterns. <span data-o="fact" class="muted"></span></p>
+
+<h2><span class="sec">§ 1.3</span>One bit = one yes/no question</h2>
+
+<p>The nicest way to understand a bit is a game. Think of a number <strong>between 0 and 127</strong>. I will ask you only yes/no questions and find it in at most seven.</p>
+
+<figure class="fig" id="f-game">
+  <div class="fig-in">
+    <div class="game" id="game"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Every answer is a bit.</b> Because each question cuts the range in half, every answer carries exactly one bit of information. When the game ends, notice that your answers (yes = 1, no = 0) are the number itself.</figcaption>
+</figure>
+
+<p>Why are seven questions enough? Because every “yes” or “no” cuts the remaining possibilities exactly in half. You start with 128 numbers; after one question 64 remain, then 32, 16, 8, 4, 2, 1. Seven halvings get you down to one number, and 2<sup>7</sup> = 128.</p>
+
+<p>This game gives us the true meaning of a bit: <strong>a bit is the answer to a well-asked yes/no question.</strong> Whenever you wonder how many bits it takes to encode something, ask yourself: “How many yes/no questions would I need to pin it down?”</p>
+
+<aside class="aside hist"><span class="t">History</span>Measuring information this way was proposed by Claude Shannon in 1948; his paper “A Mathematical Theory of Communication” is the foundation of modern communication. The paper also popularized the word “bit”, which Shannon credited to his colleague John Tukey.</aside>
+
+<div class="think">
+  <p class="q">How many yes/no questions does it take to find one card out of a 52-card deck?</p>
+  <details><summary>Think first, then open</summary>
+    <p>5 questions distinguish 2<sup>5</sup> = 32 possibilities: not enough. 6 questions distinguish 64: enough. So <b>6 bits</b>. The general rule: to tell N things apart you need the smallest n with 2<sup>n</sup> ≥ N.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 1.4</span>Why two? Why not ten?</h2>
+
+<p>We count on ten fingers. Why not build computers that work with ten voltage levels and think directly in decimal? The answer is physics: <strong>noise</strong>. Electrical signals are never perfect; temperature, interference between wires, even cosmic rays nudge the voltage a little. Below, watch two systems send a message under the same noise.</p>
+
+<figure class="fig" id="f-noise">
+  <div class="fig-in">
+    <div id="noise"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Two levels are far more robust against noise.</b> Each symbol is sent as a voltage level and the receiver rounds to the nearest level. With ten levels the levels are so close together that even a small jolt turns a symbol into its neighbor.</figcaption>
+</figure>
+
+<p>With two levels the receiver has only one question: “Is the voltage high or low?” A wide safety margin is left in between. That robustness is what lets billions of transistors work flawlessly billions of times every second. On top of that, a two-state switch is far simpler, smaller and cheaper to make than a ten-state one.</p>
+
+<h2><span class="sec">§ 1.5</span>Can switches think?</h2>
+
+<p>Choosing two states brings one more gift. In 1854 the mathematician George Boole turned logic into an algebra over just two values, “true” and “false”. In 1937 Claude Shannon, still a master’s student, showed that circuits made of switches compute exactly this algebra. Tap the two switches below:</p>
+
+<figure class="fig narrow" id="f-gate">
+  <div class="fig-in">
+    <div class="center" id="gate-mode"></div>
+    <div id="gate"></div>
+    <div class="tell" id="gate-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Logic from switches.</b> Two switches in series mean “AND” (the lamp lights only if both are on); two in parallel mean “OR” (one is enough). The billions of transistors in today’s processors are mind-boggling combinations of gates like these.</figcaption>
+</figure>
+
+<p>So switches do not just <em>store</em> information, they can <em>process</em> it too: a circuit that adds two numbers is really just AND, OR and XOR gates wired the right way. This essay focuses on storing rather than processing, but never forget that both are done by the same switches.</p>
+
+<h2><span class="sec">§ 1.6</span>Where do bits live?</h2>
+
+<p>“Switch” is a metaphor. In reality a bit is any physical thing whose two states can be told apart reliably:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Where</th><th>“0”</th><th>“1”</th></tr></thead>
+  <tbody>
+    <tr><td>Processor</td><td>Transistor not conducting (≈ 0 V)</td><td>Transistor conducting (≈ 1 V)</td></tr>
+    <tr><td>RAM</td><td>Tiny capacitor empty</td><td>Capacitor charged (refreshed dozens of times a second!)</td></tr>
+    <tr><td>SSD, USB stick</td><td>No electrons trapped in the cell</td><td>Electrons trapped in the cell</td></tr>
+    <tr><td>Hard disk</td><td>Magnetic field one way</td><td>Magnetic field the other way</td></tr>
+    <tr><td>Optical fiber</td><td>No light</td><td>A pulse of light</td></tr>
+  </tbody>
+</table></div>
+
+<h2><span class="sec">§ 1.7</span>A pattern means nothing by itself</h2>
+
+<p>Now we reach the most important idea. Below are eight lamps. What does the pattern they make <em>mean?</em> The surprising answer: nothing, on its own. The meaning is set by the <strong>agreement</strong> used by whoever reads the pattern. Play with the lamps and switch between the different “lenses”.</p>
+
+<figure class="fig" id="f-lens">
+  <div class="fig-in">
+    <div id="lens-lamps"></div>
+    <div class="chips" id="lens-chips" style="margin-top:1rem"></div>
+    <div class="lens-out" id="lens-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>Same pattern, different meanings.</b> The computer does not know whether a pattern is a “number” or a “letter”. The program reading it does. The rest of this essay is about learning each of these lenses one by one.</figcaption>
+</figure>
+
+<p>That is why this is more than a “number systems” lesson. Each chapter takes up one agreement: reading patterns <a href="counting.html">as numbers</a>, <a href="negative.html">negative numbers</a>, <a href="fractions.html">fractions</a>, <a href="text.html">letters</a>, <a href="media.html">colors and sounds</a>. In the end we will see how they all sit side by side on <a href="memory.html">one long strip of bytes</a>.</p>
+
+<h2><span class="sec">§ 1.8</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p>How many different values can a bit take?</p>
+    <ul><li>1</li><li>8</li><li>2</li><li>10</li></ul>
+    <div class="quiz-why">Two: 0 and 1. Something with a single value carries no information.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>If you add one switch, what happens to the number of patterns?</p>
+    <ul><li>It grows by 1</li><li>It doubles</li><li>It is squared</li><li>It does not change</li></ul>
+    <div class="quiz-why">All the old patterns can be made once with the new switch off and once with it on: twice as many.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>What is the main reason computers use binary?</p>
+    <ul><li>Binary arithmetic is easy for people</li><li>A tradition that saves energy</li><li>They were built before decimal was invented</li><li>Telling two states apart is far more reliable under noise</li></ul>
+    <div class="quiz-why">Two levels leave a wide safety margin; small noise does not spoil the reading. Two-state switches are also simple and small.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>What does the pattern <span class="b">01000001</span> represent?</p>
+    <ul><li>It depends on the agreement used to read it</li><li>Always the number 65</li><li>Always the letter “A”</li><li>Nothing at all</li></ul>
+    <div class="quiz-why">As a number 65, as an ASCII letter “A”, as a gray level a dark gray… The reader decides.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

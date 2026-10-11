@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saat kadranında eksi sayılar · Sıfırlar ve Birler</title>
+<meta name="description" content="Bilgisayar eksi işaretini nasıl saklar? Geri sarılan sayaç, ikiye tümleyen, sayı çemberi, taşma ve 2038 problemi. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/negative.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/negative.js" defer></script>
+</head>
+<body data-chapter="negative">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 4</div>
+  <h1>Saat kadranında eksi sayılar</h1>
+  <p class="lede">Ampullerin “eksi” diye bir durumu yok. Yine de bilgisayarın −5’i saklaması gerekiyor. Bulunan çözüm o kadar zarif ki, çıkarma işlemini bile ortadan kaldırıyor.</p>
+  <div class="meta"><span>Okuma: ~25 dk</span><span>Önce: Bölüm 2–3</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 4.1</span>İlk akla gelen: bir biti işarete ayır</h2>
+
+<p class="dropcap">En doğal fikir, en soldaki biti işaret olarak kullanmak: <code>0</code> artı, <code>1</code> eksi, kalan yedi bit de sayının büyüklüğü. Buna <strong>işaret-büyüklük</strong> gösterimi denir: +5 = <span class="b"><span class="n">0</span>0000101</span>, −5 = <span class="b"><span class="n">1</span>0000101</span>. Kâğıt üzerinde makul görünüyor ama iki sorunu var.</p>
+
+<p>Birincisi, <strong>iki tane sıfır</strong> ortaya çıkıyor: <span class="b">00000000</span> (+0) ve <span class="b">10000000</span> (−0). Aynı değer için iki desen, her karşılaştırmada iki durumu kontrol etmek demek. İkincisi daha kötü: <strong>sıradan toplama bozuluyor</strong>. +3 ile −3’ü normal ikili toplamayla toplarsan <span class="b">00000011</span> + <span class="b">10000011</span> = <span class="b">10000110</span>, yani −6 çıkıyor. İşlemcinin eksi sayılar için ayrı kurallar bilen ayrı devrelere ihtiyacı olur.</p>
+
+<p>Daha iyi bir fikir için arabaya binelim.</p>
+
+<h2><span class="sec">§ 4.2</span>Geri sarılan kilometre sayacı</h2>
+
+<p>Eski arabalarda üç haneli bir sayaç düşün. Arabayı geri geri sürersen sayaç da geri sayar: 002, 001, 000… ve sonra? <strong>999</strong>. Aşağıda dene.</p>
+
+<figure class="fig narrow" id="f-odo">
+  <div class="fig-in">
+    <div class="odo" id="odo"></div>
+    <div class="ctl" id="odo-ctl"></div>
+    <div class="tell" id="odo-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>999, “sıfırdan bir eksik”tir.</b> Üç haneli bir sayaçta 999’a 1 eklersen 1000 değil 000 olur (dördüncü hane için yer yok). Yani bu sayacın dünyasında 999 gerçekten de −1 gibi davranır.</figcaption>
+</figure>
+
+<p>Bu gözlem her şeyi değiştiriyor: <strong>sabit genişlikli bir sayaçta, sıfırdan geriye doğru giden desenlere eksi sayılar diyebiliriz.</strong> 999 = −1, 998 = −2, 997 = −3… Ve bu sayılarla sıradan toplama doğru çalışır: 5 + 999 = 1004 → son üç hane 004 = 5 − 1. Taşan hane atılınca sonuç doğru!</p>
+
+<h2><span class="sec">§ 4.3</span>Aynı fikir, ikili sistemde: sayı çemberi</h2>
+
+<p>4 bitlik sayıları bir saat kadranına dizelim. <span class="b">1111</span>’den sonra <span class="b">0000</span> gelir; çember başa sarar. <span class="b">0000</span>’dan bir adım geri gidersen <span class="b">1111</span>’e varırsın. O hâlde <span class="b">1111</span>’e −1 demek çok doğal. İbreyi sürükle ya da düğmeleri kullan, yorumu değiştir.</p>
+
+<figure class="fig" id="f-wheel">
+  <div class="fig-in">
+    <div class="center" id="wh-mode"></div>
+    <div class="wheel-box"><svg id="wheel" viewBox="0 0 360 360" class="svgfig" style="width:min(380px,100%)"></svg></div>
+    <div class="ctl" id="wh-ctl"></div>
+    <div class="tell" id="wh-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Toplama = saat yönünde dönmek.</b> İşaretli yorumda çemberin sağ yarısı pozitif, sol yarısı negatif sayılardır. Kırmızı çizgi taşma noktasıdır: bir işlem bu çizgiyi geçerse sonuç 4 bite sığmamış demektir.</figcaption>
+</figure>
+
+<p>Çemberde <strong>3 çıkarmak</strong>, saat yönünün tersine 3 adım gitmektir. Bu da saat yönünde 13 adım gitmekle aynı yere çıkar (16 − 3 = 13). Yani işlemci <code>7 − 3</code> hesaplamak yerine <code>7 + (−3)</code> hesaplayabilir; ayrı bir çıkarma devresine gerek kalmaz. Bu sisteme <strong>ikiye tümleyen</strong> (two’s complement) denir ve bugün neredeyse her işlemci bunu kullanır.</p>
+
+<h2><span class="sec">§ 4.4</span>En soldaki bitin gizli değeri</h2>
+
+<p>Çemberin bir kısayolu var: ikiye tümleyende en soldaki bitin değeri <strong>+128 değil, −128’dir</strong> (8 bitte). Diğer bitler aynı kalır. Böylece en soldaki bit yandığında sayı kendiliğinden eksiye düşer. Aynı sekiz bitin iki farklı okunuşunu karşılaştır.</p>
+
+<figure class="fig" id="f-signed">
+  <div class="fig-in">
+    <div id="sg-lamps"></div>
+    <div class="dual" id="sg-out"></div>
+    <div class="chips" id="sg-pre" style="margin-top:.8rem"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Aynı bitler, iki mercek.</b> İşaretsiz okumada en soldaki bit +128, işaretli okumada −128 değerindedir. 0–127 arası sayılar iki okumada da aynıdır. <span class="b">11111111</span> her zaman −1’dir; <span class="b">10000000</span> ise en küçük sayı: −128.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 4.5</span>Bir sayıyı eksiye çevirmek: ters çevir, 1 ekle</h2>
+
+<p>Elle hesap için pratik bir kural var: bir sayının negatifini bulmak için <strong>bütün bitleri ters çevir ve 1 ekle</strong>. Neden çalışıyor? Bir sayı ile bitleri ters çevrilmiş hâli toplanınca her sütunda bir 0 ve bir 1 olur: sonuç <span class="b">11111111</span>, yani −1. Demek ki <em>x</em> + <em>ters(x)</em> = −1, buradan da <em>ters(x)</em> + 1 = −<em>x</em>.</p>
+
+<figure class="fig narrow" id="f-neg">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-x"></span> sayısının negatifi</div>
+    <div class="negrows" id="neg-rows"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Ters çevir, 1 ekle.</b> Son satırdaki toplama, sonucun gerçekten −x olduğunu kanıtlıyor: x ile −x’in toplamı 1 00000000; taşan dokuzuncu bit atılınca geriye 0 kalır.</figcaption>
+</figure>
+
+<p>Aynı kural iki yönde çalışır: −5’in negatifini alırsan yine +5’e dönersin. Tek bir istisna var: −128’in negatifi 8 bitte yazılamaz, çünkü +128 aralığın dışındadır. İşaretli aralık <strong>asimetriktir</strong>: n bitle −2<sup>n−1</sup> … 2<sup>n−1</sup> − 1. Sıfır, pozitif taraftan bir yer kapar.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Genişlik</th><th>İşaretsiz</th><th>İşaretli (ikiye tümleyen)</th></tr></thead>
+  <tbody>
+    <tr><td class="m">8 bit</td><td class="m">0 … 255</td><td class="m">−128 … 127</td></tr>
+    <tr><td class="m">16 bit</td><td class="m">0 … 65 535</td><td class="m">−32 768 … 32 767</td></tr>
+    <tr><td class="m">32 bit</td><td class="m">0 … 4 294 967 295</td><td class="m">−2 147 483 648 … 2 147 483 647</td></tr>
+    <tr><td class="m">64 bit</td><td class="m">0 … 1,8 × 10¹⁹</td><td class="m">±9,2 × 10¹⁸</td></tr>
+  </tbody>
+</table></div>
+
+<h2><span class="sec">§ 4.6</span>Sessiz felaket: taşma</h2>
+
+<p>İkiye tümleyenin bir bedeli var. Çember başa sardığı için, sonucu kutuya sığmayan bir işlem <strong>hata vermez</strong>; sessizce yanlış bir sayı üretir. 8 bitlik işaretli bir değişkende 100 + 50 hesapla:</p>
+
+<figure class="fig narrow" id="f-ovf">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-a"></span> + <span id="k-b"></span> (8 bit, işaretli)</div>
+    <div class="addgrid" id="add"></div>
+    <div class="tell" id="add-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>İşaret değişince alarm.</b> İki pozitif sayının toplamı negatif çıkıyorsa (ya da iki negatifinki pozitif) taşma olmuştur. İşlemciler bunu bir “taşma bayrağı” ile bildirir, ama çoğu programlama dili bu bayrağa bakmaz.</figcaption>
+</figure>
+
+<p>Taşma, yazılım tarihinin en pahalı hatalarından bazılarına yol açtı:</p>
+<ul>
+  <li><strong>Pac-Man (1980)</strong>: Seviye sayacı 8 bitti. 256. seviyede sayaç taşınca ekranın sağ yarısı anlamsız karakterlerle doldu ve oyun oynanamaz hâle geldi.</li>
+  <li><strong>Ariane 5 (1996)</strong>: 64 bitlik ondalıklı bir hız değeri 16 bitlik işaretli tamsayıya çevrilirken sığmadı. Roket kalkıştan yaklaşık 40 saniye sonra kendini imha etti.</li>
+  <li><strong>Gangnam Style (2014)</strong>: YouTube’un izlenme sayacı 32 bit işaretliydi; en fazla 2 147 483 647. Video bu sınıra yaklaşınca sayaç 64 bite çıkarıldı.</li>
+</ul>
+
+<p>Bir taşma da tam şu anda yaklaşıyor. Birçok sistem zamanı “1 Ocak 1970’ten beri geçen saniye” olarak 32 bitlik işaretli bir tamsayıda tutar. O sayı şu an böyle görünüyor:</p>
+
+<figure class="fig" id="f-2038">
+  <div class="fig-in">
+    <div id="unix-lamps"></div>
+    <div class="readout" id="unix-out"></div>
+    <div class="tell" id="unix-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>2038 problemi, canlı.</b> Her saniye en sağdaki bit değişiyor. En soldaki bit (−2<sup>31</sup>) yandığı an sayı negatife döner ve bu sistemler kendilerini 13 Aralık 1901’de sanır. Bu an 19 Ocak 2038, 03:14:08 UTC’dir. Çoğu modern sistem 64 bitlik zamana geçti, ama gömülü cihazlarda eski kod hâlâ yaşıyor.</figcaption>
+</figure>
+
+<h3>Kodda taşma</h3>
+
+<div class="code-tabs">
+<pre data-lang="py">
+# Python tamsayıları sınırsız büyür, taşmaz:
+print(2 ** 100)                        # 1267650600228229401496703205376
+
+# C türlerini taklit edersek taşmayı görürüz:
+import ctypes
+print(ctypes.c_int8(127 + 1).value)    # -128
+print(ctypes.c_uint8(255 + 1).value)   # 0
+</pre>
+<pre data-lang="js">
+// JS sayıları 64 bit ondalıklıdır; typed array ile 8 bit taşma:
+const a = new Int8Array([127]);
+a[0] += 1;
+console.log(a[0]);          // -128
+
+// Bit işlemleri sayıyı 32 bit işaretliye çevirir:
+console.log(2147483647 | 0);       // 2147483647
+console.log((2147483647 + 1) | 0); // -2147483648
+</pre>
+<pre data-lang="c">
+#include &lt;stdint.h&gt;
+uint8_t u = 255;  u = u + 1;   // 0   (işaretsizde başa sarma tanımlıdır)
+int     x = 2147483647;
+x = x + 1;                     // TANIMSIZ DAVRANIŞ: işaretli taşma
+</pre>
+</div>
+
+<h2><span class="sec">§ 4.7</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="1">
+    <p>8 bit ikiye tümleyende <span class="b">11111111</span> kaçtır?</p>
+    <ul><li>255</li><li>−1</li><li>−127</li><li>−128</li></ul>
+    <div class="quiz-why">−128 + 127 = −1. Çemberde 0’dan bir adım geri.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>−6’nın 8 bitlik ikiye tümleyen yazılışı hangisi?</p>
+    <ul><li>10000110</li><li>11111001</li><li>00000110</li><li>11111010</li></ul>
+    <div class="quiz-why">6 = 00000110 → ters: 11111001 → +1: 11111010. (10000110 işaret-büyüklük gösterimidir.)</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>8 bitlik işaretli bir değişkende 127 + 1 kaç olur?</p>
+    <ul><li>−128</li><li>128</li><li>0</li><li>Program durur</li></ul>
+    <div class="quiz-why">01111111 + 1 = 10000000 = −128. Çemberde kırmızı çizgiyi geçtik.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>İşlemcilerin ikiye tümleyeni tercih etmesinin asıl sebebi?</p>
+    <ul><li>Daha çok pozitif sayı sığdırması</li><li>Okunmasının kolay olması</li><li>Toplama devresinin çıkarmayı da yapabilmesi</li><li>Daha az bit kullanması</li></ul>
+    <div class="quiz-why">a − b = a + (−b). Tek bir toplama devresi yeter ve tek bir sıfır vardır.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

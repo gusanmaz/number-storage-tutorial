@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kodda bitler ve referanslar · Sıfırlar ve Birler</title>
+<meta name="description" content="Python ve JavaScript’te 0b, 0o, 0x sayı yazımı ve taban dönüşümleri, tamsayı sınırları, bit işlemleri, maskeler ve izin bayrakları, değer ve referans, kopyalama, is ve id. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/code.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/code.js" defer></script>
+</head>
+<body data-chapter="code">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 9</div>
+  <h1>Kodda bitler ve referanslar</h1>
+  <p class="lede">Şimdiye kadar öğrendiğimiz her şey, yazdığın kodun içinde bir karşılık buluyor: sayıları farklı tabanlarda yazmak, tek tek bitlerle oynamak ve bir değişkenin aslında neyi tuttuğunu bilmek.</p>
+  <div class="meta"><span>Okuma: ~40 dk</span><span>Önce: Bölüm 2, 4 ve 8</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 9.1</span>Sayıları kodda yazmak</h2>
+
+<p class="dropcap">Kodda <code>255</code>, <code>0xFF</code>, <code>0o377</code> ve <code>0b11111111</code> yazmak arasında hiçbir fark yoktur: dördü de bellekte aynı bit desenine dönüşür. Bunlara <strong>sayı sabitleri</strong> (literal) denir. Ön ek, derleyiciye yalnızca “bu rakamları hangi tabanda okuyayım?” sorusunun cevabını verir. Taban, değişkende saklanmaz.</p>
+
+<figure class="fig narrow" id="f-lit">
+  <div class="fig-in">
+    <div class="center"><input id="lit-in" class="inp" value="0xFF" spellcheck="false" autocapitalize="off" style="width:14rem;text-align:center;font-size:1.15rem" aria-label="sabit"></div>
+    <div class="chips" id="lit-pre" style="margin-top:.7rem"></div>
+    <div id="lit-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Sabit çevirmeni.</b> Bir sayı sabiti yaz: <code>0b1010</code>, <code>0o17</code>, <code>1_000_000</code>, <code>-0x80</code>, <code>1e3</code>… Aynı değerin her tabanda nasıl yazıldığını ve iki dilde onu üreten kodu gösterir.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>Ne</th><th>Python</th><th>JavaScript</th></tr></thead>
+  <tbody>
+    <tr><td>İkili sabit</td><td class="m">0b1010</td><td class="m">0b1010</td></tr>
+    <tr><td>Sekizli sabit</td><td class="m">0o17</td><td class="m">0o17</td></tr>
+    <tr><td>Onaltılı sabit</td><td class="m">0xFF</td><td class="m">0xFF</td></tr>
+    <tr><td>Basamak ayırıcı</td><td class="m">1_000_000</td><td class="m">1_000_000</td></tr>
+    <tr><td>Sayı → ikili metin</td><td class="m">bin(10) → '0b1010'</td><td class="m">(10).toString(2) → "1010"</td></tr>
+    <tr><td>Sayı → hex metin</td><td class="m">hex(255) → '0xff'</td><td class="m">(255).toString(16) → "ff"</td></tr>
+    <tr><td>Sıfırla doldurmak</td><td class="m">f"{5:08b}" → '00000101'</td><td class="m">(5).toString(2).padStart(8, "0")</td></tr>
+    <tr><td>Metin → sayı</td><td class="m">int("ff", 16) → 255</td><td class="m">parseInt("ff", 16) → 255</td></tr>
+  </tbody>
+</table></div>
+
+<aside class="aside warn"><span class="t">Eski tuzak</span>C ve eski JavaScript’te başında 0 olan sayı sekizli okunur: <code>010</code> on değil, <em>sekiz</em>tir. Python 3 bunu tamamen yasakladı (<code>SyntaxError</code>), JavaScript’in katı modu da izin vermez. Sekizli sayı istiyorsan her zaman <code>0o</code> yaz.</aside>
+
+<h2><span class="sec">§ 9.2</span>Diller tamsayıları farklı saklar</h2>
+
+<p>Bölüm 3’te sabit genişlikli kutuların taşabileceğini, Bölüm 5’te double’ın 2<sup>53</sup>’ten sonra tamsayıları atladığını gördük. Diller bu sınırlarla farklı şekillerde başa çıkar:</p>
+<ul>
+  <li><strong>C, Java, Go:</strong> <code>int8</code>, <code>int32</code>, <code>uint64</code>… Sabit genişlik, taşınca başa sarar.</li>
+  <li><strong>Python:</strong> <code>int</code> sınırsızdır. Sayı büyüdükçe Python ona daha fazla byte ayırır; <code>2**1000</code> sorunsuz hesaplanır. Bedeli: biraz yavaşlık.</li>
+  <li><strong>JavaScript:</strong> Her <code>number</code> bir double’dır. Tamsayılar 2<sup>53</sup> − 1’e kadar güvenlidir (<code>Number.MAX_SAFE_INTEGER</code>). Daha büyükler için sonuna <code>n</code> eklenen <code>BigInt</code> var: <code>2n ** 100n</code>. Ve bir sürpriz: bit işlemleri sayıyı geçici olarak <em>32 bitlik işaretli tamsayıya</em> çevirir.</li>
+</ul>
+
+<p>Aşağıdaki ifadelerin sonucunu önce tahmin et, sonra kartı çevir:</p>
+
+<div class="predict" id="predict"></div>
+
+<h2><span class="sec">§ 9.3</span>Bit işlemleri</h2>
+
+<p>Bit işlemleri iki sayıyı sayı olarak değil, <strong>bit sütunları</strong> olarak ele alır ve her sütunda Bölüm 1’deki mantık kapılarını uygular. İşlemci bunları tek bir adımda yapar; bu yüzden düşük seviyeli kodda, grafikte, şifrelemede ve sıkıştırmada her yerdeler.</p>
+
+<figure class="fig" id="f-bits">
+  <div class="fig-in">
+    <div class="center" id="bw-ops"></div>
+    <div class="bw" id="bw"></div>
+    <div class="readout" id="bw-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Bit işlemleri laboratuvarı.</b> A ve B’nin bitlerine dokun, bir işlem seç. Her sütun diğerlerinden bağımsız hesaplanır; hiç elde yok. Kaydırmalarda B, kaydırma miktarıdır (0–7).</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>İşlem</th><th>Yazım</th><th>Kural</th><th>Tipik kullanım</th></tr></thead>
+  <tbody>
+    <tr><td>VE (AND)</td><td class="m">a &amp; b</td><td>ikisi de 1 ise 1</td><td>bit seçmek, maskelemek</td></tr>
+    <tr><td>VEYA (OR)</td><td class="m">a | b</td><td>biri 1 ise 1</td><td>bit açmak, bayrak eklemek</td></tr>
+    <tr><td>YA DA (XOR)</td><td class="m">a ^ b</td><td>farklıysa 1</td><td>bit çevirmek, basit şifreleme</td></tr>
+    <tr><td>DEĞİL (NOT)</td><td class="m">~a</td><td>her biti ters çevir</td><td>maskeyi tersine çevirmek</td></tr>
+    <tr><td>Sola kaydır</td><td class="m">a &lt;&lt; n</td><td>bitleri n sola it</td><td>× 2<sup>n</sup></td></tr>
+    <tr><td>Sağa kaydır</td><td class="m">a &gt;&gt; n</td><td>bitleri n sağa it</td><td>÷ 2<sup>n</sup> (aşağı yuvarlar)</td></tr>
+  </tbody>
+</table></div>
+
+<div class="think">
+  <p class="q">Python’da <code>~5</code> neden −6’dır?</p>
+  <details><summary>Düşündükten sonra aç</summary>
+    <p>~ bütün bitleri çevirir. İkiye tümleyende “bütün bitleri çevir” işlemi −x − 1 demektir (Bölüm 4’teki “ters çevir, 1 ekle” kuralının ilk yarısı). Yani ~5 = −5 − 1 = −6.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 9.4</span>Maskeler ve bayraklar</h2>
+
+<p>Bir byte’ı 8 ayrı evet/hayır anahtarı olarak kullanabiliriz. Her bite bir anlam veririz (bunlara <strong>bayrak</strong> denir) ve bit işlemleriyle tek tek okur ya da değiştiririz. En bilinen örnek Unix dosya izinleri: sahibi, grubu ve diğerleri için okuma (r), yazma (w) ve çalıştırma (x). 9 bit; üçerli gruplandığı için sekizli yazılır. <code>chmod 755</code> komutundaki 755 tam olarak budur.</p>
+
+<figure class="fig" id="f-perm">
+  <div class="fig-in">
+    <div id="perm-lamps"></div>
+    <div class="perm-heads" id="perm-heads"></div>
+    <div class="readout" id="perm-out"></div>
+    <div class="ctl center" id="perm-ctl" style="margin-top:.6rem"></div>
+    <div class="tell" id="perm-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Dosya izinleri = 9 bayrak.</b> Bitlere dokun ya da aşağıdaki işlemleri dene. Her sekizli rakam, bir grubun üç bitidir: r = 4, w = 2, x = 1. 7 = rwx, 5 = r-x, 4 = r--.</figcaption>
+</figure>
+
+<p>Dört temel kalıbı ezberlemeye değer:</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+OKU, YAZ, CALISTIR = 0b100, 0b010, 0b001   # 4, 2, 1
+
+izin = OKU | YAZ               # bayrak eklemek (OR)      → 0b110
+if izin &amp; YAZ:                 # bayrak kontrolü (AND)
+    print("yazılabilir")
+izin &amp;= ~YAZ                   # bayrak kaldırmak (AND NOT) → 0b100
+izin ^= CALISTIR               # bayrak çevirmek (XOR)    → 0b101
+
+renk = 0xFF8800
+yesil = (renk >> 8) &amp; 0xFF     # alan çıkarmak: kaydır + maskele → 136
+</pre>
+<pre data-lang="js">
+const OKU = 0b100, YAZ = 0b010, CALISTIR = 0b001;
+
+let izin = OKU | YAZ;           // ekle
+if (izin &amp; YAZ) console.log("yazılabilir");
+izin &amp;= ~YAZ;                   // kaldır
+izin ^= CALISTIR;               // çevir
+
+const tekMi = (n) => (n &amp; 1) === 1;      // son bit 1 ise tek
+const ikininKuvvetiMi = (n) => n > 0 &amp;&amp; (n &amp; (n - 1)) === 0;
+</pre>
+</div>
+
+<h2><span class="sec">§ 9.5</span>Değişken bir kutu mu, bir etiket mi?</h2>
+
+<p>Bölüm 8’de değişken adının bir adresin takma adı olduğunu söyledik. C’de bu tam olarak doğru: <code>int a</code> bir kutudur ve <code>b = a</code> kutunun içindeki byte’ları kopyalar. Python ve JavaScript’te ise hikâye biraz farklı ve pek çok hatanın kaynağı burası.</p>
+
+<p><strong>Python’da her değer bir nesnedir</strong> ve bellekte kendi yerinde yaşar. Değişken ise o nesneye yapıştırılmış bir <em>etikettir</em>. <code>b = a</code> yeni bir nesne yaratmaz; aynı nesneye ikinci bir etiket yapıştırır. <strong>JavaScript’te</strong> sayı, metin ve boolean gibi <em>ilkel</em> değerler doğrudan kopyalanır; diziler ve nesneler ise Python’daki gibi referansla paylaşılır.</p>
+
+<figure class="fig" id="f-ref">
+  <div class="fig-in">
+    <div class="center" id="ref-lang"></div>
+    <div class="ref">
+      <pre class="prog-code ref-code" id="ref-code"></pre>
+      <div class="ref-view"><svg id="ref-svg" viewBox="0 0 520 330" role="img" aria-label="referanslar"></svg></div>
+    </div>
+    <div class="tell" id="ref-tell"></div>
+    <div id="ref-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>İsimler ve nesneler.</b> Solda değişken adları, sağda bellekteki nesneler. Ok, “bu ad şu nesneyi gösteriyor” demek. <code>b = a</code> satırından sonra iki ok aynı listeyi gösterir; birinden yapılan değişiklik diğerinden de görünür. Python’da sayılar bile nesnedir ama <em>değiştirilemez</em> (immutable): <code>y = y + 1</code> eski nesneyi değiştirmez, yeni bir nesne yaratıp etiketi oraya taşır.</figcaption>
+</figure>
+
+<div class="two">
+  <div><p><strong>Değiştirilemez</strong> (immutable): Python’da <code>int</code>, <code>float</code>, <code>str</code>, <code>tuple</code>; JavaScript’te bütün ilkel türler. Paylaşılmaları güvenlidir; “değiştirmek” her zaman yeni bir değer üretir.</p></div>
+  <div><p><strong>Değiştirilebilir</strong> (mutable): <code>list</code>, <code>dict</code>, <code>set</code> ve JavaScript’te diziler ve nesneler. Paylaşılan bir nesneyi yerinde değiştirmek, onu gösteren <em>bütün</em> adları etkiler.</p></div>
+</div>
+
+<p>Kimlik ile eşitlik farklı sorulardır. <code>==</code> “içerikleri aynı mı?”, Python’daki <code>is</code> ise “aynı nesne mi?” diye sorar. CPython’da <code>id(x)</code>, nesnenin bellekteki adresidir; Bölüm 8’le bağlantı tam burada.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+a = [1, 2, 3]
+b = a              # aynı nesne
+c = a[:]           # yeni nesne, aynı içerik (sığ kopya)
+print(a == c, a is c)     # True False
+print(a is b)             # True
+print(hex(id(a)))         # '0x7f3a2c1d4e80' gibi: bir adres!
+
+def ekle(liste):
+    liste.append(99)      # çağıranın listesini değiştirir!
+ekle(a); print(b)         # [1, 2, 3, 99]
+
+import copy
+m = [[0, 0], [0, 0]]
+s = m.copy()              # sığ: iç listeler paylaşılıyor
+d = copy.deepcopy(m)      # derin: her şey yeni
+m[0][0] = 7
+print(s[0][0], d[0][0])   # 7 0
+</pre>
+<pre data-lang="js">
+const a = [1, 2, 3];
+const b = a;               // aynı dizi
+const c = [...a];          // yeni dizi (sığ kopya)
+console.log(a === c, a === b);  // false true
+
+a.push(4);                 // const ama değişebilir!
+// a = [];                 // TypeError: const atama yasak
+
+let x = 10, y = x;         // ilkel: değer kopyalanır
+y++;
+console.log(x, y);         // 10 11
+
+const m = [[0, 0], [0, 0]];
+const s = [...m];                    // sığ
+const d = structuredClone(m);        // derin
+m[0][0] = 7;
+console.log(s[0][0], d[0][0]);       // 7 0
+</pre>
+</div>
+
+<p class="key"><code>const</code> (JavaScript) adın başka bir nesneye taşınmasını yasaklar; nesnenin <strong>içinin</strong> değişmesini değil. Bir listeyi bir fonksiyona verdiğinde ya da başka bir değişkene atadığında <strong>kopyasını değil, kendisini</strong> paylaşırsın. Kopya istiyorsan açıkça yap.</p>
+
+<aside class="aside"><span class="t">Küçük sayıların sırrı</span>CPython −5 ile 256 arasındaki tamsayıları önceden yaratır ve tekrar tekrar kullanır. Bu yüzden <code>a = 256; b = 256; a is b</code> doğru çıkabilirken aynı şey 257 için yanlış olabilir. Ders: sayıları ve metinleri <code>is</code> ile değil, <code>==</code> ile karşılaştır. <code>is</code>’i sadece <code>None</code> için kullan.</aside>
+
+<h2><span class="sec">§ 9.6</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p><code>0x10 + 0b10 + 0o10</code> kaçtır?</p>
+    <ul><li>30</li><li>0x30</li><li>26</li><li>36</li></ul>
+    <div class="quiz-why">16 + 2 + 8 = 26.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>Bir sayının tek olup olmadığını en hızlı hangisi söyler?</p>
+    <ul><li><code>n | 1</code></li><li><code>n &amp; 1</code></li><li><code>n ^ 1</code></li><li><code>n &gt;&gt; 1</code></li></ul>
+    <div class="quiz-why">Son bit (1’ler basamağı) tek sayılarda 1’dir.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p><code>chmod 640</code> sonrası “diğerleri” ne yapabilir?</p>
+    <ul><li>Okuyabilir</li><li>Yazabilir</li><li>Çalıştırabilir</li><li>Hiçbir şey</li></ul>
+    <div class="quiz-why">Son rakam 0 = ---. (6 = rw-, 4 = r--.)</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>Python: <code>a = [1]; b = a; b.append(2)</code> sonrası <code>a</code>?</p>
+    <ul><li>[1, 2]</li><li>[1]</li><li>[2]</li><li>Hata</li></ul>
+    <div class="quiz-why">a ve b aynı listeyi gösterir.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>JavaScript’te <code>(1 &lt;&lt; 31)</code> neden negatiftir?</p>
+    <ul><li>Bir hata</li><li>Taşma olmadığı için</li><li>Bit işlemleri 32 bit işaretli tamsayıyla çalışır; bit 31 işaret bitidir</li><li>JavaScript negatif sayıları sever</li></ul>
+    <div class="quiz-why">Sonuç −2 147 483 648. İşaretsiz istersen <code>(1 &lt;&lt; 31) &gt;&gt;&gt; 0</code>.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

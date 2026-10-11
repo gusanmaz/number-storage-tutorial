@@ -1,108 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mixed Practice · Number Systems</title>
-    <meta name="description" content="Unlimited mixed practice questions from every topic and a one-page cheat sheet.">
-    <link rel="alternate" hreflang="tr" href="../pratik.html">
-    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
-    <link rel="stylesheet" href="../styles.css">
-    <script src="../js/common.js" defer></script>
-    <script src="../js/generators.js" defer></script>
-    <script src="../js/pages/practice.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test yourself · Zeros &amp; Ones</title>
+<meta name="description" content="Unlimited practice for base conversion, bits and bytes, two’s complement, binary fractions, ASCII and UTF-8, color codes and bitwise operations, plus a one-page summary.">
+<link rel="alternate" hreflang="tr" href="../pratik.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/practice.js" defer></script>
 </head>
 <body data-chapter="practice">
-<main class="content">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 10</div>
+  <h1>Test yourself</h1>
+  <p class="lede">Questions from every chapter, freshly generated each time. Toggle topics, type your answer, take a hint when you are stuck. Below is a one-page summary of it all.</p>
+  <div class="meta"><span>Unlimited questions</span><span>Printable summary</span></div>
+</header>
 
-    <header class="chapter-hero">
-        <div class="eyebrow"></div>
-        <h1>Mixed Practice</h1>
-        <p class="lead">Random questions from every chapter. Switch topics on and off with the buttons at the top. Preparing for an exam or just want to
-            consolidate what you’ve learned? See how long you can keep your streak (🔥) going!</p>
-    </header>
+<article class="prose">
 
-    <div id="practice"></div>
+<h2><span class="sec">§ 10.1</span>Mixed practice</h2>
 
-    <h2>Cheat sheet</h2>
-    <p>Everything you need to know in one place. Print it and keep it next to you.</p>
-    <div class="cheat">
-        <div class="cheat-card">
-            <h4>Powers of two</h4>
-            <table class="compact"><tbody>
-                <tr><td class="m">2⁰ = 1</td><td class="m">2⁶ = 64</td></tr>
-                <tr><td class="m">2¹ = 2</td><td class="m">2⁷ = 128</td></tr>
-                <tr><td class="m">2² = 4</td><td class="m">2⁸ = 256</td></tr>
-                <tr><td class="m">2³ = 8</td><td class="m">2¹⁰ = 1,024</td></tr>
-                <tr><td class="m">2⁴ = 16</td><td class="m">2¹⁶ = 65,536</td></tr>
-                <tr><td class="m">2⁵ = 32</td><td class="m">2³² ≈ 4.29 × 10⁹</td></tr>
-            </tbody></table>
-        </div>
-        <div class="cheat-card">
-            <h4>Hex ↔ binary</h4>
-            <div class="cheat-hex" id="cheat-hex"></div>
-        </div>
-        <div class="cheat-card">
-            <h4>Conversions</h4>
-            <ul>
-                <li><b>b → 10:</b> sum digit × b<sup>position</sup></li>
-                <li><b>10 → b:</b> divide by b, reverse the remainders</li>
-                <li><b>2 ↔ 16:</b> group in 4s</li>
-                <li><b>2 ↔ 8:</b> group in 3s</li>
-                <li><b>Fraction → 2:</b> multiply by 2, take the integer part</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>Sizes</h4>
-            <ul>
-                <li>n bits → 2ⁿ values, 0 … 2ⁿ−1</li>
-                <li>Signed n bits: −2ⁿ⁻¹ … 2ⁿ⁻¹−1</li>
-                <li>N values need ⌈log₂ N⌉ bits</li>
-                <li>1 byte = 8 bits = 2 hex</li>
-                <li>KiB = 1024 B, kB = 1000 B</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>Two’s complement</h4>
-            <ul>
-                <li>Leftmost bit = −2ⁿ⁻¹ (−128 in 8 bits)</li>
-                <li>Negate: flip + 1</li>
-                <li><span class="mono">11111111</span> = −1</li>
-                <li><span class="mono">10000000</span> = −128</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>IEEE 754 float</h4>
-            <ul>
-                <li>1 sign · 8 exponent · 23 mantissa</li>
-                <li>(−1)ˢ × 1.m × 2^(e−127)</li>
-                <li>double: 1 · 11 · 52, bias 1023</li>
-                <li>0.1 isn’t exact → compare with a tolerance</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>Text</h4>
-            <ul>
-                <li>'0' = 48 = 0x30</li>
-                <li>'A' = 65 = 0x41</li>
-                <li>'a' = 97 = 0x61 (A + 32)</li>
-                <li>UTF-8: 1–4 bytes, ASCII-compatible</li>
-                <li>é ü ñ ç → 2 bytes, € → 3, 😀 → 4</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>Media &amp; memory</h4>
-            <ul>
-                <li>#RRGGBB = 3 bytes</li>
-                <li>Image = w × h × bytes/pixel</li>
-                <li>Audio = rate × bits/8 × channels × s</li>
-                <li>Nyquist: rate &gt; 2 × frequency</li>
-                <li>address(a[i]) = start + i × size</li>
-                <li>x86/ARM: little-endian</li>
-            </ul>
-        </div>
-    </div>
+<p>You do not need prefixes in your answers: both <code>0x1F</code> and <code>1F</code> are accepted; spaces and underscores are ignored. For decimals you can use a point or a comma.</p>
 
+<div id="try"></div>
+
+<h2><span class="sec">§ 10.2</span>One-page summary</h2>
+
+<p>The whole site fits on the cards below. <button type="button" class="btn sm" id="print">Print</button></p>
+
+<div class="sheet">
+  <section class="sc-card">
+    <h3>Powers of two</h3>
+    <div class="pow" id="pow"></div>
+  </section>
+  <section class="sc-card">
+    <h3>Decimal · binary · hex</h3>
+    <div class="hexgrid" id="hexgrid"></div>
+  </section>
+  <section class="sc-card">
+    <h3>Conversion recipes</h3>
+    <ul>
+      <li><b>x → decimal:</b> each digit × base<sup>position</sup>, add up.</li>
+      <li><b>decimal → x:</b> divide by the base, read remainders bottom to top.</li>
+      <li><b>binary ↔ hex:</b> group in 4s from the right. <b>binary ↔ octal:</b> 3s.</li>
+      <li><b>fraction → binary:</b> multiply by 2, take the integer part, repeat.</li>
+      <li>If the denominator is not a power of 2, the binary fraction repeats <b>forever</b> (like 0.1).</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Bits, bytes, units</h3>
+    <ul>
+      <li>n bits → <b>2<sup>n</sup></b> patterns; largest unsigned <b>2<sup>n</sup> − 1</b>.</li>
+      <li>To encode N things you need <b>⌈log₂ N⌉</b> bits.</li>
+      <li>1 byte = 8 bits = 2 hex digits.</li>
+      <li>kB = 1000 B · <b>KiB = 1024 B</b> · MiB = 1024² · GiB = 1024³</li>
+      <li>Mbit/s ÷ 8 = MB/s</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Signed integers</h3>
+    <div class="tbl"><table><thead><tr><th>bits</th><th>unsigned</th><th>signed</th></tr></thead><tbody>
+      <tr><td class="m">8</td><td class="m">0 … 255</td><td class="m">−128 … 127</td></tr>
+      <tr><td class="m">16</td><td class="m">0 … 65,535</td><td class="m">−32,768 … 32,767</td></tr>
+      <tr><td class="m">32</td><td class="m">0 … 4.29 × 10⁹</td><td class="m">±2.15 × 10⁹</td></tr>
+      <tr><td class="m">64</td><td class="m">0 … 1.8 × 10¹⁹</td><td class="m">±9.2 × 10¹⁸</td></tr>
+    </tbody></table></div>
+    <p><b>−x</b> = flip the bits, <b>+1</b>. The leftmost bit is worth −2<sup>n−1</sup>. Overflow wraps around.</p>
+  </section>
+  <section class="sc-card">
+    <h3>Floating point (IEEE 754)</h3>
+    <p class="mono" style="font-size:13px">(−1)<sup>s</sup> × 1.m × 2<sup>e − bias</sup></p>
+    <ul>
+      <li><b>float:</b> 1 + 8 + 23 bits, bias 127, ≈ 7 digits</li>
+      <li><b>double:</b> 1 + 11 + 52 bits, bias 1023, ≈ 16 digits</li>
+      <li>Exponent all 1s → ∞ / NaN · all 0s → zero and subnormals</li>
+      <li>0.1 + 0.2 ≠ 0.3 → compare with a tolerance</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Text</h3>
+    <ul>
+      <li>ASCII 7 bits: <b>'0'</b> = 48 = 0x30 · <b>'A'</b> = 65 = 0x41 · <b>'a'</b> = 97 = 0x61</li>
+      <li>upper ↔ lower case: <b>bit 5</b> (0x20)</li>
+      <li>NUL 0 · TAB 9 · LF 10 (<code>\n</code>) · CR 13 (<code>\r</code>) · space 32</li>
+      <li>UTF-8: ≤ U+007F 1 byte · ≤ U+07FF 2 · ≤ U+FFFF 3 · beyond 4</li>
+      <li>Continuation bytes are <b>10xxxxxx</b></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Color and media</h3>
+    <ul>
+      <li><b>#RRGGBB</b>: 3 bytes; <b>#RRGGBBAA</b>: 4 with alpha</li>
+      <li>Image = width × height × bytes/pixel</li>
+      <li>Sound = samples/s × bits/sample × channels · CD: 44.1 kHz, 16 bit, 2 channels</li>
+      <li>Nyquist: sample rate &gt; 2 × highest frequency</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Memory</h3>
+    <ul>
+      <li>Every byte has an address; addresses are written in hex.</li>
+      <li><b>Little endian</b>: low byte at the low address (x86, ARM). <b>Big endian</b>: network, PNG.</li>
+      <li>arr[i] = start + i × size · pointer = variable holding an address</li>
+      <li>File type lives in the first bytes: PNG <code>89 50 4E 47</code>, PDF <code>%PDF</code>, ZIP <code>PK</code></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Code</h3>
+    <ul>
+      <li><code>0b</code> binary · <code>0o</code> octal · <code>0x</code> hex · <code>1_000</code></li>
+      <li><code>&amp;</code> select · <code>|</code> set · <code>^</code> toggle · <code>&amp; ~</code> clear · <code>&lt;&lt;</code> ×2 · <code>&gt;&gt;</code> ÷2</li>
+      <li>Python int is unbounded; JS number = double (safe to 2<sup>53</sup>), bitwise ops are 32-bit</li>
+      <li>Lists/objects are shared by reference; copy explicitly.</li>
+    </ul>
+  </section>
+</div>
+
+</article>
 </main>
 </body>
 </html>
