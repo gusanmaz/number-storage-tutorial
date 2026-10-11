@@ -16,11 +16,13 @@
     { id: 'switches', tr: 'anahtarlar.html', en: 'switches.html', title: { tr: 'Bir anahtar, iki dünya', en: 'One switch, two worlds' }, desc: { tr: 'Bit nedir, neden iki durum, bir bit ne kadar bilgi taşır? Aynı desen neden farklı şeyler anlatır?', en: 'What is a bit, why two states, how much information is in a bit? Why does one pattern mean different things?' } },
     { id: 'counting', tr: 'sayma.html', en: 'counting.html', title: { tr: 'Saymanın gizli düzeni', en: 'The hidden order of counting' }, desc: { tr: 'Basamak değeri, patlayan noktalar, binary, terazi ile dönüşüm, sekizli ve onaltılı.', en: 'Place value, exploding dots, binary, converting with a balance, octal and hex.' } },
     { id: 'bytes', tr: 'byte.html', en: 'bytes.html', title: { tr: 'Byte’lar ve bilginin ölçüsü', en: 'Bytes and the measure of information' }, desc: { tr: '8 bit neden bir byte? Kaç bit gerekir? KB mı KiB mi? Bir terabayt ne kadar büyük?', en: 'Why is a byte 8 bits? How many bits do you need? KB or KiB? How big is a terabyte?' } },
-    { id: 'negative', tr: 'negatif.html', en: 'negative.html', title: { tr: 'Saat kadranında eksi sayılar', en: 'Negative numbers on a clock face' }, desc: { tr: 'Geri sarılan sayaç, ikiye tümleyen, sayı çemberi ve sessiz taşmalar.', en: 'A rolling-back odometer, two’s complement, the number wheel and silent overflow.' } },
+    { id: 'arithmetic', tr: 'aritmetik.html', en: 'arithmetic.html', title: { tr: 'İkili aritmetik', en: 'Binary arithmetic' }, desc: { tr: 'Elde ile toplama, ödünç ile çıkarma, işaretsiz taşma, elde/taşma bayrakları, kaydırarak çarpma ve bölme.', en: 'Adding with carries, subtracting with borrows, unsigned overflow, carry/overflow flags, shift-and-add multiplication and division.' } },
+    { id: 'negative', tr: 'negatif.html', en: 'negative.html', title: { tr: 'Saat kadranında eksi sayılar', en: 'Negative numbers on a clock face' }, desc: { tr: 'İşaret-büyüklük, 1’e ve 2’ye tümleyen, fazlalık-K, işaret genişletme, aritmetik kaydırma, C/V bayrakları ve taşma.', en: 'Sign-magnitude, one’s and two’s complement, excess-K, sign extension, arithmetic shifts, C/V flags and overflow.' } },
     { id: 'fractions', tr: 'kesir.html', en: 'fractions.html', title: { tr: 'Noktanın yeri: kesirli sayılar', en: 'Where the point goes: fractions' }, desc: { tr: 'Binary kesirler, sonsuz 0,1, oyuncak float ile sayı doğrusundaki boşluklar, IEEE 754.', en: 'Binary fractions, the infinite 0.1, gaps on the number line with a toy float, IEEE 754.' } },
     { id: 'text', tr: 'metin.html', en: 'text.html', title: { tr: 'Harflere numara vermek', en: 'Giving letters numbers' }, desc: { tr: 'Mors’tan ASCII’ye, kod sayfalarının kaosu, Unicode ve UTF-8, bozulan karakterler.', en: 'From Morse to ASCII, code-page chaos, Unicode and UTF-8, garbled characters.' } },
     { id: 'media', tr: 'medya.html', en: 'media.html', title: { tr: 'Renk, resim ve ses', en: 'Color, image and sound' }, desc: { tr: 'Üç ışıkla renk, #RRGGBB, piksellerin byte’ları, sesi örneklemek ve dinlemek.', en: 'Color from three lights, #RRGGBB, the bytes of pixels, sampling and hearing sound.' } },
-    { id: 'memory', tr: 'bellek.html', en: 'memory.html', title: { tr: 'Bellek: uzun bir byte şeridi', en: 'Memory: one long strip of bytes' }, desc: { tr: 'Adresler, aynı byte’ları farklı okumak, byte sırası, değişkenler, diziler, pointer’lar, dosyalar.', en: 'Addresses, reading the same bytes differently, byte order, variables, arrays, pointers, files.' } },
+    { id: 'formats', tr: 'formatlar.html', en: 'formats.html', title: { tr: 'Az bilinen formatlar', en: 'Lesser-known formats' }, desc: { tr: 'BCD ve 7 segment, Gray kodu, parite ve Hamming, sağlama toplamı, varint, Base64, EBCDIC, RGB565, float16.', en: 'BCD and 7-segment, Gray code, parity and Hamming, checksums, varints, Base64, EBCDIC, RGB565, float16.' } },
+    { id: 'memory', tr: 'bellek.html', en: 'memory.html', title: { tr: 'Bellek: uzun bir byte şeridi', en: 'Memory: one long strip of bytes' }, desc: { tr: 'Adresler, bit düzeyinde erişim, byte sırası, hizalama ve struct dolgusu, pointer’lar, sayfalar ve önbellek, dosya imzaları.', en: 'Addresses, bit-level access, byte order, alignment and struct padding, pointers, pages and caches, file signatures.' } },
     { id: 'code', tr: 'kod.html', en: 'code.html', title: { tr: 'Kodda bitler ve referanslar', en: 'Bits and references in code' }, desc: { tr: 'Python ve JavaScript’te sayı yazımı, bit işlemleri, maskeler, değer ve referans.', en: 'Number literals in Python and JavaScript, bitwise operations, masks, values and references.' } },
     { id: 'practice', tr: 'pratik.html', en: 'practice.html', title: { tr: 'Kendini sına', en: 'Test yourself' }, desc: { tr: 'Tüm bölümlerden sınırsız soru ve tek sayfalık özet.', en: 'Unlimited questions from every chapter and a one-page summary.' } },
   ];
@@ -32,6 +34,7 @@
     next: { tr: 'Sıradaki bölüm', en: 'Next chapter' }, prev: { tr: 'Önceki', en: 'Previous' },
     read: { tr: 'okundu', en: 'read' },
     contrib: { tr: 'Bir hata mı buldun? Katkıya açık:', en: 'Found a mistake? Contributions welcome:' },
+    inThis: { tr: 'Bu bölümde', en: 'In this chapter' },
   };
 
   /* ---------- yardımcılar ---------- */
@@ -100,6 +103,31 @@
       try { localStorage.setItem('zo-theme', dark ? 'dark' : 'light'); } catch (e) { /* */ }
     });
     $$('.lang a[aria-current]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+
+    // bölüm içi gezinme: kenar çubuğu + içindekiler başı
+    const hs = $$('.prose > h2');
+    if (hs.length > 2) {
+      const items = hs.map((h, i) => {
+        if (!h.id) h.id = 's' + (i + 1);
+        const sec = $('.sec', h), num = sec ? sec.textContent.replace('§', '').trim() : '';
+        const txt = Array.from(h.childNodes).filter((n) => !(n.nodeType === 1 && n.classList.contains('sec'))).map((n) => n.textContent).join('').trim();
+        return { id: h.id, num, txt };
+      });
+      const side = el('nav', { class: 'chap-nav', 'aria-label': t(UI.inThis) });
+      side.innerHTML = '<h4>' + esc(t(UI.inThis)) + '</h4><ol>' + items.map((x) => '<li><a href="#' + x.id + '">' + (x.num ? '<small>' + esc(x.num) + '</small>' : '') + esc(x.txt) + '</a></li>').join('') + '</ol>';
+      document.body.append(side);
+      const sec = el('div', { class: 'toc-sec' });
+      sec.innerHTML = '<h3>' + esc(t(UI.inThis)) + '</h3><ol>' + items.map((x) => '<li><a href="#' + x.id + '">' + esc(x.txt) + '</a></li>').join('') + '</ol>';
+      $('.toc-inner', toc).prepend(sec);
+      $$('a', sec).forEach((a) => a.addEventListener('click', () => setMenu(false)));
+      const links = $$('a', side);
+      const spy = () => {
+        let k = 0;
+        hs.forEach((h, i) => { if (h.getBoundingClientRect().top < innerHeight * 0.35) k = i; });
+        links.forEach((a, i) => a.classList.toggle('cur', i === k));
+      };
+      addEventListener('scroll', spy, { passive: true }); spy();
+    }
 
     // bölüm açılışındaki numara bitleri
     $$('.opener .kicker .bits').forEach((b) => { b.innerHTML = markBits.map((x) => '<i class="' + (x ? 'on' : '') + '"></i>').join(''); });

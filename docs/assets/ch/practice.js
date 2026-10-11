@@ -1,14 +1,18 @@
-/* Bölüm 10 — Kendini sına */
+/* Bölüm 12 — Kendini sına */
 (function () {
   const { t, $, fmt, pad, toBase, pick, tryIt } = NS;
   const any = (...fs) => () => pick(fs)();
   tryIt($('#try'), [
     { label: t({ tr: 'Taban dönüşümü', en: 'Base conversion' }), fn: GEN.anyBase },
     { label: t({ tr: 'Bit ve byte', en: 'Bits and bytes' }), fn: any(GEN.patterns, GEN.maxValue, GEN.bitsNeeded, GEN.units) },
-    { label: t({ tr: 'Eksi sayılar', en: 'Negative numbers' }), fn: any(GEN.twosEncode, GEN.twosDecode) },
+    { label: t({ tr: 'Sayma matematiği', en: 'Counting math' }), fn: any(GEN.patCount, GEN.maxValue) },
+    { label: t({ tr: 'İkili aritmetik', en: 'Binary arithmetic' }), fn: any(GEN.binAdd, GEN.binSub, GEN.wrap8) },
+    { label: t({ tr: 'Eksi sayılar', en: 'Negative numbers' }), fn: any(GEN.twosEncode, GEN.twosDecode, GEN.onesComp, GEN.signExt) },
     { label: t({ tr: 'Kesirler', en: 'Fractions' }), fn: any(GEN.fracToBin, GEN.binFracToDec) },
     { label: t({ tr: 'Metin', en: 'Text' }), fn: any(GEN.asciiCode, GEN.asciiChar, GEN.utf8Bytes) },
     { label: t({ tr: 'Renk', en: 'Color' }), fn: any(GEN.colorChannel, GEN.rgbToHex) },
+    { label: t({ tr: 'Formatlar', en: 'Formats' }), fn: any(GEN.bcd, GEN.gray) },
+    { label: t({ tr: 'Bellek', en: 'Memory' }), fn: GEN.alignUp },
     { label: t({ tr: 'Bit işlemleri', en: 'Bitwise' }), fn: GEN.bitwise },
   ], { title: t({ tr: 'Karışık', en: 'Mixed' }) });
   const P = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 20, 24, 30, 32];

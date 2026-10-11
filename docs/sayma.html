@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="en" href="en/counting.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 <script src="assets/gen.js" defer></script>
@@ -20,7 +20,7 @@
   <div class="kicker"><span class="bits"></span>Bölüm 2</div>
   <h1>Saymanın gizli düzeni</h1>
   <p class="lede">Anahtar desenlerini sayı olarak okumanın yolu, aslında hepimizin ilkokulda öğrendiği bir fikirde saklı: basamak değeri. Onu bir kez gerçekten anlarsan, ikili ve onaltılı sistem sadece birer lehçe olur.</p>
-  <div class="meta"><span>Okuma: ~30 dk</span><span>Önce: Bölüm 1</span></div>
+  <div class="meta"><span>Okuma: ~50 dk</span><span>Önce: Bölüm 1</span></div>
 </header>
 
 <article class="prose">
@@ -124,7 +124,74 @@
 
 <aside class="aside side"><span class="t">Günlük hayatta</span>Linux’ta <code>chmod 755</code> komutundaki her rakam 3 bitlik bir izin grubudur: okuma (4) + yazma (2) + çalıştırma (1). 7 = <span class="b">111</span> = hepsi, 5 = <span class="b">101</span> = okuma ve çalıştırma.</aside>
 
-<h2><span class="sec">§ 2.7</span>Uzun bitlere kısaltma: onaltılık sistem</h2>
+<h2><span class="sec">§ 2.7</span>Kaç sayı sığar? Saymanın matematiği</h2>
+
+<p>Şimdiye kadar makineyle oynadık; şimdi arkasındaki matematiği toparlayalım. Dört soru var: bir tabanda hangi rakamlar kullanılır, n basamakla kaç farklı sayı yazılır, en büyüğü kaçtır ve bir sayıyı yazmak için kaç basamak gerekir?</p>
+
+<h3>1. Taban b’de rakamlar: 0’dan b − 1’e</h3>
+
+<p>Patlayan noktalarda bir kutu b noktaya ulaşınca patlıyordu; yani bir kutuda en fazla b − 1 nokta durabilir. Bu yüzden taban b’de tam olarak <strong>b tane rakam</strong> vardır: 0, 1, …, b − 1. “b” diye bir rakam olamaz; b, zaten “10” diye yazılır. Her tabanda “10” o tabanın kendisidir: 10<span class="sub">2</span> = 2, 10<span class="sub">8</span> = 8, 10<span class="sub">16</span> = 16.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Taban</th><th>Rakamlar</th><th>Not</th></tr></thead>
+  <tbody>
+    <tr><td class="m">2</td><td class="m">0 1</td><td>bit</td></tr>
+    <tr><td class="m">3</td><td class="m">0 1 2</td><td>Sovyet Setun bilgisayarı “dengeli üçlü” (−1, 0, 1) kullandı</td></tr>
+    <tr><td class="m">8</td><td class="m">0 … 7</td><td>8 ve 9 yok</td></tr>
+    <tr><td class="m">10</td><td class="m">0 … 9</td><td></td></tr>
+    <tr><td class="m">16</td><td class="m">0 … 9 A B C D E F</td><td>A = 10 … F = 15</td></tr>
+    <tr><td class="m">36</td><td class="m">0 … 9 A … Z</td><td>kısa URL’ler, bazı kimlikler</td></tr>
+  </tbody>
+</table></div>
+
+<h3>2. n basamakla kaç sayı? bⁿ</h3>
+
+<p>Her basamak için b seçenek var ve basamaklar birbirinden bağımsız. Sayma ilkesine (çarpma kuralına) göre toplam seçenek sayısı seçeneklerin çarpımıdır: b × b × … × b = <strong>b<sup>n</sup></strong>. Kombinatorikte bu, n konumun her birine b sembolden birini koyduğumuz <em>tekrarlı permütasyondur</em>. Bölüm 1’deki 2<sup>n</sup> desen, bunun b = 2 hâliydi. Küçük durumlarda bütün sayıları listeleyelim: taban <span id="k-eb"></span>, <span id="k-en"></span> basamak.</p>
+
+<figure class="fig" id="f-enum">
+  <div class="fig-in">
+    <div class="fig-title" id="enum-title"></div>
+    <div class="enum" id="enum"></div>
+    <div class="tell" id="enum-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Bütün n basamaklı desenler.</b> Liste sayma sırasıyla dizildi: en sağdaki basamak en hızlı, en soldaki en yavaş değişir. Desen sayısı b<sup>n</sup>, en küçüğü 0, en büyüğü b<sup>n</sup> − 1. Baştaki sıfırlar soluktur; değeri değiştirmezler.</figcaption>
+</figure>
+
+<h3>3. En büyük n basamaklı sayı: bⁿ − 1</h3>
+
+<p>Sayılar 0’dan başladığı için b<sup>n</sup> farklı sayının en büyüğü <strong>b<sup>n</sup> − 1</strong>’dir. Bunu görmenin en güzel yolu, en büyük sayıya 1 eklemek: 999 + 1 = 1000 = 10<sup>3</sup>, yani 999 = 10<sup>3</sup> − 1. İkilide de aynı: <span class="b">1111</span> + 1 = <span class="b">10000</span> = 2<sup>4</sup>, yani <span class="b">1111</span> = 2<sup>4</sup> − 1 = 15. Bütün rakamları en büyük rakam olan sayıya 1 eklemek zincirleme bir patlama yaratır ve geriye “1 ve n tane 0” kalır.</p>
+
+<p class="formula">(b−1)·b<sup>n−1</sup> + … + (b−1)·b + (b−1) = b<sup>n</sup> − 1</p>
+
+<p>Bu yüzden 8 bitlik bir byte’ın en büyük değeri 2<sup>8</sup> − 1 = 255, 16 bitinki 65 535, 32 bitinki 4 294 967 295’tir. Ezberlemeye gerek yok: <span id="k-mn"></span> bitle en büyük işaretsiz sayı 2<sup><span class="out" data-o="mn"></span></sup> − 1 = <span class="out" data-o="mx"></span>, yani <span class="out" data-o="mxb"></span>.</p>
+
+<div class="think">
+  <p class="q">Taban 5’te 3 basamaklı en büyük sayı nedir? Onlu karşılığı kaç?</p>
+  <details><summary>Düşündükten sonra aç</summary>
+    <p>Her basamağa en büyük rakam 4: <span class="b">444</span><span class="sub">5</span>. 1 eklersen 1000<span class="sub">5</span> = 5<sup>3</sup> = 125 olur. O hâlde 444<span class="sub">5</span> = 125 − 1 = <b>124</b>. Kontrol: 4·25 + 4·5 + 4 = 124.</p>
+  </details>
+</div>
+
+<h3>4. Bir sayıyı yazmak için kaç basamak?</h3>
+
+<p>Ters soru: N sayısını taban b’de yazmak için kaç basamak gerekir? n basamak 0 … b<sup>n</sup> − 1 aralığını kapsadığına göre, b<sup>n</sup> &gt; N olan en küçük n’yi arıyoruz. Bunun formülü <strong>n = ⌊log<sub>b</sub> N⌋ + 1</strong>’dir. Logaritmayı bilmesen de olur: N’yi b’ye bölmeye devam et; kaç bölmede 0’a indiğin, basamak sayısıdır. <span id="k-dg"></span> sayısı için:</p>
+
+<figure class="fig narrow" id="f-digits">
+  <div class="fig-in">
+    <div class="digbars" id="digits"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 7</span><b>Aynı sayı, dört uzunluk.</b> Taban büyüdükçe sayı kısalır. İkili yazım, onlu yazımın yaklaşık 3,32 katı uzundur, çünkü log<sub>2</sub> 10 ≈ 3,32. Hex ise ikilinin tam dörtte biridir (yuvarlanarak), çünkü her hex rakamı 4 bittir.</figcaption>
+</figure>
+
+<h3>2’nin kuvvetleri ve “2¹⁰ ≈ 10³” hilesi</h3>
+
+<p>2<sup>10</sup> = 1024, 1000’e çok yakındır. Bu tek gözlem, ikinin büyük kuvvetlerini kafadan tahmin etmeyi sağlar: <strong>her 10 bit, yaklaşık 3 onlu basamak</strong> (bir “bin”) ekler. 2<sup>n</sup>’yi tahmin etmek için n’yi onluk ve birlik kısımlarına ayır: 2<sup>37</sup> = 2<sup>7</sup> × 2<sup>30</sup> ≈ 128 × 10<sup>9</sup> = 128 milyar. Gerçek değer 137 milyar; tahmin %7 içinde. Dene: 2<sup><span id="k-pw"></span></sup> <span class="out" data-o="pw"></span>.</p>
+
+<div class="pow2" id="pow2"></div>
+
+<p>Programcıların ezbere bildiği birkaç değer: 2<sup>8</sup> = 256 (byte), 2<sup>10</sup> = 1024 (Ki), 2<sup>16</sup> = 65 536, 2<sup>20</sup> ≈ 1 milyon (Mi), 2<sup>30</sup> ≈ 1 milyar (Gi), 2<sup>32</sup> ≈ 4,3 milyar, 2<sup>64</sup> ≈ 1,8 × 10<sup>19</sup>. Bir de 2’nin kuvvetinin bir eksiği: 2<sup>k</sup> − 1 ikilide k tane 1’dir (255 = <span class="b">11111111</span>, 1023 = <span class="b">1111111111</span>).</p>
+
+<h2><span class="sec">§ 2.8</span>Uzun bitlere kısaltma: onaltılık sistem</h2>
 
 <p>32 bitlik bir değeri düşün: <span class="b">11011110101011011011111011101111</span>. Okuması da yazması da eziyet; bir biti kaçırmak çok kolay. Onlu sisteme çevirirsek (3735928559) kısalır ama bitlerle bağlantı kaybolur: hangi bitin açık olduğunu artık göremeyiz.</p>
 
@@ -136,7 +203,7 @@
     <div class="grp" id="grp"></div>
     <div class="readout" id="grp-out"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Gruplamak = taban değiştirmek.</b> 4’erli gruplar onaltılık, 3’erli gruplar sekizlik rakamlar verir. En soldaki grup eksik kalırsa başına 0 eklenmiş gibi düşünülür; baştaki sıfırlar değeri değiştirmez.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 8</span><b>Gruplamak = taban değiştirmek.</b> 4’erli gruplar onaltılık, 3’erli gruplar sekizlik rakamlar verir. En soldaki grup eksik kalırsa başına 0 eklenmiş gibi düşünülür; baştaki sıfırlar değeri değiştirmez.</figcaption>
 </figure>
 
 <p>Böylece 32 bit, sekiz onaltılık rakama iner: <span class="h">DEADBEEF</span>. Her rakam tam olarak 4 bite karşılık geldiği için hangi bitin açık olduğunu hâlâ görebilirsin. İki onaltılık rakam = 8 bit; bir sonraki bölümde bu sekizliye <em>byte</em> diyeceğiz.</p>
@@ -147,14 +214,54 @@
 
 <h3>Onaltılık nerelerde karşına çıkacak?</h3>
 <ul>
-  <li><strong>Renkler</strong>: <code>#FF5733</code> üç byte’tır: kırmızı, yeşil, mavi (Bölüm 7).</li>
-  <li><strong>Bellek adresleri</strong>: <code>0x7FFE42A0</code> (Bölüm 8).</li>
-  <li><strong>Karakter numaraları</strong>: <code>U+00E7</code> = ç (Bölüm 6).</li>
+  <li><strong>Renkler</strong>: <code>#FF5733</code> üç byte’tır: kırmızı, yeşil, mavi (Bölüm 8).</li>
+  <li><strong>Bellek adresleri</strong>: <code>0x7FFE42A0</code> (Bölüm 10).</li>
+  <li><strong>Karakter numaraları</strong>: <code>U+00E7</code> = ç (Bölüm 7).</li>
   <li><strong>Ağ kartı kimlikleri</strong>: MAC adresi <code>00:1A:2B:3C:4D:5E</code>, altı byte.</li>
   <li><strong>Hata kodları</strong>: Windows’ta <code>0x80070005</code> = “Erişim engellendi”.</li>
 </ul>
 
-<h2><span class="sec">§ 2.8</span>Kodda tabanlar</h2>
+<h2><span class="sec">§ 2.9</span>Tabanlar arası hızlı geçiş</h2>
+
+<p>Artık elimizde birkaç yöntem var. Hangisini ne zaman kullanacağını bilmek, dönüşümleri hızlı ve hatasız yapmanın sırrıdır:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Nereden → nereye</th><th>En hızlı yol</th><th>Örnek</th></tr></thead>
+  <tbody>
+    <tr><td>herhangi taban → onlu</td><td><b>Horner</b>: soldan başla, “önceki × b + rakam”</td><td class="m">1011₂: 1→2+0=2→4+1=5→10+1=11</td></tr>
+    <tr><td>onlu → herhangi taban</td><td><b>Tekrarlı bölme</b> (kalanlar sondan başa) ya da küçük sayılarda <b>kuvvetleri çıkarma</b> (terazi)</td><td class="m">13 = 8+4+1 → 1101₂</td></tr>
+    <tr><td>2 ↔ 2<sup>k</sup> (4, 8, 16, 32)</td><td><b>Gruplama</b>: sağdan k’lı gruplar, hesap yok</td><td class="m">1 1010 1111₂ = 1AF₁₆</td></tr>
+    <tr><td>8 ↔ 16</td><td><b>İkili üzerinden</b>: 3’lü aç, 4’lü topla</td><td class="m">377₈ = 011 111 111 = 1111 1111 = FF₁₆</td></tr>
+    <tr><td>4 ↔ 16</td><td>Her hex rakamı = 2 tane taban-4 rakamı (16 = 4²)</td><td class="m">B₁₆ = 23₄</td></tr>
+    <tr><td>ilgisiz tabanlar (3 → 5)</td><td>Onlu üzerinden: önce Horner, sonra bölme</td><td class="m">212₃ = 23 = 43₅</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Horner yöntemi</strong> özellikle güzeldir, çünkü kuvvet hesaplamayı tamamen ortadan kaldırır: sayıyı soldan okurken elindeki toplamı tabanla çarpar, yeni rakamı eklersin. İkilide bu, “ikiye katla, biti ekle”ye dönüşür ve kafadan çok hızlıdır. Aşağıda dene: <input id="hn-in" class="inp inl" value="10110110" spellcheck="false" aria-label="sayı"> sayısını taban <span id="k-hb"></span>’den onluya çevir.</p>
+
+<figure class="fig narrow" id="f-horner">
+  <div class="fig-in">
+    <div class="horner" id="horner"></div>
+    <div class="tell" id="hn-tell"></div>
+    <div id="hn-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 9</span><b>Horner yöntemi.</b> d<sub>n−1</sub>…d<sub>1</sub>d<sub>0</sub> = (…((d<sub>n−1</sub>·b + d<sub>n−2</sub>)·b + d<sub>n−3</sub>)…)·b + d<sub>0</sub>. Basamak değeri formülüyle aynı sonucu verir, ama hiçbir kuvvet hesaplanmaz. Bilgisayarlar da metinden sayı okurken (<code>int("…")</code>, <code>parseInt</code>) tam olarak bunu yapar.</figcaption>
+</figure>
+
+<p>Şimdi hepsini bir araya getiren evrensel bir çevirici. Tabanlar birbirinin kuvvetiyse gruplama yolunu, değilse onlu üzerinden yolu gösterir:</p>
+
+<figure class="fig" id="f-conv">
+  <div class="fig-in">
+    <div class="conv-in"><input id="cv-in" class="inp" value="7F3A" spellcheck="false" aria-label="sayı"><span>taban</span><span id="k-cf"></span><span>→</span><span id="k-ct"></span></div>
+    <div id="conv"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 10</span><b>Herhangi iki taban arasında.</b> 2 ile 36 arası her taban desteklenir (rakamlar 0–9, A–Z). Yol, iki tabanın ortak bir 2’nin kuvveti olup olmadığına göre seçilir.</figcaption>
+</figure>
+
+<aside class="aside"><span class="t">Kafadan hızlı geçiş için küçük hileler</span>
+<b>×b = sona 0 ekle</b>: 101₂ × 2 = 1010₂. <b>2<sup>k</sup> = 1 ve k tane 0</b>, <b>2<sup>k</sup> − 1 = k tane 1</b>. <b>Bir eksik kuvvetten çıkar</b>: 250 = 255 − 5 = 11111111 − 101 = 11111010. <b>Hex’i ikiliye çevirmek için dört rakamı ezberle</b>: 8 = 1000, 4 = 0100, 2 = 0010, 1 = 0001; gerisi toplamdır (B = 8+2+1 = 1011). <b>Çift mi tek mi?</b> İkilide son bit, sekizli ve hex’te son rakamın tekliği söyler.</aside>
+
+<h2><span class="sec">§ 2.10</span>Kodda tabanlar</h2>
 
 <p>Python’da ve JavaScript’te sayıları doğrudan farklı tabanlarda yazabilirsin. Hepsi aynı sayıyı üretir; taban sadece yazılış biçimidir.</p>
 
@@ -184,7 +291,7 @@ parseInt("ff", 16);                // 255
 </pre>
 </div>
 
-<h2><span class="sec">§ 2.9</span>Kendini dene</h2>
+<h2><span class="sec">§ 2.11</span>Kendini dene</h2>
 
 <div id="try"></div>
 

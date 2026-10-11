@@ -1,4 +1,4 @@
-/* Bölüm 5 — Kesirli sayılar */
+/* Bölüm 6 — Kesirli sayılar */
 (function () {
   const { t, $, $$, el, esc, fmt, pad, lamps, knob, out, steps, tryIt, LANG } = NS;
   const DS = LANG === 'en' ? '.' : ',';

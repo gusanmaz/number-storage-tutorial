@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="en" href="en/memory.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 <script src="assets/gen.js" defer></script>
@@ -17,15 +17,15 @@
 <body data-chapter="memory">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Bölüm 8</div>
+  <div class="kicker"><span class="bits"></span>Bölüm 10</div>
   <h1>Bellek: uzun bir byte şeridi</h1>
   <p class="lede">Şimdiye kadar tek tek sayıları, harfleri, renkleri inceledik. Hepsi aynı yerde yaşıyor: numaralandırılmış milyarlarca byte’tan oluşan tek bir şeritte. Bu bölümde o şeridin üstünde yürüyeceğiz.</p>
-  <div class="meta"><span>Okuma: ~40 dk</span><span>Önce: Bölüm 3, 4 ve 6</span></div>
+  <div class="meta"><span>Okuma: ~60 dk</span><span>Önce: Bölüm 3, 5 ve 7</span></div>
 </header>
 
 <article class="prose">
 
-<h2><span class="sec">§ 8.1</span>Her byte’ın bir adresi var</h2>
+<h2><span class="sec">§ 10.1</span>Her byte’ın bir adresi var</h2>
 
 <p class="dropcap">Bilgisayarın ana belleğini (RAM) çok uzun bir sokak gibi düşün. Sokaktaki her evde tam 8 bit, yani bir byte oturuyor ve her evin bir kapı numarası var: <strong>adres</strong>. İşlemci belleğe “şu adresteki byte’ı ver” ya da “şu adrese şunu yaz” der. Başka bir şey bilmez; değişken, dizi, metin gibi kavramların hepsi bu iki komutun üstüne kurulur.</p>
 
@@ -39,7 +39,26 @@
 
 <p>Adresler de bitlerle yazıldığına göre, bir işlemcinin kaç byte’a ulaşabileceği adres bitlerinin sayısına bağlıdır. <span id="k-ab"></span> bitlik adreslerle en fazla <span class="out" data-o="addr"></span> belleğe erişilebilir. 32 bitlik bilgisayarların 4 GB’tan fazla RAM kullanamamasının sebebi buydu. Bugünkü 64 bitlik işlemciler pratikte 48 bit kullanır; o da 256 TiB eder.</p>
 
-<h2><span class="sec">§ 8.2</span>Byte’lar ne olduklarını bilmez</h2>
+<h2><span class="sec">§ 10.2</span>Bitin adresi yoktur</h2>
+
+<p>Bellekteki en küçük adreslenebilir birim <strong>byte</strong>’tır. Tek bir bitin kendi adresi yoktur; işlemciye “0x41 adresindeki byte’ın 5. bitini ver” diyemezsin. Neden? Her bite adres vermek 8 kat daha fazla adres, yani adres başına 3 bit daha demek olurdu; üstelik bellek zaten byte byte bile değil, 64 byte’lık bloklar hâlinde okunur (§ 10.8). Bu yüzden diller de böyledir: C’de, Java’da ya da Python’da bir <code>bool</code> değişken genellikle tam bir byte kaplar; 7 biti boşa gider.</p>
+
+<p>Peki tek bir biti nasıl okur ya da değiştiririz? Bölüm 11’de ayrıntısını göreceğimiz <strong>bit işlemleriyle</strong>: önce bitin hangi byte’ta olduğunu bul (<code>k &gt;&gt; 3</code>, yani 8’e böl), sonra o byte içindeki konumunu (<code>k &amp; 7</code>, yani 8’e göre kalan). O konumda tek bir 1 olan bir <strong>maske</strong> hazırla (<code>1 &lt;&lt; konum</code>). Ardından byte’ı <em>oku, değiştir, geri yaz</em>:</p>
+
+<figure class="fig" id="f-bm">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-bit"></span>. bit</div>
+    <div id="bm"></div>
+    <div class="ctl" id="bm-ctl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Bir bit dizisi.</b> 8 byte = 64 bit. Bir bite dokun ya da sayıyı değiştir, sonra işlemleri dene. Her işlem bütün byte’ı okur, maske ile yalnızca bir biti değiştirir ve byte’ı geri yazar. Bu desene <em>okuma-değiştirme-yazma</em> (read-modify-write) denir.</figcaption>
+</figure>
+
+<p>Bu teknikle 8 doğru/yanlış değer tek byte’a sığar. Buna <strong>bit kümesi</strong> (bitset, bitmap) denir: dosya sistemlerinin hangi disk bloğunun dolu olduğunu tuttuğu tablolar, veritabanı indeksleri, Bloom filtreleri ve satranç motorlarının tahtayı 64 bitlik tek bir sayıda tuttuğu “bitboard”lar böyle çalışır. C’de struct içinde <code>unsigned bayrak : 1;</code> gibi <em>bit alanları</em> (bit fields) da yazabilirsin; derleyici maskeleme kodunu senin yerine üretir.</p>
+
+<aside class="aside"><span class="t">Az bilinen bir istisna: bit-banding</span>ARM Cortex-M mikrodenetleyicilerinde belleğin bir bölgesindeki her bit, başka bir bölgede ayrı bir 4 byte’lık adrese “aynalanır”. O adrese 1 yazmak tek bir biti açar. Böylece donanım kayıtlarındaki tek bir bit, okuma-değiştirme-yazma yapmadan ve araya başka kod girmeden değiştirilebilir. Bitin gerçek bir adresi olmadığı için, mühendisler ona sahte bir adres icat etmiş.</aside>
+
+<h2><span class="sec">§ 10.3</span>Byte’lar ne olduklarını bilmez</h2>
 
 <p>Bölüm 1’in ana fikrine geri döndük: bir bit deseni kendi anlamını taşımaz. Bellekte yan yana duran 8 byte, bir metin, iki tamsayı, bir ondalıklı sayı ya da bir adres olabilir. Neye bakacağımıza, onu okuyan program karar verir. Aşağıdaki byte’ları düzenle (hex) ve aynı 8 byte’ın farklı okunuşlarına bak.</p>
 
@@ -49,10 +68,10 @@
     <div class="chips" id="lens-pre" style="margin-top:.8rem"></div>
     <div class="tbl lens-t" id="lens-out"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Aynı 8 byte, sekiz farklı tür.</b> Her satır aynı belleğe farklı bir gözlükle bakıyor. C dilinde <code>(float*)</code> gibi tür dönüşümleri, JavaScript’te <code>DataView</code>, Python’da <code>struct</code> modülü tam olarak bunu yapar: byte’lara dokunmadan yorumu değiştirir.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Aynı 8 byte, sekiz farklı tür.</b> Her satır aynı belleğe farklı bir gözlükle bakıyor. C dilinde <code>(float*)</code> gibi tür dönüşümleri, JavaScript’te <code>DataView</code>, Python’da <code>struct</code> modülü tam olarak bunu yapar: byte’lara dokunmadan yorumu değiştirir.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 8.3</span>Byte sırası: endianness</h2>
+<h2><span class="sec">§ 10.4</span>Byte sırası: endianness</h2>
 
 <p>Bir byte’tan büyük sayılar birden fazla adrese yayılır. 32 bitlik <span class="h">0x12345678</span> sayısı 4 byte tutar: <span class="h">12</span>, <span class="h">34</span>, <span class="h">56</span>, <span class="h">78</span>. Peki hangisi küçük adrese yazılır? İki cevap var ve ikisi de kullanılıyor:</p>
 <ul>
@@ -65,7 +84,7 @@
     <div class="center"><span class="muted">0x</span><input id="end-in" class="inp" value="12345678" maxlength="8" spellcheck="false" style="width:9rem;text-align:center" aria-label="hex"> <span class="muted" id="end-dec"></span></div>
     <div class="endian" id="endian"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Aynı sayı, iki sıralama.</b> Adresler soldan sağa artıyor. Little endian’da byte’lar “ters” görünür, ama bu işlemci için bir kolaylıktır: sayının alt byte’ı her zaman aynı adreste olduğu için 32 bitlik bir sayıyı 8 ya da 16 bit olarak okumak adresi değiştirmeyi gerektirmez.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Aynı sayı, iki sıralama.</b> Adresler soldan sağa artıyor. Little endian’da byte’lar “ters” görünür, ama bu işlemci için bir kolaylıktır: sayının alt byte’ı her zaman aynı adreste olduğu için 32 bitlik bir sayıyı 8 ya da 16 bit olarak okumak adresi değiştirmeyi gerektirmez.</figcaption>
 </figure>
 
 <aside class="aside hist"><span class="t">Adın hikâyesi</span>“Endian” sözcüğü Jonathan Swift’in <em>Gulliver’in Gezileri</em>’nden geliyor. Romanda iki ülke, haşlanmış yumurtanın büyük ucundan mı (Big-Endians) yoksa küçük ucundan mı (Little-Endians) kırılacağı yüzünden savaşır. Bilgisayarcı Danny Cohen 1980’de bu tartışmanın da aynı derecede keyfî olduğunu söylemek için terimi ödünç aldı.</aside>
@@ -92,7 +111,61 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 </pre>
 </div>
 
-<h2><span class="sec">§ 8.4</span>Değişkenler, diziler, pointer’lar</h2>
+<h2><span class="sec">§ 10.5</span>Word’ler ve hizalama: 4’ün ve 8’in katları</h2>
+
+<p>İşlemci bellekle konuşurken tek tek byte’larla değil, <strong>word</strong> denen daha büyük parçalarla çalışır: bugün çoğunlukla 8 byte (64 bit). Bellek yolları da bu sınırlara göre kurulmuştur: 0, 8, 16, 24… adreslerinden başlayan 8 byte’lık bloklar tek seferde okunur. Bu yüzden n byte’lık bir değer, adresi n’nin katı olduğunda <strong>hizalıdır</strong> (aligned): 4 byte’lık bir <code>int</code> 4’ün katlarında, 8 byte’lık bir <code>double</code> 8’in katlarında durmalıdır.</p>
+
+<p>“n’nin katı” demek, n 2’nin kuvveti olduğu için, adresin son log<sub>2</sub> n bitinin sıfır olması demektir: 4’ün katı adresler <span class="b">…00</span>, 8’in katları <span class="b">…000</span> ile biter. Hizalı mı diye bakmak bir maskelemedir: <code>(adres &amp; (n − 1)) == 0</code>. Türü ve adresi değiştir:</p>
+
+<figure class="fig" id="f-al">
+  <div class="fig-in">
+    <div class="center" id="al-size"></div>
+    <div class="fig-title" style="margin-top:.8rem"><span class="muted">adres</span> <span id="k-al"></span></div>
+    <div class="al" id="al"></div>
+    <div class="tell" id="al-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Word sınırları.</b> Her satır bir 8 byte’lık word. Kalın çerçeveli hücreler, seçilen türün hizalı başlangıç adresleri. Hizasız bir değer iki word’e taşabilir; işlemci onu iki ayrı okumayla birleştirmek zorunda kalır.</figcaption>
+</figure>
+
+<p>Hizasız erişimin bedeli işlemciye göre değişir. x86 işlemciler buna izin verir ama yavaşlar; eski ARM, SPARC ve MIPS işlemcilerde ise hizasız okuma doğrudan <em>bus error</em> ile programı çökertir. Atomik işlemler (çok çekirdekli programlarda kilitsiz sayaçlar gibi) her zaman hizalı adres ister. Bu yüzden derleyiciler değişkenleri ve struct alanlarını hizalar, <code>malloc</code> da her zaman 8 ya da 16’nın katı bir adres döndürür.</p>
+
+<h2><span class="sec">§ 10.6</span>Struct’lar ve dolgu byte’ları</h2>
+
+<p>Hizalamanın en görünür sonucu, struct’ların içinde ortaya çıkan boşluklardır. Derleyici her alanı kendi boyutunun katı olan bir ofsete yerleştirir; arada kalan byte’lar <strong>dolgu</strong> (padding) olarak boş bırakılır. Struct’ın toplam boyutu da en büyük alanın hizalamasının katına yuvarlanır, ki bir dizi içinde art arda dizildiğinde her elemanın alanları yine hizalı kalsın. Alanların sırasını ↑ ile değiştir:</p>
+
+<figure class="fig" id="f-st">
+  <div class="fig-in">
+    <div class="st">
+      <pre class="prog-code st-code" id="st-code"></pre>
+      <div><div class="st-map" id="st-map"></div><div class="tell" id="st-tell"></div></div>
+    </div>
+    <div class="ctl" id="st-ctl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Aynı alanlar, farklı boyutlar.</b> Her kare bir byte, taralı kareler dolgu. Kötü sıralamada 32 byte’lık struct, alanlar büyükten küçüğe dizilince 16 byte’a iner. Milyonlarca kaydı olan bir programda bu, belleğin yarısı demektir.</figcaption>
+</figure>
+
+<p>Dosya formatlarında ve ağ protokollerinde bu dolgu istenmez; byte’ların tam olarak belirtildiği yerde durması gerekir. C’de bunun için <code>__attribute__((packed))</code> ya da <code>#pragma pack</code> kullanılır, Python’un <code>struct</code> modülünde ise biçim dizisinin başına <code>=</code>, <code>&lt;</code> ya da <code>&gt;</code> koymak dolguyu kapatır.</p>
+
+<div class="code-tabs">
+<pre data-lang="c">
+#include &lt;stdio.h&gt;
+#include &lt;stddef.h&gt;
+struct Kotu { char c; double d; short s; int i; char c2; };
+struct Iyi  { double d; int i; short s; char c; char c2; };
+int main(void) {
+  printf("%zu %zu\n", sizeof(struct Kotu), sizeof(struct Iyi));   // 32 16
+  printf("%zu\n", offsetof(struct Kotu, d));                       // 8
+}
+</pre>
+<pre data-lang="py">
+import struct
+print(struct.calcsize("@cdhic"))   # 25  yerel hizalama (sondaki dolgu eklenmez; C’de 32)
+print(struct.calcsize("=cdhic"))   # 16  dolgu yok: 1+8+2+4+1
+print(struct.calcsize("@dihcc"))   # 16  iyi sıra
+</pre>
+</div>
+
+<h2><span class="sec">§ 10.7</span>Değişkenler, diziler, pointer’lar</h2>
 
 <p>Bir programda <code>int yas = 17;</code> yazdığında derleyici bellekte 4 byte’lık bir yer ayırır ve “yas” adını o yerin adresiyle eşleştirir. Değişken adı, bir adresin insanlar için hatırlanabilir takma adıdır. Bir <strong>dizi</strong> ise aynı türden elemanların bellekte arka arkaya dizilmesidir; <code>dizi[i]</code>’nin adresi basit bir hesaptır:</p>
 
@@ -109,7 +182,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
     <div class="tell" id="prog-tell"></div>
     <div id="prog-steps"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Bir program belleği nasıl kullanır?</b> Her renk bir değişken. <code>&amp;x</code> “x’in adresi”, <code>*p</code> “p’nin gösterdiği adresteki değer” demektir. <code>p + 1</code> adresi 1 değil, gösterdiği türün boyutu kadar (burada 4 byte) ilerletir. Byte’ların little endian sırada yazıldığına dikkat et.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 7</span><b>Bir program belleği nasıl kullanır?</b> Her renk bir değişken. <code>&amp;x</code> “x’in adresi”, <code>*p</code> “p’nin gösterdiği adresteki değer” demektir. <code>p + 1</code> adresi 1 değil, gösterdiği türün boyutu kadar (burada 4 byte) ilerletir. Byte’ların little endian sırada yazıldığına dikkat et.</figcaption>
 </figure>
 
 <div class="think">
@@ -121,9 +194,24 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <p>Pointer’ların kendileri de bellekte durur: 64 bitlik bir sistemde her pointer 8 byte’tır. Hiçbir yeri göstermeyen pointer’a <code>NULL</code> denir ve değeri genellikle 0’dır. 0 adresine erişmeye çalışan program işletim sistemi tarafından durdurulur; meşhur “segmentation fault” hatası budur.</p>
 
-<aside class="aside"><span class="t">Hizalama</span>İşlemciler 4 byte’lık bir sayıyı 4’ün katı olan adreslerden daha hızlı okur. Bu yüzden derleyiciler değişkenlerin arasına bazen boş byte’lar (padding) koyar. Şekildeki <code>short</code> ile <code>char</code>’dan sonraki gri byte’lar bu yüzden boş.</aside>
+<p>Şekildeki taralı byte’lar § 10.5’teki hizalamanın sonucu: <code>char</code>’dan sonraki byte, dizinin 4’ün katı bir adresten başlaması için; dizinin arkasındaki 4 byte da 8 byte’lık pointer’ın 8’in katına oturması için boş bırakıldı.</p>
 
-<h2><span class="sec">§ 8.5</span>Dosyalar da byte dizisidir</h2>
+<h2><span class="sec">§ 10.8</span>Adresin bitleri: sayfalar ve önbellek</h2>
+
+<p>Adresin kendisi de bit alanlarına bölünür. İşletim sistemi belleği 4 KiB’lık <strong>sayfalar</strong> hâlinde yönetir: programının gördüğü adres (sanal adres) gerçek RAM’de herhangi bir yere konabilir, hatta diske taşınabilir. 4096 = 2<sup>12</sup> olduğu için adresin son 12 biti <em>sayfa içindeki konumdur</em>, üstteki bitler <em>sayfa numarası</em>. Donanım, sayfa numarasını bir tabloda arayıp gerçek adresi bulur; ofset hiç değişmez. Önbellek de aynı fikri kullanır: bellekten 64 byte’lık <strong>satırlar</strong> hâlinde veri çeker; adresin son 6 biti satır içi konum, sonraki bitler satırın önbellekte hangi kümeye gideceğidir.</p>
+
+<figure class="fig" id="f-ad">
+  <div class="fig-in">
+    <div class="center" style="gap:.6rem"><span class="muted">0x</span><input id="ad-in" class="inp" value="7FFE3A1C" maxlength="8" spellcheck="false" style="width:10rem;text-align:center" aria-label="adres"></div>
+    <div class="center" id="ad-mode" style="margin-top:.7rem"></div>
+    <div id="ad"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 8</span><b>Bir adresi alanlara bölmek.</b> Sayfa ve önbellek satırı boyutları 2’nin kuvveti olduğu için, adresi bölmek hiç bölme gerektirmez: sağa kaydırmak ve maskelemek yeter. Donanım bunu bedavaya, sadece kabloları ayırarak yapar.</figcaption>
+</figure>
+
+<p>Bu, programların hızını doğrudan etkiler. Bir diziyi sırayla gezmek hızlıdır, çünkü bir önbellek satırı 8 tane <code>double</code> getirir; rastgele gezmek her adımda yeni bir satır, belki yeni bir sayfa ister. Aynı satırı paylaşan iki değişkeni iki farklı çekirdeğin değiştirmesi bile programı yavaşlatır (false sharing).</p>
+
+<h2><span class="sec">§ 10.9</span>Dosyalar da byte dizisidir</h2>
 
 <p>Disk, belleğe göre çok daha yavaş ama kalıcı bir byte şerididir. Bir dosya, bu şeritteki bir byte dizisi ve ona verilmiş bir addır. “Bu bir PNG resmi” bilgisi dosyanın içinde, genellikle ilk birkaç byte’ta yazılıdır. Bu byte’lara <strong>sihirli sayı</strong> (magic number) ya da dosya imzası denir. Dosya uzantısını değiştirmek dosyanın türünü değiştirmez; imza aynı kalır.</p>
 
@@ -133,7 +221,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
     <div class="tell" id="hex-sig"></div>
     <div class="hexdump" id="hexdump"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Bir hex görüntüleyici.</b> Örneklerden birini seç ya da bilgisayarından bir dosya aç. Dosya hiçbir yere gönderilmez; tarayıcın onu sadece bu sayfada okur. Soldaki sütun dosya içindeki konum (ofset), ortadaki hex byte’lar, sağdaki aynı byte’ların ASCII okunuşu.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 9</span><b>Bir hex görüntüleyici.</b> Örneklerden birini seç ya da bilgisayarından bir dosya aç. Dosya hiçbir yere gönderilmez; tarayıcın onu sadece bu sayfada okur. Soldaki sütun dosya içindeki konum (ofset), ortadaki hex byte’lar, sağdaki aynı byte’ların ASCII okunuşu.</figcaption>
 </figure>
 
 <div class="tbl"><table>
@@ -154,7 +242,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <p class="key">Bellek de disk de sadece numaralı byte’lardır. <strong>Adres</strong> nerede olduğunu, <strong>tür</strong> nasıl okunacağını, <strong>byte sırası</strong> çok byte’lı değerlerin dizilişini belirler. Bu üçünü bilen, herhangi bir veriyi byte byte okuyabilir.</p>
 
-<h2><span class="sec">§ 8.6</span>Kendini dene</h2>
+<h2><span class="sec">§ 10.10</span>Kendini dene</h2>
 
 <div id="try"></div>
 

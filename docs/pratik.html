@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="en" href="en/practice.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 <script src="assets/gen.js" defer></script>
@@ -17,21 +17,21 @@
 <body data-chapter="practice">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Bölüm 10</div>
+  <div class="kicker"><span class="bits"></span>Bölüm 12</div>
   <h1>Kendini sına</h1>
-  <p class="lede">Bütün bölümlerden, her seferinde yeniden üretilen sorular. Konuları aç-kapat, cevabını yaz, takıldığında ipucuna bak. Altta da hepsinin tek sayfalık özeti var.</p>
+  <p class="lede">On bir bölümün hepsinden, her seferinde yeniden üretilen sorular. Konuları aç-kapat, cevabını yaz, takıldığında ipucuna bak. Altta da hepsinin tek sayfalık özeti var.</p>
   <div class="meta"><span>Sınırsız soru</span><span>Yazdırılabilir özet</span></div>
 </header>
 
 <article class="prose">
 
-<h2><span class="sec">§ 10.1</span>Karışık alıştırma</h2>
+<h2><span class="sec">§ 12.1</span>Karışık alıştırma</h2>
 
 <p>Cevapları yazarken önek kullanmak zorunda değilsin: <code>0x1F</code> da <code>1F</code> de kabul edilir; boşluklar ve alt çizgiler göz ardı edilir. Ondalıklı cevaplarda virgül ya da nokta kullanabilirsin.</p>
 
 <div id="try"></div>
 
-<h2><span class="sec">§ 10.2</span>Tek sayfalık özet</h2>
+<h2><span class="sec">§ 12.2</span>Tek sayfalık özet</h2>
 
 <p>Bütün site, aşağıdaki kartlara sığıyor. <button type="button" class="btn sm" id="print">Yazdır</button></p>
 
@@ -73,6 +73,46 @@
       <tr><td class="m">64</td><td class="m">0 … 1,8 × 10¹⁹</td><td class="m">±9,2 × 10¹⁸</td></tr>
     </tbody></table></div>
     <p><b>−x</b> = bitleri ters çevir, <b>+1</b>. En soldaki bit −2<sup>n−1</sup> değerindedir. Taşan sayı başa sarar.</p>
+  </section>
+  <section class="sc-card">
+    <h3>İkili aritmetik</h3>
+    <ul>
+      <li>0+0=0 · 0+1=1 · 1+1=10 (elde) · 1+1+1=11</li>
+      <li>Toplam biti = a⊕b⊕c, elde = çoğunluk</li>
+      <li>İşaretsiz sonuç = (a+b) mod 2<sup>n</sup>; taşan bit → C bayrağı</li>
+      <li>a − b = a + ~b + 1 · çarpma = kaydır + topla · bölme = kaydır + çıkar</li>
+      <li><code>x &lt;&lt; k</code> = x·2<sup>k</sup> · <code>x % 2<sup>k</sup></code> = <code>x &amp; (2<sup>k</sup>−1)</code></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Dört gösterim</h3>
+    <ul>
+      <li>İşaret-büyüklük: işaret biti + büyüklük, iki sıfır</li>
+      <li>1’e tümleyen: −x = ~x, döngüsel elde, iki sıfır</li>
+      <li>2’ye tümleyen: −x = ~x + 1 = 2<sup>n</sup> − x, tek sıfır</li>
+      <li>Fazlalık-K: değer = desen − K (float üssü: K = 127)</li>
+      <li>İşaret genişletme: üst bitleri işaret bitiyle doldur · V = c<sub>7</sub>⊕c<sub>8</sub></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Az bilinen formatlar</h3>
+    <ul>
+      <li>BCD: her onlu basamak 4 bit · Gray: <code>n ^ (n&gt;&gt;1)</code></li>
+      <li>Parite: 1’leri çift yap · Hamming(7,4): 1 hata düzeltir</li>
+      <li>Varint: 7 bitlik parçalar, üst bit = devam · zigzag negatifler için</li>
+      <li>Base64: 3 byte → 4 karakter (+%33)</li>
+      <li>float16 1/5/10 · bfloat16 1/8/7 · RGB565 5/6/5</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Hizalama</h3>
+    <ul>
+      <li>Bitin adresi yok: byte = k&gt;&gt;3, bit = k&amp;7, maske = 1&lt;&lt;bit</li>
+      <li>n byte’lık değer n’nin katında: <code>(a &amp; (n−1)) == 0</code></li>
+      <li>Yukarı hizala: <code>(a + n − 1) &amp; ~(n − 1)</code></li>
+      <li>struct: alanları büyükten küçüğe sırala, dolgu azalır</li>
+      <li>4 KiB sayfa: son 12 bit ofset · 64 B önbellek satırı: son 6 bit</li>
+    </ul>
   </section>
   <section class="sc-card">
     <h3>Kayan nokta (IEEE 754)</h3>

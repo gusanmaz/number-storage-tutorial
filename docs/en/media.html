@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../medya.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -17,7 +17,7 @@
 <body data-chapter="media">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Chapter 7</div>
+  <div class="kicker"><span class="bits"></span>Chapter 8</div>
   <h1>Color, image and sound</h1>
   <p class="lede">A photo or a song is also just numbers in the end. But the colors and sounds of the world are continuous, while a computer can only count whole numbers. The bridge between them: <em>sampling</em> and <em>rounding</em>.</p>
   <div class="meta"><span>Reading: ~35 min</span><span>Before: Chapters 2 and 3</span></div>
@@ -25,7 +25,7 @@
 
 <article class="prose">
 
-<h2><span class="sec">§ 7.1</span>Every color from three lights</h2>
+<h2><span class="sec">§ 8.1</span>Every color from three lights</h2>
 
 <p class="dropcap">The retina of your eye has three kinds of color sensors (cones), roughly sensitive to red, green and blue. Your brain works out every color you see from the ratio of those three signals. Screens exploit this loophole: every pixel is made of three tiny lights side by side. By adjusting their brightness we convince the eye it sees whatever color we want.</p>
 
@@ -41,7 +41,7 @@
 
 <p>With one byte per channel, a color takes <strong>3 bytes = 24 bits</strong>. That is 2<sup>24</sup> = 16,777,216 different colors. Considering that the human eye distinguishes a few million colors, 24 bits is enough for most purposes, which is why it is called “true color”.</p>
 
-<h2><span class="sec">§ 7.2</span>#RRGGBB: the hex address of a color</h2>
+<h2><span class="sec">§ 8.2</span>#RRGGBB: the hex address of a color</h2>
 
 <p>On web pages and in design tools we write colors like <span class="h">#FF8800</span>. Now we know what that is: three bytes written in hex. Since each byte is exactly two hex digits, the color code splits neatly into six: the first two are red, the middle two green, the last two blue.</p>
 
@@ -60,7 +60,7 @@
   <li><strong>Grays:</strong> when all three channels are equal the color is gray: <span class="h">#000000</span> black, <span class="h">#808080</span> middle gray, <span class="h">#FFFFFF</span> white. One byte is enough for gray, which is why black-and-white photos take a third of the space.</li>
 </ul>
 
-<h2><span class="sec">§ 7.3</span>Color depth: how many bits per channel?</h2>
+<h2><span class="sec">§ 8.3</span>Color depth: how many bits per channel?</h2>
 
 <p>What if we gave each channel fewer than 8 bits? With 1 bit per channel only 8 colors remain (black, white, red, green, blue, yellow, cyan, magenta). Old computers were like that. Show the sunset below at different bit depths:</p>
 
@@ -70,10 +70,10 @@
     <div class="center" style="margin-top:.8rem"><label class="muted" for="depth-r">Bits per channel</label> <input type="range" id="depth-r" min="1" max="8" value="3" style="width:14rem"> <b class="mono" id="depth-v"></b></div>
     <div class="readout" id="depth-out"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Fewer bits = banding.</b> As the bit count drops, smooth gradients break into steps. The rounding error becomes visible. It is the visual version of the floating-point story in Chapter 5: limited bits, limited in-between values.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Fewer bits = banding.</b> As the bit count drops, smooth gradients break into steps. The rounding error becomes visible. It is the visual version of the floating-point story in Chapter 6: limited bits, limited in-between values.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 7.4</span>An image: a grid of numbers</h2>
+<h2><span class="sec">§ 8.4</span>An image: a grid of numbers</h2>
 
 <p>A digital image is a grid of colored squares called <strong>pixels</strong>. Each pixel is a 3-byte color. To store the image in memory we lay the pixels out row by row, left to right. The image below is 16 × 16 pixels, enlarged. Tap a pixel.</p>
 
@@ -95,9 +95,9 @@
 
 <aside class="aside"><span class="t">Paletted images</span>The GIF format stores 1 byte per pixel instead of 3. That byte is not a color but a position in a 256-color <em>palette</em> table. Another “agreement”: number → color. Very much like ASCII’s number → letter table.</aside>
 
-<h2><span class="sec">§ 7.5</span>Colors in code</h2>
+<h2><span class="sec">§ 8.5</span>Colors in code</h2>
 
-<p>When we store a color as a single 24-bit number, separating the channels is a bit operation: to get red, shift the number right by 16 bits and mask the last 8 bits. We will see bit operations in detail in Chapter 9.</p>
+<p>When we store a color as a single 24-bit number, separating the channels is a bit operation: to get red, shift the number right by 16 bits and mask the last 8 bits. We will see bit operations in detail in Chapter 11.</p>
 
 <div class="code-tabs">
 <pre data-lang="js">
@@ -134,7 +134,7 @@ print(img.tobytes())                   # b'\xff\x88\x00\xff\x88\x00'
 </pre>
 </div>
 
-<h2><span class="sec">§ 7.6</span>Sound: counting a wave in the air</h2>
+<h2><span class="sec">§ 8.6</span>Sound: counting a wave in the air</h2>
 
 <p>Sound is rapid wiggling of air pressure. A microphone turns that wiggling into a voltage, a curve that changes continuously over time. To store the curve the computer does two things:</p>
 <ol>
@@ -181,7 +181,7 @@ print(img.tobytes())                   # b'\xff\x88\x00\xff\x88\x00'
 
 <p class="key">Color, image and sound follow the same recipe: <strong>chop</strong> something continuous into pieces (pixels, samples) and <strong>round</strong> each piece to a limited number of bits (color depth, bit depth). Quality comes from those two settings, and so does file size.</p>
 
-<h2><span class="sec">§ 7.7</span>Try it yourself</h2>
+<h2><span class="sec">§ 8.7</span>Try it yourself</h2>
 
 <div id="try"></div>
 

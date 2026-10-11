@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Binary arithmetic · Zeros &amp; Ones</title>
+<meta name="description" content="Binary addition and carries, half and full adders, subtraction and borrows, unsigned overflow and the carry flag, shifts, shift-and-add multiplication and long division. An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../aritmetik.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/arithmetic.js" defer></script>
+</head>
+<body data-chapter="arithmetic">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 4</div>
+  <h1>Binary arithmetic</h1>
+  <p class="lede">You learned decimal addition in primary school. Binary addition is the same game with a much shorter table. In this chapter we follow, bit by bit, how a processor does the four operations: carries, borrows, overflow, shifts.</p>
+  <div class="meta"><span>Reading: ~35 min</span><span>Before: Chapters 1–3</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 4.1</span>A four-line addition table</h2>
+
+<p class="dropcap">To add in decimal we memorized a hundred-line table from 0+0 to 9+9. In binary the table has only four lines:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>a + b</th><th>Result</th><th>Sum bit</th><th>Carry</th></tr></thead>
+  <tbody>
+    <tr><td class="m">0 + 0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td></tr>
+    <tr><td class="m">0 + 1</td><td class="m">1</td><td class="m">1</td><td class="m">0</td></tr>
+    <tr><td class="m">1 + 0</td><td class="m">1</td><td class="m">1</td><td class="m">0</td></tr>
+    <tr><td class="m">1 + 1</td><td class="m">10<span class="sub">2</span> = 2</td><td class="m">0</td><td class="m">1</td></tr>
+  </tbody>
+</table></div>
+
+<p>The last line is exactly the exploding dots of Chapter 2: two dots in a box explode and a <strong>carry</strong> goes to the left. Look closely at this table and two familiar logic gates appear: the sum bit is 1 when the inputs <em>differ</em>, which is <strong>XOR</strong>; the carry is 1 when both inputs are 1, which is <strong>AND</strong>. A circuit made of these two gates is called a <strong>half adder</strong>.</p>
+
+<p>In multi-digit addition each column must also take the carry coming from the right into account, so it adds three bits. That three-input circuit is called a <strong>full adder</strong>. Tap the inputs below:</p>
+
+<figure class="fig" id="f-fa">
+  <div class="fig-in">
+    <div class="fa" id="fa"></div>
+    <div class="tell" id="fa-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>A full adder.</b> Three bits go in (a, b and the carry from the right), two bits come out (the sum and the carry to the left). Sum = a ⊕ b ⊕ c, carry = 1 if at least two inputs are 1. The glowing row of the table is the row for the current inputs. A processor’s adder is a row of these boxes side by side.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 4.2</span>Adding with carries</h2>
+
+<p>Adding two multi-bit numbers is the same as column addition in primary school: start at the rightmost column, add three bits (a, b, carry) in each column, write the sum bit below and move the carry one place left. Change the numbers and step column by column: <span id="k-aa"></span> + <span id="k-ab"></span>.</p>
+
+<figure class="fig" id="f-add">
+  <div class="fig-in">
+    <div class="addgrid big" id="add"></div>
+    <div class="tell" id="add-tell"></div>
+    <div id="add-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>8-bit unsigned addition.</b> The small orange digits in the top row are carry bits. Every column goes through a full adder. If the result exceeds 255, a ninth bit is born; there is no room for it in an 8-bit box.</figcaption>
+</figure>
+
+<p>This design is called a <strong>ripple-carry adder</strong>, because the carry ripples from one column to the next like a wave. In a 64-bit addition the leftmost column has to wait for the carry to travel through 63 columns. Real processors use more elaborate circuits that compute the carries in advance (carry-lookahead); the result is the same, just faster.</p>
+
+<h2><span class="sec">§ 4.3</span>Unsigned overflow and the carry flag</h2>
+
+<p>An <strong>unsigned</strong> integer is the simplest reading, where every bit carries a positive place value: with n bits, 0 to 2<sup>n</sup> − 1. The sum of two n-bit unsigned numbers can need n + 1 bits. The extra bit does not fit in the box and is dropped; what remains is:</p>
+
+<p class="formula">result = (a + b) mod 2<sup>n</sup></p>
+
+<p>But the processor does not forget that extra bit entirely. It keeps it in a special bit called the <strong>carry flag</strong> (<b>C</b>). Right after an addition, a program can check C to find out whether it overflowed. The flag’s real talent is something else: <strong>adding big numbers piece by piece</strong>. An 8-bit processor adds two 16-bit numbers by first adding the low bytes, then the high bytes <em>plus C</em>. Thanks to this “add with carry” (ADC) instruction an 8-bit machine can work with numbers as large as it likes.</p>
+
+<figure class="fig narrow" id="f-adc">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-wa"></span> + <span id="k-wb"></span> <span class="muted">(16 bits, in two steps)</span></div>
+    <div id="adc"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Adding byte by byte.</b> First the low bytes are added; the overflowing bit goes into the C flag. Then the high bytes are added together with C. On 8-bit machines like the Commodore 64 and the original Nintendo, every game score was added this way.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 4.4</span>Subtracting with borrows</h2>
+
+<p>The column rules for subtraction are: 1 − 0 = 1, 1 − 1 = 0, 0 − 0 = 0, and the troublesome <strong>0 − 1</strong>. In decimal we would borrow ten from the neighbor; in binary the one borrowed from the neighbor is worth <em>two</em> in this column. 0 − 1 becomes 1 and a <strong>borrow</strong> of 1 is owed to the next column. Follow <span id="k-sa"></span> − <span id="k-sb"></span>; try making the second number bigger than the first too.</p>
+
+<figure class="fig" id="f-sub">
+  <div class="fig-in">
+    <div class="center" id="sub-mode"></div>
+    <div class="addgrid big" id="sub"></div>
+    <div class="tell" id="sub-tell"></div>
+    <div id="sub-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>8-bit unsigned subtraction.</b> Red digits are borrow bits. If a bigger number is subtracted from a smaller one, a borrow leaves the leftmost column and the result wraps around: 3 − 5 = 254. In the second tab, follow the same operation the way a processor really does it: flip the bits of B and add with carry = 1.</figcaption>
+</figure>
+
+<p>The second tab previews the big idea of the next chapter: <strong>a − b = a + (flipped b) + 1</strong>. The processor needs no separate subtraction circuit; it is enough to put NOT gates in front of one adder input and set the first carry to 1. In Chapter 5 we will see why this is true and how negative numbers grow out of this idea.</p>
+
+<div class="think">
+  <p class="q">What is 0 − 1 in 8 bits? What does it mean in the unsigned reading?</p>
+  <details><summary>Think first, then open</summary>
+    <p>A chain of borrows forms across every column and the result is <span class="b">11111111</span> = 255, with a borrow leaving on the left. In the unsigned world, going back from 0 wraps to the largest number, just as going back one hour from 0 on a clock lands on 11. In the next chapter we will read that same pattern as −1.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 4.5</span>Shifting: multiplying and dividing by 2</h2>
+
+<p>Appending a 0 to a decimal number multiplies it by 10. Shifting all bits of a binary number one place left (appending a 0 on the right) <strong>multiplies it by 2</strong>; shifting one place right (dropping the rightmost bit) <strong>divides it by 2</strong> and rounds down. These are among the cheapest things a processor can do.</p>
+
+<figure class="fig" id="f-shift">
+  <div class="fig-in">
+    <div id="sh-lamps"></div>
+    <div class="readout" id="sh-out"></div>
+    <div class="ctl" id="sh-ctl"></div>
+    <div class="tell" id="sh-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Shifting bits.</b> Shift left and the leftmost bit falls out of the box (overflow); shift right and the rightmost bit falls out (the remainder). The bit that drops off the right is the remainder of dividing by 2.</figcaption>
+</figure>
+
+<p>Compilers use this trick all the time. Instead of <code>x * 8</code> they write <code>x &lt;&lt; 3</code>, and instead of <code>x * 10</code> they write <code>(x &lt;&lt; 3) + (x &lt;&lt; 1)</code>, because 10 = 8 + 2. Likewise the remainder modulo a power of 2 is a mask: <code>x % 8</code> = <code>x &amp; 7</code>, because the remainder of dividing by 8 is exactly the last 3 bits.</p>
+
+<h2><span class="sec">§ 4.6</span>Multiplication: shift and add</h2>
+
+<p>Binary multiplication is the easiest form of long multiplication, because every digit of the multiplier is 0 or 1. If it is 1 you write the multiplicand shifted to that digit’s position; if it is 0 you write nothing. Then you add the partial products. No times table, just shifting and adding. <span id="k-ma"></span> × <span id="k-mb"></span>:</p>
+
+<figure class="fig narrow" id="f-mul">
+  <div class="fig-in">
+    <div class="mulgrid" id="mul"></div>
+    <div class="tell" id="mul-tell"></div>
+    <div id="mul-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>Shift and add.</b> For every 1 bit of the multiplier (B), the multiplicand (A) is written shifted left by that bit’s position. The product of two n-bit numbers can take up to 2n bits, which is why 32-bit multiply instructions often write their result into a 64-bit pair.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 4.7</span>Division: shift and subtract</h2>
+
+<p>Division is long division in binary, and again every step has only two options: does the divisor fit into the current remainder? If it does, subtract and write 1 in the quotient; if not, write 0. Then bring down the next bit. <span id="k-da"></span> ÷ <span id="k-db"></span>:</p>
+
+<figure class="fig narrow" id="f-div">
+  <div class="fig-in">
+    <div class="divrows" id="div"></div>
+    <div class="tell" id="div-tell"></div>
+    <div id="div-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 7</span><b>Shift and subtract.</b> At each step the next bit of the dividend is appended to the right of the remainder. If the remainder is not smaller than the divisor, it is subtracted and a 1 goes into the quotient. After 8 steps the quotient and remainder are ready. Because every bit needs a trial, division is the slowest integer operation in processors; it can be 20–40 times slower than addition.</figcaption>
+</figure>
+
+<aside class="aside"><span class="t">Rounding in integer division</span>7 ÷ 2 is 3 in integer division; the fraction is dropped. With negative numbers languages disagree: C and Java round toward zero (−7 / 2 = −3), Python rounds down (−7 // 2 = −4). The sign of the remainder changes accordingly. Chapter 11 shows this difference with examples.</aside>
+
+<h2><span class="sec">§ 4.8</span>Unsigned integers in code</h2>
+
+<p>C and C++ have explicit unsigned types and their overflow is <em>well defined</em>: the result is always taken modulo 2<sup>n</sup>. Python has no unsigned type and its integers grow without limit; to imitate an unsigned box you mask the result. In JavaScript, typed arrays are those boxes themselves. There is also <strong>saturating</strong> arithmetic: stopping at the limit instead of wrapping. When brightening a pixel in image processing, 250 + 10 becoming 4 would be a disaster; it should stop at 255.</p>
+
+<div class="code-tabs">
+<pre data-lang="c">
+#include &lt;stdint.h&gt;
+uint8_t a = 200, b = 100;
+uint8_t s = a + b;      // 44   (300 mod 256)
+uint8_t d = 3 - 5;      // 254  (wraparound)
+uint32_t big = 4000000000u;   // unsigned 32-bit: up to 4 billion
+unsigned x = 13;
+x << 1;   // 26     x >> 1;   // 6     x &amp; 7;   // 5 (x % 8)
+</pre>
+<pre data-lang="py">
+a, b = 200, 100
+print((a + b) &amp; 0xFF)        # 44   imitate an 8-bit box
+print((3 - 5) % 256)         # 254
+print(13 &lt;&lt; 1, 13 &gt;&gt; 1)       # 26 6
+print(13 * 10 == (13 &lt;&lt; 3) + (13 &lt;&lt; 1))   # True
+q, r = divmod(200, 7)        # (28, 4)
+print(min(250 + 10, 255))    # 255  saturating addition
+</pre>
+<pre data-lang="js">
+const u = new Uint8Array([200]);
+u[0] += 100;                 // 44   wraps around
+const c = new Uint8ClampedArray([250]);
+c[0] += 10;                  // 255  saturates (canvas pixels work like this)
+console.log((3 - 5) &gt;&gt;&gt; 0);  // 4294967294  unsigned 32-bit
+console.log(Math.floor(200 / 7), 200 % 7);   // 28 4
+</pre>
+</div>
+
+<p class="key">The whole secret of binary arithmetic: addition column by column with <strong>carries</strong>, subtraction with <strong>borrows</strong> (or “flip, add 1, add”), multiplication is <strong>shift and add</strong>, division is <strong>shift and subtract</strong>. In a fixed-width box the result is always modulo 2<sup>n</sup>; the bit that overflows stays in the C flag.</p>
+
+<h2><span class="sec">§ 4.9</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p><span class="b">1011</span> + <span class="b">0110</span> = ?</p>
+    <ul><li>1101</li><li>1111</li><li>10001</li><li>1001</li></ul>
+    <div class="quiz-why">11 + 6 = 17 = 10001<sub>2</sub>. In a 4-bit box the result would be 0001 with C = 1.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>Which operation is the “sum” output of a full adder?</p>
+    <ul><li>a ⊕ b ⊕ c (XOR)</li><li>a · b · c (AND)</li><li>a + b + c (OR)</li><li>NOT a</li></ul>
+    <div class="quiz-why">The sum bit is 1 when an odd number of inputs are 1: a three-input XOR.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>8-bit unsigned: what is 250 + 10, and the C flag?</p>
+    <ul><li>260, C = 0</li><li>255, C = 1</li><li>4, C = 0</li><li>4, C = 1</li></ul>
+    <div class="quiz-why">260 − 256 = 4; the ninth bit goes into the C flag.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>What is <code>x &lt;&lt; 4</code> equal to?</p>
+    <ul><li>x + 4</li><li>x × 16</li><li>x × 4</li><li>x ÷ 16</li></ul>
+    <div class="quiz-why">Every left shift is ×2: 2<sup>4</sup> = 16 (as long as nothing overflows).</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>What can replace <code>x % 16</code> (for x ≥ 0)?</p>
+    <ul><li><code>x &gt;&gt; 4</code></li><li><code>x | 15</code></li><li><code>x &amp; 15</code></li><li><code>x ^ 16</code></li></ul>
+    <div class="quiz-why">The remainder mod 16 is the last 4 bits; the mask 15 = 1111<sub>2</sub> selects them.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

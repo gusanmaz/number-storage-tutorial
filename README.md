@@ -11,16 +11,18 @@
 
 | # | Türkçe | English | Neler var / What’s inside |
 |---|--------|---------|---------------------------|
-| 1 | `anahtarlar.html` | `en/switches.html` | Bit, 2ⁿ desen, 20 soru oyunu, gürültü ve ikili sistem, mantık kapıları, aynı desenin farklı anlamları / bits, 2ⁿ patterns, 20 questions, noise, logic gates, lenses |
-| 2 | `sayma.html` | `en/counting.html` | Patlayan noktalar, ikili sayma, terazi ile dönüşüm, tekrarlı bölme, sekizli ve hex / exploding dots, binary counting, balance, division, octal and hex |
+| 1 | `anahtarlar.html` | `en/switches.html` | Bit, 2ⁿ desen, 20 soru oyunu, gürültü, mantık kapıları, aynı desenin farklı anlamları / bits, 2ⁿ patterns, 20 questions, noise, logic gates, lenses |
+| 2 | `sayma.html` | `en/counting.html` | Patlayan noktalar, ikili sayma, terazi, tekrarlı bölme, sayma matematiği (bⁿ, bⁿ−1, basamak sayısı), 2’nin kuvvetleri, Horner, evrensel taban çevirici / exploding dots, counting math, Horner, any-base converter |
 | 3 | `byte.html` | `en/bytes.html` | Byte anatomisi, kaç bit gerekir, taşma, kB/KiB, bit/byte, veri merdiveni / byte anatomy, bits needed, overflow, units |
-| 4 | `negatif.html` | `en/negative.html` | İşaret-büyüklük, sayaç, sayı çemberi, ikiye tümleyen, taşma, canlı 2038 saati / two’s complement, number wheel, overflow, live 2038 clock |
-| 5 | `kesir.html` | `en/fractions.html` | İkili kesirler, 0,1’in döngüsü, sabit nokta, 8 bitlik oyuncak float, IEEE 754 laboratuvarı, 0.1 + 0.2 / binary fractions, toy float, float lab |
-| 6 | `metin.html` | `en/text.html` | ASCII tablosu, kontrol karakterleri ve teleprinter, NUL sonlandırıcı, kod sayfaları, Unicode, UTF-8 kodlayıcı, mojibake / ASCII, escapes, code pages, UTF-8 |
-| 7 | `medya.html` | `en/media.html` | RGB ışık karışımı, #RRGGBB, renk derinliği, piksel ızgarası, örnekleme ve dinlenebilir nicemleme / RGB, hex colors, pixels, audible sampling |
-| 8 | `bellek.html` | `en/memory.html` | Adresler, aynı byte’ların farklı türleri, endianness, adım adım C programı ve pointer’lar, hex görüntüleyici / addresses, types, endianness, pointers, hex viewer |
-| 9 | `kod.html` | `en/code.html` | Sayı sabitleri, dil farkları, bit işlemleri, izin bayrakları, değer ve referans görselleştirici / literals, bitwise ops, flags, references |
-| 10 | `pratik.html` | `en/practice.html` | Sınırsız karışık alıştırma ve tek sayfalık özet / unlimited practice and a one-page summary |
+| 4 | `aritmetik.html` | `en/arithmetic.html` | Tam toplayıcı, elde ile toplama, ödünç ile çıkarma, C bayrağı ve ADC, kaydırma, kaydır-topla çarpma, kaydır-çıkar bölme / full adder, carries, borrows, shifts, multiplication, division |
+| 5 | `negatif.html` | `en/negative.html` | İşaret-büyüklük, 1’e ve 2’ye tümleyen, fazlalık-K, dört gösterim tablosu, işaret genişletme, aritmetik kaydırma, C/V/N/Z bayrakları, 2038 saati / four representations, sign extension, flags |
+| 6 | `kesir.html` | `en/fractions.html` | İkili kesirler, 0,1’in döngüsü, sabit nokta, oyuncak float, IEEE 754 laboratuvarı, 0.1 + 0.2 / binary fractions, toy float, float lab |
+| 7 | `metin.html` | `en/text.html` | ASCII, kontrol karakterleri ve teleprinter, NUL sonlandırıcı, kod sayfaları, Unicode, UTF-8 kodlayıcı, mojibake / ASCII, escapes, UTF-8 |
+| 8 | `medya.html` | `en/media.html` | RGB, #RRGGBB, renk derinliği, piksel ızgarası, örnekleme ve dinlenebilir nicemleme / color, pixels, audible sampling |
+| 9 | `formatlar.html` | `en/formats.html` | BCD ve 7 segment, Gray kodu, parite ve Hamming(7,4), sağlama toplamı ve CRC-32, varint/zigzag, Base64, Baudot/EBCDIC/Mors, float16/bfloat16/FP8, RGB565, zaman damgaları / lesser-known formats |
+| 10 | `bellek.html` | `en/memory.html` | Adresler, bit düzeyinde erişim (maske ile okuma-değiştirme-yazma), türler, endianness, hizalama, struct dolgusu, pointer’lar, sayfa/önbellek adres alanları, hex görüntüleyici / bit access, alignment, padding, pages |
+| 11 | `kod.html` | `en/code.html` | Sayı sabitleri, dil farkları, bit işlemleri, izin bayrakları, değer ve referans / literals, bitwise ops, flags, references |
+| 12 | `pratik.html` | `en/practice.html` | Sınırsız karışık alıştırma ve tek sayfalık özet / unlimited practice and a one-page summary |
 
 Eski sayfa adresleri (ör. `binary.html`, `en/floating-point.html`) yeni bölümlere yönlendirilir. / Old page URLs redirect to the new chapters.
 

@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../negatif.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -17,23 +17,41 @@
 <body data-chapter="negative">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Chapter 4</div>
+  <div class="kicker"><span class="bits"></span>Chapter 5</div>
   <h1>Negative numbers on a clock face</h1>
-  <p class="lede">Lamps have no “minus” state. Yet a computer has to store −5. The solution people found is so elegant that it even makes subtraction disappear.</p>
-  <div class="meta"><span>Reading: ~25 min</span><span>Before: Chapters 2–3</span></div>
+  <p class="lede">Lamps have no “minus” state. Yet a computer has to store −5. History tried four different solutions; one of them turned out so elegant that it even makes subtraction disappear. We will tinker with all four and compare them.</p>
+  <div class="meta"><span>Reading: ~50 min</span><span>Before: Chapters 2–4</span></div>
 </header>
 
 <article class="prose">
 
-<h2><span class="sec">§ 4.1</span>The first idea: reserve a bit for the sign</h2>
+<h2><span class="sec">§ 5.1</span>The first idea: reserve a bit for the sign</h2>
 
 <p class="dropcap">The most natural idea is to use the leftmost bit as the sign: <code>0</code> for plus, <code>1</code> for minus, and the remaining seven bits for the size of the number. This is called <strong>sign-magnitude</strong>: +5 = <span class="b"><span class="n">0</span>0000101</span>, −5 = <span class="b"><span class="n">1</span>0000101</span>. It looks reasonable on paper but has two problems.</p>
 
 <p>First, there are <strong>two zeros</strong>: <span class="b">00000000</span> (+0) and <span class="b">10000000</span> (−0). Two patterns for one value means checking two cases in every comparison. Second, and worse: <strong>ordinary addition breaks</strong>. Add +3 and −3 with normal binary addition and you get <span class="b">00000011</span> + <span class="b">10000011</span> = <span class="b">10000110</span>, which is −6. The processor would need separate circuits that know separate rules for negative numbers.</p>
 
-<p>For a better idea, let’s get in a car.</p>
+<p>Even comparing numbers is awkward in this design: read as unsigned, −1 (<span class="b">10000001</span>) looks smaller than −5 (<span class="b">10000101</span>). Early machines such as the IBM 7090 used sign-magnitude. The idea is not entirely dead: the sign bit of the floating-point numbers in Chapter 6 works exactly like this.</p>
 
-<h2><span class="sec">§ 4.2</span>The odometer that rolls back</h2>
+<h2><span class="sec">§ 5.2</span>Second attempt: one’s complement</h2>
+
+<p>Another idea: get the negative of a number by <strong>flipping all its bits</strong>. +5 = <span class="b">00000101</span>, −5 = <span class="b">11111010</span>. This is called <strong>one’s complement</strong>; the name comes from subtracting every bit from 1: x plus flip(x) is always <span class="b">11111111</span>. The leftmost bit still shows the sign, and 8 bits hold −127 … +127.</p>
+
+<p>Addition <em>almost</em> works in this representation. It needs one extra rule: if a carry leaves the leftmost column, instead of dropping it you <strong>add it back at the right end</strong> of the result. This is called the <strong>end-around carry</strong>. Try it: <span id="k-oa"></span> + <span id="k-ob"></span>.</p>
+
+<figure class="fig narrow" id="f-oc">
+  <div class="fig-in">
+    <div class="negrows" id="oc"></div>
+    <div class="tell" id="oc-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>Adding in one’s complement.</b> Negative numbers are written with their bits flipped. If a carry leaves the left of the raw sum, it is added back into the result. Try 5 + (−5): the result is <span class="b">11111111</span>, “negative zero”.</figcaption>
+</figure>
+
+<p>One’s complement was used in the 1960s on supercomputers like the CDC 6600 and on UNIVAC machines. But it had two flaws: there are still <strong>two zeros</strong> (<span class="b">00000000</span> and <span class="b">11111111</span>), and the end-around carry sometimes means doing the addition twice. Yet the idea lives on inside the internet every moment: the <strong>checksum</strong> in IP, TCP and UDP packets is computed with one’s complement addition, because it is independent of byte order and the end-around carry never loses a bit (Chapter 9).</p>
+
+<p>Is there a way with a single zero and no extra rules? To find it, let’s get in a car.</p>
+
+<h2><span class="sec">§ 5.3</span>The odometer that rolls back</h2>
 
 <p>Picture a three-digit odometer in an old car. Drive backwards and it counts down: 002, 001, 000… and then? <strong>999</strong>. Try it below.</p>
 
@@ -43,12 +61,12 @@
     <div class="ctl" id="odo-ctl"></div>
     <div class="tell" id="odo-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>999 is “one less than zero”.</b> On a three-digit counter, adding 1 to 999 gives 000, not 1000 (there is no room for a fourth digit). So in this counter’s world 999 really does behave like −1.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>999 is “one less than zero”.</b> On a three-digit counter, adding 1 to 999 gives 000, not 1000 (there is no room for a fourth digit). So in this counter’s world 999 really does behave like −1.</figcaption>
 </figure>
 
 <p>This observation changes everything: <strong>on a fixed-width counter, we can call the patterns that go backwards from zero negative numbers.</strong> 999 = −1, 998 = −2, 997 = −3… And ordinary addition works with them: 5 + 999 = 1004 → last three digits 004 = 5 − 1. Drop the overflowing digit and the result is right!</p>
 
-<h2><span class="sec">§ 4.3</span>The same idea in binary: the number wheel</h2>
+<h2><span class="sec">§ 5.4</span>The same idea in binary: the number wheel</h2>
 
 <p>Let’s arrange the 4-bit numbers on a clock face. After <span class="b">1111</span> comes <span class="b">0000</span>; the wheel wraps around. Step back once from <span class="b">0000</span> and you land on <span class="b">1111</span>. So calling <span class="b">1111</span> −1 is very natural. Drag the hand or use the buttons, and change the interpretation.</p>
 
@@ -59,12 +77,12 @@
     <div class="ctl" id="wh-ctl"></div>
     <div class="tell" id="wh-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>Adding = turning clockwise.</b> In the signed reading the right half of the wheel holds positive numbers and the left half negative ones. The red line is the overflow point: if an operation crosses it, the result did not fit in 4 bits.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Adding = turning clockwise.</b> In the signed reading the right half of the wheel holds positive numbers and the left half negative ones. The red line is the overflow point: if an operation crosses it, the result did not fit in 4 bits.</figcaption>
 </figure>
 
 <p>On the wheel, <strong>subtracting 3</strong> means going 3 steps counterclockwise. That lands in the same spot as going 13 steps clockwise (16 − 3 = 13). So instead of computing <code>7 − 3</code> the processor can compute <code>7 + (−3)</code>; no separate subtraction circuit is needed. This system is called <strong>two’s complement</strong> and almost every processor today uses it.</p>
 
-<h2><span class="sec">§ 4.4</span>The hidden value of the leftmost bit</h2>
+<h2><span class="sec">§ 5.5</span>The hidden value of the leftmost bit</h2>
 
 <p>The wheel has a shortcut: in two’s complement the leftmost bit is worth <strong>−128, not +128</strong> (in 8 bits). The other bits stay the same. So when the leftmost bit is on, the number automatically drops below zero. Compare the two readings of the same eight bits.</p>
 
@@ -74,10 +92,10 @@
     <div class="dual" id="sg-out"></div>
     <div class="chips" id="sg-pre" style="margin-top:.8rem"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Same bits, two lenses.</b> In the unsigned reading the leftmost bit is worth +128, in the signed reading −128. The numbers 0–127 read the same either way. <span class="b">11111111</span> is always −1; <span class="b">10000000</span> is the smallest number: −128.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Same bits, two lenses.</b> In the unsigned reading the leftmost bit is worth +128, in the signed reading −128. The numbers 0–127 read the same either way. <span class="b">11111111</span> is always −1; <span class="b">10000000</span> is the smallest number: −128.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 4.5</span>Negating a number: flip and add 1</h2>
+<h2><span class="sec">§ 5.6</span>Negating a number: flip and add 1</h2>
 
 <p>For hand calculation there is a handy rule: to negate a number, <strong>flip all the bits and add 1</strong>. Why does it work? A number plus its flipped version has one 0 and one 1 in every column: the sum is <span class="b">11111111</span>, which is −1. So <em>x</em> + <em>flip(x)</em> = −1, hence <em>flip(x)</em> + 1 = −<em>x</em>.</p>
 
@@ -86,7 +104,7 @@
     <div class="fig-title">The negative of <span id="k-x"></span></div>
     <div class="negrows" id="neg-rows"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Flip, add 1.</b> The addition in the last row proves the result really is −x: x plus −x is 1 00000000; drop the overflowing ninth bit and 0 is left.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Flip, add 1.</b> The addition in the last row proves the result really is −x: x plus −x is 1 00000000; drop the overflowing ninth bit and 0 is left.</figcaption>
 </figure>
 
 <p>The rule works both ways: negate −5 and you are back at +5. There is one exception: the negative of −128 cannot be written in 8 bits, because +128 is out of range. The signed range is <strong>asymmetric</strong>: with n bits, −2<sup>n−1</sup> … 2<sup>n−1</sup> − 1. Zero takes one slot from the positive side.</p>
@@ -101,23 +119,116 @@
   </tbody>
 </table></div>
 
-<h2><span class="sec">§ 4.6</span>The silent disaster: overflow</h2>
+<p>Where does the name come from? One’s complement subtracts every bit from 1, i.e. subtracts the number from <span class="b">11111111</span> = 2<sup>n</sup> − 1. <strong>Two’s complement</strong> subtracts it from 2<sup>n</sup>, one more: −x = 2<sup>n</sup> − x. In 8 bits −5 = 256 − 5 = 251 = <span class="b">11111011</span>. So “flip, add 1” and “subtract from 256” are the same thing. Another quick way: keep the bits from the right up to and including the first 1, and flip everything to its left.</p>
 
-<p>Two’s complement has a price. Because the wheel wraps around, an operation whose result does not fit in the box <strong>raises no error</strong>; it quietly produces a wrong number. Compute 100 + 50 in an 8-bit signed variable:</p>
+<h2><span class="sec">§ 5.7</span>The fourth way: excess (biased) representation</h2>
+
+<p>There is a completely different idea too: add a fixed <strong>K</strong> to every number and store the result as unsigned. The value of a pattern = unsigned value − K. With 8 bits and K = 128, <span class="b">00000000</span> = −128, <span class="b">10000000</span> = 0, <span class="b">11111111</span> = +127. This is called <strong>excess-K</strong> (offset binary, or biased) representation.</p>
+
+<figure class="fig" id="f-ex">
+  <div class="fig-in">
+    <div id="ex-lamps"></div>
+    <div class="dual" id="ex-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>The same 8 bits, three readings.</b> The big advantage of excess representation is that it preserves order: compare the patterns as unsigned numbers and their values are ordered correctly too. That is why the exponent field of IEEE 754 uses excess-127 (Chapter 6). The analog-to-digital converters in sound cards and sensors often output this “offset binary” form too.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 5.8</span>All four side by side</h2>
+
+<p>Let’s read the same 4-bit pattern with four different agreements. Tap a row or the lamps:</p>
+
+<figure class="fig" id="f-cmp">
+  <div class="fig-in">
+    <div id="cmp-lamps"></div>
+    <div class="tbl cmp-wrap" id="cmp"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 7</span><b>16 patterns, five readings.</b> The gray “−0” cells are wasted patterns. Two’s complement gives every pattern a different number; the excess-8 column is two’s complement with the leftmost bit flipped.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th></th><th>Sign-magnitude</th><th>One’s complement</th><th>Two’s complement</th><th>Excess-K</th></tr></thead>
+  <tbody>
+    <tr><td>How to get −x</td><td>flip the sign bit</td><td>flip every bit</td><td>flip, +1</td><td>2K − x</td></tr>
+    <tr><td>Number of zeros</td><td>2</td><td>2</td><td><b>1</b></td><td><b>1</b></td></tr>
+    <tr><td>8-bit range</td><td class="m">−127…127</td><td class="m">−127…127</td><td class="m">−128…127</td><td class="m">−128…127 (K=128)</td></tr>
+    <tr><td>Addition</td><td>separate rules</td><td>end-around carry</td><td><b>ordinary addition</b></td><td>subtract K from the result</td></tr>
+    <tr><td>Where it lives</td><td>float sign bit</td><td>internet checksum</td><td><b>all integers</b></td><td>float exponent, ADCs</td></tr>
+  </tbody>
+</table></div>
+
+<h2><span class="sec">§ 5.9</span>Sign extension</h2>
+
+<p>When you move an 8-bit number into a 16- or 32-bit box, what do you fill the empty upper bits with? For unsigned numbers the answer is easy: zeros (<strong>zero extension</strong>). But in two’s complement, putting zeros in front of −5 = <span class="b">11111011</span> gives <span class="b">00000000 11111011</span> = 251. The right way is <strong>to copy the sign bit</strong>: <span class="b">11111111 11111011</span> = −5.</p>
+
+<figure class="fig" id="f-sx">
+  <div class="fig-in">
+    <div id="sx-lamps"></div>
+    <div class="negrows sx" id="sx-out"></div>
+    <div class="tell" id="sx-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 8</span><b>From 8 to 16 bits.</b> Cells with an orange frame are the added bits. Sign extension keeps the −2<sup>n−1</sup> value of the leftmost bit at the new width: 1111 1111 1111 1011 = −32768 + 32767 − 4 = −5.</figcaption>
+</figure>
+
+<p>Processors have separate instructions for this (<code>MOVSX</code> and <code>MOVZX</code> on x86). The compiler picks one based on the type; if the type is wrong, the bug is sneaky. A classic example: a <span class="h">0xFF</span> byte read from a file becomes <strong>−1</strong> in Java because <code>byte</code> is signed, and turns into <span class="h">0xFFFFFFFF</span> when converted to <code>int</code>. In C, whether plain <code>char</code> is signed or unsigned even depends on the platform.</p>
+
+<div class="code-tabs">
+<pre data-lang="c">
+signed char   s = (signed char)0xFF;   // -1
+unsigned char u = 0xFF;                // 255
+int a = s;      // -1          (sign-extended: 0xFFFFFFFF)
+int b = u;      // 255         (zero-extended: 0x000000FF)
+</pre>
+<pre data-lang="js">
+const b = new Int8Array([0xFF])[0];    // -1  (signed byte)
+console.log(b, b &amp; 0xFF);             // -1 255
+// sign-extending an 8-bit value by hand:
+const sx8 = (x) => (x &lt;&lt; 24) &gt;&gt; 24;   // 0xFB → -5
+console.log(sx8(0xFB));
+</pre>
+<pre data-lang="py">
+x = 0xFB
+print(x - 256 if x &amp; 0x80 else x)      # -5   manual sign extension
+print(int.from_bytes(b"\xfb", "big", signed=True))   # -5
+print(int.from_bytes(b"\xfb", "big"))                # 251
+</pre>
+</div>
+
+<h2><span class="sec">§ 5.10</span>Shifting negative numbers</h2>
+
+<p>In Chapter 4 we saw that a right shift divides by 2. But shift −12 = <span class="b">11110100</span> right while feeding a 0 in from the left and you get <span class="b">01111010</span> = 122. Signed numbers use an <strong>arithmetic right shift</strong>: the sign bit is copied into the vacated place on the left. So −12 &gt;&gt; 1 = −6. A shift that always feeds in 0 is called a <strong>logical shift</strong>.</p>
+
+<figure class="fig" id="f-ash">
+  <div class="fig-in">
+    <div id="ash-lamps"></div>
+    <div class="readout" id="ash-out"></div>
+    <div class="ctl" id="ash-ctl"></div>
+    <div class="tell" id="ash-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 9</span><b>Two kinds of right shift.</b> An arithmetic shift rounds down (toward −∞): −7 &gt;&gt; 1 = −4, whereas −7 / 2 in C is −3. In JavaScript <code>&gt;&gt;</code> is arithmetic and <code>&gt;&gt;&gt;</code> logical; the same in Java. In C, right-shifting a negative signed number was left to the compiler (until C23).</figcaption>
+</figure>
+
+<h2><span class="sec">§ 5.11</span>The silent disaster: overflow</h2>
+
+<p>Two’s complement has a price. Because the wheel wraps around, an operation whose result does not fit in the box <strong>raises no error</strong>; it quietly produces a wrong number. The rule for signed overflow is simple: <strong>if two numbers of the same sign add up to a result of the opposite sign</strong>, it overflowed. Two numbers of different signs never overflow. At circuit level, this means the carry <em>into</em> the sign column differs from the carry <em>out of</em> it: V = c<sub>7</sub> ⊕ c<sub>8</sub>. Try 100 + 50 and 100 − (−50):</p>
 
 <figure class="fig narrow" id="f-ovf">
   <div class="fig-in">
-    <div class="fig-title"><span id="k-a"></span> + <span id="k-b"></span> (8 bit, signed)</div>
-    <div class="addgrid" id="add"></div>
+    <div class="fig-title">A = <span id="k-a"></span>, B = <span id="k-b"></span> <span class="muted">(8 bit)</span></div>
+    <div class="center" id="add-op"></div>
+    <div class="addgrid" id="add" style="margin-top:.8rem"></div>
+    <div class="flags" id="add-flags"></div>
     <div class="tell" id="add-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Alarm when the sign flips.</b> If two positive numbers add up to a negative one (or two negatives to a positive), an overflow happened. Processors report it with an “overflow flag”, but most programming languages never look at it.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 10</span><b>One addition, four flags.</b> The processor adds the same bits correctly as both unsigned and signed numbers; it does not know which they are. So it leaves two separate warnings: C (carry) reports unsigned overflow, V (overflow) reports signed overflow. N is the leftmost bit of the result, Z says whether the result is zero. For subtraction the bits of B are flipped and added with carry = 1.</figcaption>
 </figure>
+
+<h2><span class="sec">§ 5.12</span>Overflow in real life</h2>
 
 <p>Overflow has caused some of the most expensive bugs in software history:</p>
 <ul>
   <li><strong>Pac-Man (1980)</strong>: The level counter was 8 bits. At level 256 the counter overflowed, the right half of the screen filled with garbage and the game became unplayable.</li>
   <li><strong>Ariane 5 (1996)</strong>: A 64-bit floating-point velocity value did not fit when converted to a 16-bit signed integer. The rocket destroyed itself about 40 seconds after launch.</li>
+  <li><strong>Nuclear Gandhi (a legend)</strong>: The story goes that in Civilization the most peaceful leader’s aggression score of 1, reduced by 2, wrapped around to 255 in an unsigned byte and made him the most aggressive leader. The game’s designer said it never actually happened; the story spread because it shows how counterintuitive unsigned wraparound is.</li>
   <li><strong>Gangnam Style (2014)</strong>: YouTube’s view counter was a signed 32-bit integer: at most 2,147,483,647. As the video approached that limit, the counter was upgraded to 64 bits.</li>
 </ul>
 
@@ -129,10 +240,12 @@
     <div class="readout" id="unix-out"></div>
     <div class="tell" id="unix-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>The year 2038 problem, live.</b> The rightmost bit changes every second. The moment the leftmost bit (−2<sup>31</sup>) turns on, the number goes negative and these systems think it is 13 December 1901. That moment is 19 January 2038, 03:14:08 UTC. Most modern systems have moved to 64-bit time, but old code still lives on in embedded devices.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 11</span><b>The year 2038 problem, live.</b> The rightmost bit changes every second. The moment the leftmost bit (−2<sup>31</sup>) turns on, the number goes negative and these systems think it is 13 December 1901. That moment is 19 January 2038, 03:14:08 UTC. Most modern systems have moved to 64-bit time, but old code still lives on in embedded devices.</figcaption>
 </figure>
 
-<h3>Overflow in code</h3>
+<h2><span class="sec">§ 5.13</span>Negative numbers and overflow in code</h2>
+
+<p>One more trap: the absolute value of the smallest number cannot be written. In 32 bits <code>abs(-2147483648)</code> is undefined in C and in practice returns −2,147,483,648 again. In Java <code>Math.abs(Integer.MIN_VALUE)</code> returns a negative number. Python’s unbounded integers never hit this; but the fact that <code>~x</code> is −x − 1 in Python shows that it imagines an infinitely wide two’s complement behind the scenes.</p>
 
 <div class="code-tabs">
 <pre data-lang="py">
@@ -162,7 +275,7 @@ x = x + 1;                     // UNDEFINED BEHAVIOR: signed overflow
 </pre>
 </div>
 
-<h2><span class="sec">§ 4.7</span>Try it yourself</h2>
+<h2><span class="sec">§ 5.14</span>Try it yourself</h2>
 
 <div id="try"></div>
 
@@ -186,6 +299,31 @@ x = x + 1;                     // UNDEFINED BEHAVIOR: signed overflow
     <p>The main reason processors prefer two’s complement?</p>
     <ul><li>It fits more positive numbers</li><li>It is easy to read</li><li>The adder circuit can subtract too</li><li>It uses fewer bits</li></ul>
     <div class="quiz-why">a − b = a + (−b). One adder is enough and there is only one zero.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>How is −5 written in 8-bit one’s complement?</p>
+    <ul><li>11111011</li><li>11111010</li><li>10000101</li><li>00000101</li></ul>
+    <div class="quiz-why">Just flip the bits: 00000101 → 11111010. (11111011 is two’s complement.)</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Which representation does <em>not</em> have two zeros?</p>
+    <ul><li>Sign-magnitude</li><li>One’s complement</li><li>All of them do</li><li>Two’s complement</li></ul>
+    <div class="quiz-why">In two’s complement −0 = flip(0) + 1 = 00000000 = 0. Excess-K also has a single zero.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>The 8-bit signed <span class="h">0x9C</span> sign-extended to 16 bits?</p>
+    <ul><li>0xFF9C</li><li>0x009C</li><li>0x9C00</li><li>0x8000</li></ul>
+    <div class="quiz-why">0x9C = 1001 1100; the top bit is 1 → high byte FF. The value is −100.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>Two <em>negative</em> numbers added up to a positive result. Which flag is certainly 1?</p>
+    <ul><li>Z</li><li>N</li><li>V</li><li>None</li></ul>
+    <div class="quiz-why">If two numbers of the same sign give a result of the opposite sign, there was a signed overflow: V = 1.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>Which representation does the exponent field of an IEEE 754 float use?</p>
+    <ul><li>Two’s complement</li><li>Excess-127</li><li>One’s complement</li><li>Sign-magnitude</li></ul>
+    <div class="quiz-why">The exponent + 127 is stored, so floats can be compared like integers.</div>
   </div>
 </div>
 

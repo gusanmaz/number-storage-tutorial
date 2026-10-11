@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../pratik.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -17,7 +17,7 @@
 <body data-chapter="practice">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Chapter 10</div>
+  <div class="kicker"><span class="bits"></span>Chapter 12</div>
   <h1>Test yourself</h1>
   <p class="lede">Questions from every chapter, freshly generated each time. Toggle topics, type your answer, take a hint when you are stuck. Below is a one-page summary of it all.</p>
   <div class="meta"><span>Unlimited questions</span><span>Printable summary</span></div>
@@ -25,13 +25,13 @@
 
 <article class="prose">
 
-<h2><span class="sec">§ 10.1</span>Mixed practice</h2>
+<h2><span class="sec">§ 12.1</span>Mixed practice</h2>
 
 <p>You do not need prefixes in your answers: both <code>0x1F</code> and <code>1F</code> are accepted; spaces and underscores are ignored. For decimals you can use a point or a comma.</p>
 
 <div id="try"></div>
 
-<h2><span class="sec">§ 10.2</span>One-page summary</h2>
+<h2><span class="sec">§ 12.2</span>One-page summary</h2>
 
 <p>The whole site fits on the cards below. <button type="button" class="btn sm" id="print">Print</button></p>
 
@@ -73,6 +73,46 @@
       <tr><td class="m">64</td><td class="m">0 … 1.8 × 10¹⁹</td><td class="m">±9.2 × 10¹⁸</td></tr>
     </tbody></table></div>
     <p><b>−x</b> = flip the bits, <b>+1</b>. The leftmost bit is worth −2<sup>n−1</sup>. Overflow wraps around.</p>
+  </section>
+  <section class="sc-card">
+    <h3>Binary arithmetic</h3>
+    <ul>
+      <li>0+0=0 · 0+1=1 · 1+1=10 (carry) · 1+1+1=11</li>
+      <li>Sum bit = a⊕b⊕c, carry = majority</li>
+      <li>Unsigned result = (a+b) mod 2<sup>n</sup>; the overflowing bit → C flag</li>
+      <li>a − b = a + ~b + 1 · multiply = shift + add · divide = shift + subtract</li>
+      <li><code>x &lt;&lt; k</code> = x·2<sup>k</sup> · <code>x % 2<sup>k</sup></code> = <code>x &amp; (2<sup>k</sup>−1)</code></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Four representations</h3>
+    <ul>
+      <li>Sign-magnitude: sign bit + size, two zeros</li>
+      <li>One’s complement: −x = ~x, end-around carry, two zeros</li>
+      <li>Two’s complement: −x = ~x + 1 = 2<sup>n</sup> − x, one zero</li>
+      <li>Excess-K: value = pattern − K (float exponent: K = 127)</li>
+      <li>Sign extension: fill the top bits with the sign bit · V = c<sub>7</sub>⊕c<sub>8</sub></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Lesser-known formats</h3>
+    <ul>
+      <li>BCD: each decimal digit in 4 bits · Gray: <code>n ^ (n&gt;&gt;1)</code></li>
+      <li>Parity: make the 1s even · Hamming(7,4): fixes 1 error</li>
+      <li>Varint: 7-bit pieces, top bit = continue · zigzag for negatives</li>
+      <li>Base64: 3 bytes → 4 characters (+33%)</li>
+      <li>float16 1/5/10 · bfloat16 1/8/7 · RGB565 5/6/5</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Alignment</h3>
+    <ul>
+      <li>A bit has no address: byte = k&gt;&gt;3, bit = k&amp;7, mask = 1&lt;&lt;bit</li>
+      <li>An n-byte value at a multiple of n: <code>(a &amp; (n−1)) == 0</code></li>
+      <li>Align up: <code>(a + n − 1) &amp; ~(n − 1)</code></li>
+      <li>struct: order fields largest first, less padding</li>
+      <li>4 KiB page: last 12 bits offset · 64 B cache line: last 6 bits</li>
+    </ul>
   </section>
   <section class="sc-card">
     <h3>Floating point (IEEE 754)</h3>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>İkili aritmetik · Sıfırlar ve Birler</title>
+<meta name="description" content="İkili sistemde toplama ve elde, yarım ve tam toplayıcı, çıkarma ve ödünç, işaretsiz taşma ve elde bayrağı, kaydırma, kaydırarak çarpma ve uzun bölme. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/arithmetic.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/arithmetic.js" defer></script>
+</head>
+<body data-chapter="arithmetic">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 4</div>
+  <h1>İkili aritmetik</h1>
+  <p class="lede">Ondalık toplamayı ilkokulda öğrendin. İkili toplama aynı oyun, sadece çarpım tablosu çok daha kısa. Bu bölümde işlemcinin dört işlemi nasıl yaptığını bit bit izleyeceğiz: elde, ödünç, taşma, kaydırma.</p>
+  <div class="meta"><span>Okuma: ~35 dk</span><span>Önce: Bölüm 1–3</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 4.1</span>Dört satırlık toplama tablosu</h2>
+
+<p class="dropcap">Onlu sistemde toplama yapmak için 0+0’dan 9+9’a kadar yüz satırlık bir tabloyu ezberledik. İkili sistemde tablo yalnızca dört satırdır:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>a + b</th><th>Sonuç</th><th>Toplam biti</th><th>Elde</th></tr></thead>
+  <tbody>
+    <tr><td class="m">0 + 0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td></tr>
+    <tr><td class="m">0 + 1</td><td class="m">1</td><td class="m">1</td><td class="m">0</td></tr>
+    <tr><td class="m">1 + 0</td><td class="m">1</td><td class="m">1</td><td class="m">0</td></tr>
+    <tr><td class="m">1 + 1</td><td class="m">10<span class="sub">2</span> = 2</td><td class="m">0</td><td class="m">1</td></tr>
+  </tbody>
+</table></div>
+
+<p>Son satır, Bölüm 2’deki patlayan noktalarla aynı şey: bir kutuda iki nokta birikince patlar ve sola bir <strong>elde</strong> (carry) gider. Bu tabloya dikkatle bakınca iki tanıdık mantık kapısı görünür: toplam biti, girişler <em>farklı</em> olduğunda 1’dir; bu <strong>XOR</strong>’dur. Elde, iki giriş de 1 olduğunda 1’dir; bu da <strong>AND</strong>’dir. Bu iki kapıdan oluşan devreye <strong>yarım toplayıcı</strong> denir.</p>
+
+<p>Çok basamaklı toplamada her sütun, sağdan gelen eldeyi de hesaba katmalıdır; yani üç biti toplar. Üç girişli bu devreye <strong>tam toplayıcı</strong> denir. Aşağıdaki girişlere dokun:</p>
+
+<figure class="fig" id="f-fa">
+  <div class="fig-in">
+    <div class="fa" id="fa"></div>
+    <div class="tell" id="fa-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Tam toplayıcı.</b> Üç bit girer (a, b ve sağdan gelen elde), iki bit çıkar (toplam ve sola giden elde). Toplam = a ⊕ b ⊕ c, elde = en az iki giriş 1 ise 1. Tablodaki parlayan satır, şu anki girişlerin satırı. Bir işlemcinin toplama ünitesi, yan yana dizilmiş bu kutulardan oluşur.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 4.2</span>Elde ile toplama</h2>
+
+<p>İki çok bitli sayıyı toplamak, ilkokuldaki alt alta toplamanın aynısıdır: en sağ sütundan başla, her sütunda üç biti (a, b, elde) topla, toplam bitini aşağı yaz, eldeyi bir sola taşı. Sayıları değiştir ve sütun sütun ilerle: <span id="k-aa"></span> + <span id="k-ab"></span>.</p>
+
+<figure class="fig" id="f-add">
+  <div class="fig-in">
+    <div class="addgrid big" id="add"></div>
+    <div class="tell" id="add-tell"></div>
+    <div id="add-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>8 bitlik işaretsiz toplama.</b> Üst satırdaki küçük turuncu rakamlar elde bitleri. Her sütun tam toplayıcıdan geçer. Sonuç 255’i aşarsa dokuzuncu bir bit doğar; 8 bitlik kutuda ona yer yoktur.</figcaption>
+</figure>
+
+<p>Bu devre tasarımına <strong>dalgalı elde toplayıcı</strong> (ripple-carry adder) denir, çünkü elde bir sütundan diğerine dalga gibi yayılır. 64 bitlik bir toplamada en soldaki sütun, eldenin 63 sütun boyunca gelmesini beklemek zorundadır. Gerçek işlemciler bunun yerine eldeleri önceden hesaplayan daha karmaşık devreler (carry-lookahead) kullanır; sonuç aynıdır, sadece daha hızlıdır.</p>
+
+<h2><span class="sec">§ 4.3</span>İşaretsiz taşma ve elde bayrağı</h2>
+
+<p><strong>İşaretsiz</strong> (unsigned) tamsayı, bitlerin hepsinin pozitif basamak değeri taşıdığı en basit okumadır: n bitle 0 ile 2<sup>n</sup> − 1 arası. İki n bitlik işaretsiz sayının toplamı n + 1 bit gerektirebilir. Fazladan bit kutuya sığmaz ve atılır; geriye kalan sonuç:</p>
+
+<p class="formula">sonuç = (a + b) mod 2<sup>n</sup></p>
+
+<p>Ama işlemci bu fazla biti tamamen unutmaz. Onu <strong>elde bayrağı</strong> (carry flag, <b>C</b>) denen özel bir bitte saklar. Program, toplamadan hemen sonra C’ye bakarak taşma olup olmadığını anlayabilir. Bu bayrağın asıl hüneri başka: <strong>büyük sayıları parça parça toplamak</strong>. 8 bitlik bir işlemci 16 bitlik iki sayıyı önce alt byte’larını, sonra üst byte’larını <em>C’yi de ekleyerek</em> toplar. Bu “eldeyle topla” (ADC) komutu sayesinde 8 bitlik bir makine istediği kadar büyük sayıyla çalışabilir.</p>
+
+<figure class="fig narrow" id="f-adc">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-wa"></span> + <span id="k-wb"></span> <span class="muted">(16 bit, iki adımda)</span></div>
+    <div id="adc"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Byte byte toplama.</b> Önce alt byte’lar toplanır; taşan bit C bayrağına gider. Sonra üst byte’lar toplanırken C de eklenir. Commodore 64 ve ilk Nintendo gibi 8 bitlik makinelerde bütün oyun puanları böyle toplanıyordu.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 4.4</span>Ödünç ile çıkarma</h2>
+
+<p>Çıkarmada sütun kuralı şu: 1 − 0 = 1, 1 − 1 = 0, 0 − 0 = 0 ve sorunlu olan <strong>0 − 1</strong>. Onlu sistemde komşudan on ödünç alırdık; ikilide komşudan alınan bir, bu sütunda <em>iki</em> eder. 0 − 1 = 1 olur ve bir sonraki sütuna 1 <strong>ödünç</strong> (borrow) borcu yazılır. <span id="k-sa"></span> − <span id="k-sb"></span> işlemini izle; ikinci sayıyı birinciden büyük yapmayı da dene.</p>
+
+<figure class="fig" id="f-sub">
+  <div class="fig-in">
+    <div class="center" id="sub-mode"></div>
+    <div class="addgrid big" id="sub"></div>
+    <div class="tell" id="sub-tell"></div>
+    <div id="sub-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>8 bitlik işaretsiz çıkarma.</b> Kırmızı rakamlar ödünç bitleri. Küçük sayıdan büyük sayı çıkarılırsa en soldan bir ödünç “dışarı” çıkar ve sonuç başa sarar: 3 − 5 = 254. İkinci sekmede aynı işlemi işlemcinin gerçekte yaptığı gibi izle: B’nin bitlerini ters çevir ve elde = 1 ile topla.</figcaption>
+</figure>
+
+<p>İkinci sekme, bir sonraki bölümün büyük fikrini önceden gösteriyor: <strong>a − b = a + (ters b) + 1</strong>. İşlemcinin ayrı bir çıkarma devresine ihtiyacı yoktur; toplayıcının bir girişinin önüne NOT kapıları koyup ilk eldeyi 1 yapmak yeter. Bölüm 5’te bunun neden doğru olduğunu ve eksi sayıların bu fikirden nasıl doğduğunu göreceğiz.</p>
+
+<div class="think">
+  <p class="q">8 bitte 0 − 1 kaç eder? İşaretsiz okumada bunun anlamı ne?</p>
+  <details><summary>Düşündükten sonra aç</summary>
+    <p>Bütün sütunlarda ödünç zinciri oluşur ve sonuç <span class="b">11111111</span> = 255 çıkar, en soldan da bir ödünç dışarı çıkar. İşaretsiz dünyada 0’dan geri gidince en büyük sayıya sararız; tıpkı bir saatte 0’dan bir saat geri gidince 11’e varmak gibi. Bir sonraki bölümde aynı deseni −1 olarak okuyacağız.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 4.5</span>Kaydırma: 2 ile çarpıp bölmek</h2>
+
+<p>Onlu bir sayının sonuna 0 eklemek onu 10 ile çarpar. İkili bir sayının bütün bitlerini bir sola kaydırmak (sağa 0 eklemek) onu <strong>2 ile çarpar</strong>; bir sağa kaydırmak (en sağ biti atmak) <strong>2’ye böler</strong> ve aşağı yuvarlar. Bunlar işlemcinin en ucuz işlemleridir.</p>
+
+<figure class="fig" id="f-shift">
+  <div class="fig-in">
+    <div id="sh-lamps"></div>
+    <div class="readout" id="sh-out"></div>
+    <div class="ctl" id="sh-ctl"></div>
+    <div class="tell" id="sh-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Bitleri kaydırmak.</b> Sola kaydırınca en soldaki bit kutudan düşer (taşma); sağa kaydırınca en sağdaki bit düşer (kalan). Sağdan düşen bit, sayının 2’ye bölümünden kalandır.</figcaption>
+</figure>
+
+<p>Derleyiciler bu hileyi sürekli kullanır. <code>x * 8</code> yerine <code>x &lt;&lt; 3</code>, <code>x * 10</code> yerine <code>(x &lt;&lt; 3) + (x &lt;&lt; 1)</code> yazarlar, çünkü 10 = 8 + 2. Benzer şekilde 2’nin kuvvetine göre kalan almak bir maskelemedir: <code>x % 8</code> = <code>x &amp; 7</code>, çünkü 8’e bölümden kalan tam olarak son 3 bittir.</p>
+
+<h2><span class="sec">§ 4.6</span>Çarpma: kaydır ve topla</h2>
+
+<p>İkili çarpma, onlu uzun çarpmanın en kolay hâlidir; çünkü çarpanın her basamağı 0 ya da 1’dir. 1 ise çarpılanı o basamağın yerine kaydırarak yazarsın, 0 ise hiçbir şey yazmazsın. Sonra kısmi çarpımları toplarsın. Çarpım tablosu yok, sadece kaydırma ve toplama. <span id="k-ma"></span> × <span id="k-mb"></span>:</p>
+
+<figure class="fig narrow" id="f-mul">
+  <div class="fig-in">
+    <div class="mulgrid" id="mul"></div>
+    <div class="tell" id="mul-tell"></div>
+    <div id="mul-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Kaydır ve topla.</b> Çarpanın (B) her 1 biti için çarpılan (A), o bitin konumu kadar sola kaydırılmış olarak yazılır. İki n bitlik sayının çarpımı 2n bite kadar çıkabilir; bu yüzden 32 bitlik çarpma komutları sonucu çoğu zaman 64 bitlik bir çifte yazar.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 4.7</span>Bölme: kaydır ve çıkar</h2>
+
+<p>Bölme, uzun bölmenin ikili hâlidir ve yine her adım iki seçenekten ibarettir: bölen, şu anki kalana sığıyor mu? Sığıyorsa çıkar ve bölüme 1 yaz, sığmıyorsa 0 yaz. Sonra bir sonraki biti aşağı indir. <span id="k-da"></span> ÷ <span id="k-db"></span>:</p>
+
+<figure class="fig narrow" id="f-div">
+  <div class="fig-in">
+    <div class="divrows" id="div"></div>
+    <div class="tell" id="div-tell"></div>
+    <div id="div-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 7</span><b>Kaydır ve çıkar.</b> Her adımda bölünenin bir sonraki biti kalanın sağına eklenir. Kalan, bölenden küçük değilse çıkarma yapılır ve bölüme 1 yazılır. 8 adım sonunda bölüm ve kalan hazırdır. Her bit için bir deneme gerektiğinden bölme, işlemcilerdeki en yavaş tamsayı işlemidir; toplamadan 20–40 kat yavaş olabilir.</figcaption>
+</figure>
+
+<aside class="aside"><span class="t">Tamsayı bölmede yuvarlama</span>7 ÷ 2 tamsayı bölmede 3’tür; kesir kısmı atılır. Negatif sayılarda diller ayrışır: C ve Java sıfıra doğru yuvarlar (−7 / 2 = −3), Python aşağı yuvarlar (−7 // 2 = −4). Kalanın işareti de buna göre değişir. Bölüm 11’de bu farkı örneklerle göreceğiz.</aside>
+
+<h2><span class="sec">§ 4.8</span>Kodda işaretsiz tamsayılar</h2>
+
+<p>C ve C++’ta işaretsiz türler açıkça vardır ve taşmaları <em>tanımlıdır</em>: her zaman 2<sup>n</sup>’e göre kalan alınır. Python’da işaretsiz tür yoktur ve tamsayılar sınırsız büyür; bir işaretsiz kutuyu taklit etmek için sonucu maskelersin. JavaScript’te ise typed array’ler bu kutuların ta kendisidir. Bir de <strong>doyurmalı</strong> (saturating) aritmetik var: başa sarmak yerine sınırda durmak. Görüntü işlemede bir pikseli parlatırken 250 + 10’un 4 olması felaket olurdu; 255’te durmak gerekir.</p>
+
+<div class="code-tabs">
+<pre data-lang="c">
+#include &lt;stdint.h&gt;
+uint8_t a = 200, b = 100;
+uint8_t s = a + b;      // 44   (300 mod 256)
+uint8_t d = 3 - 5;      // 254  (başa sarma)
+uint32_t big = 4000000000u;   // işaretsiz 32 bit: 4 milyara kadar
+unsigned x = 13;
+x << 1;   // 26     x >> 1;   // 6     x &amp; 7;   // 5 (x % 8)
+</pre>
+<pre data-lang="py">
+a, b = 200, 100
+print((a + b) &amp; 0xFF)        # 44   8 bitlik kutuyu taklit et
+print((3 - 5) % 256)         # 254
+print(13 &lt;&lt; 1, 13 &gt;&gt; 1)       # 26 6
+print(13 * 10 == (13 &lt;&lt; 3) + (13 &lt;&lt; 1))   # True
+q, r = divmod(200, 7)        # (28, 4)
+print(min(250 + 10, 255))    # 255  doyurmalı toplama
+</pre>
+<pre data-lang="js">
+const u = new Uint8Array([200]);
+u[0] += 100;                 // 44   başa sarar
+const c = new Uint8ClampedArray([250]);
+c[0] += 10;                  // 255  doyurur (canvas pikselleri böyledir)
+console.log((3 - 5) &gt;&gt;&gt; 0);  // 4294967294  32 bit işaretsiz
+console.log(Math.floor(200 / 7), 200 % 7);   // 28 4
+</pre>
+</div>
+
+<p class="key">İkili aritmetiğin bütün sırrı: toplama sütun sütun <strong>elde</strong> ile, çıkarma <strong>ödünç</strong> ile (ya da “ters çevir, 1 ekle, topla” ile), çarpma <strong>kaydır ve topla</strong>, bölme <strong>kaydır ve çıkar</strong>. Sabit genişlikli kutuda sonuç her zaman 2<sup>n</sup>’e göre kalandır; taşan bit C bayrağında kalır.</p>
+
+<h2><span class="sec">§ 4.9</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p><span class="b">1011</span> + <span class="b">0110</span> = ?</p>
+    <ul><li>1101</li><li>1111</li><li>10001</li><li>1001</li></ul>
+    <div class="quiz-why">11 + 6 = 17 = 10001<sub>2</sub>. 4 bitlik bir kutuda sonuç 0001 olur ve C = 1.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>Tam toplayıcının “toplam” çıkışı hangi işlemdir?</p>
+    <ul><li>a ⊕ b ⊕ c (XOR)</li><li>a · b · c (AND)</li><li>a + b + c (OR)</li><li>NOT a</li></ul>
+    <div class="quiz-why">Toplam biti, 1 olan girişlerin sayısı tekse 1’dir: üç girişli XOR.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>8 bit işaretsiz: 250 + 10 kaçtır, C bayrağı ne olur?</p>
+    <ul><li>260, C = 0</li><li>255, C = 1</li><li>4, C = 0</li><li>4, C = 1</li></ul>
+    <div class="quiz-why">260 − 256 = 4; dokuzuncu bit C bayrağına gider.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p><code>x &lt;&lt; 4</code> neye eşittir?</p>
+    <ul><li>x + 4</li><li>x × 16</li><li>x × 4</li><li>x ÷ 16</li></ul>
+    <div class="quiz-why">Her sola kaydırma ×2: 2<sup>4</sup> = 16 (taşma olmadıkça).</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p><code>x % 16</code> yerine hangisi kullanılabilir (x ≥ 0)?</p>
+    <ul><li><code>x &gt;&gt; 4</code></li><li><code>x | 15</code></li><li><code>x &amp; 15</code></li><li><code>x ^ 16</code></li></ul>
+    <div class="quiz-why">16’ya bölümden kalan son 4 bittir; 15 = 1111<sub>2</sub> maskesi onları seçer.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

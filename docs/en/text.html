@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../metin.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -17,7 +17,7 @@
 <body data-chapter="text">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Chapter 6</div>
+  <div class="kicker"><span class="bits"></span>Chapter 7</div>
   <h1>Giving letters numbers</h1>
   <p class="lede">Computers do not know letters; they only store numbers. Every letter on this page is a number someone agreed on. The story of that agreement also explains where garbled text like “cafÃ©” comes from.</p>
   <div class="meta"><span>Reading: ~40 min</span><span>Before: Chapters 1 and 3</span></div>
@@ -25,7 +25,7 @@
 
 <article class="prose">
 
-<h2><span class="sec">§ 6.1</span>There is no such thing as a letter</h2>
+<h2><span class="sec">§ 7.1</span>There is no such thing as a letter</h2>
 
 <p class="dropcap">In Chapter 1 we saw that the same bit pattern can be a number, a color or a letter. To store text, all we need is a <strong>table</strong>: a list that gives every character a number and that everyone uses the same way. The sender writes 65 for “A”, the receiver sees 65 and draws an “A”. In between, the computer carries nothing but 65.</p>
 
@@ -38,7 +38,7 @@
   <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>Bigger character sets need more bits.</b> Telegraph machines made do with 5 bits, but only had capital letters. Covering all the world’s scripts takes 21 bits.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 6.2</span>ASCII: the 7-bit agreement</h2>
+<h2><span class="sec">§ 7.2</span>ASCII: the 7-bit agreement</h2>
 
 <p>In 1963 the American standards body published <strong>ASCII</strong> (American Standard Code for Information Interchange). 7 bits, so 128 numbers: 33 control codes, the space, digits, upper and lower case English letters and punctuation. Every character encoding you use today still contains ASCII as its first 128 numbers.</p>
 
@@ -76,7 +76,7 @@
   </details>
 </div>
 
-<h2><span class="sec">§ 6.3</span>Invisible characters</h2>
+<h2><span class="sec">§ 7.3</span>Invisible characters</h2>
 
 <p>ASCII’s first 32 codes and 127 are not letters but <strong>commands</strong>. ASCII was designed in the age of machines that printed text, teleprinters. These codes gave the machine orders like “ring the bell”, “feed the paper one line”, “move the head back to the start of the line”. The teleprinter below understands some of them.</p>
 
@@ -127,7 +127,7 @@ console.log("\x1b[31mred\x1b[0m");  // red in a Node terminal
 </pre>
 </div>
 
-<h2><span class="sec">§ 6.4</span>A string in memory</h2>
+<h2><span class="sec">§ 7.4</span>A string in memory</h2>
 
 <p>A string is nothing but bytes sitting side by side in memory. But there is a problem: memory is one long strip of bytes and we need to know <em>where the text ends</em>. There are two classic solutions. C puts a <strong>NUL</strong> (<span class="h">00</span>) at the end; Pascal and modern languages store the <strong>length</strong> at the start or alongside.</p>
 
@@ -144,7 +144,7 @@ console.log("\x1b[31mred\x1b[0m");  // red in a Node terminal
 
 <p>The terminator approach has another cost: to find a string’s length, C’s <code>strlen</code> has to count every byte until it finds the NUL. Python and JavaScript, which store the length separately, know it instantly, and their strings can even contain NUL.</p>
 
-<h2><span class="sec">§ 6.5</span>When 128 is not enough: code pages</h2>
+<h2><span class="sec">§ 7.5</span>When 128 is not enough: code pages</h2>
 
 <p>ASCII has no é, ñ, ü, ç or ş. Since a byte is 8 bits, the unused 8th bit could buy 128 more numbers. Everyone did just that, but <em>everyone differently</em>. ISO-8859-1 (Latin-1) for Western Europe, ISO-8859-9 (Latin-5) and Windows-1254 for Turkish, KOI8-R for Russian… These are called <strong>code pages</strong>. The same byte is a different letter depending on which code page reads it.</p>
 
@@ -158,7 +158,7 @@ console.log("\x1b[31mred\x1b[0m");  // red in a Node terminal
 
 <p>This is why Turkish e-mails in the 1990s arrived as “Ýyi günler, þimdi…”: the sender’s computer wrote in Latin-5 while the receiver’s read in Latin-1. The bytes arrived perfectly; what was broken was the <em>agreement</em>.</p>
 
-<h2><span class="sec">§ 6.6</span>Unicode: one number per character</h2>
+<h2><span class="sec">§ 7.6</span>Unicode: one number per character</h2>
 
 <p>To end this chaos, <strong>Unicode</strong> appeared in 1991. The idea is simple: give every character of every writing system in the world a single, permanent number. That number is called a <strong>code point</strong> and is written in hex after <span class="h">U+</span>: <code>A</code> = U+0041, <code>ş</code> = U+015F, <code>€</code> = U+20AC, <code>😀</code> = U+1F600.</p>
 
@@ -176,7 +176,7 @@ console.log("\x1b[31mred\x1b[0m");  // red in a Node terminal
 
 <aside class="aside"><span class="t">Character ≠ code point ≠ byte</span>What we see as a “letter” (Unicode calls it a <em>grapheme</em>) corresponds to one or more code points. Each code point takes one or more bytes depending on the encoding. So “how many characters is this text?” can have three different answers.</aside>
 
-<h2><span class="sec">§ 6.7</span>UTF-8: pouring the number into bytes</h2>
+<h2><span class="sec">§ 7.7</span>UTF-8: pouring the number into bytes</h2>
 
 <p>Unicode gives the number; the <strong>encoding</strong> decides how that number is stored in memory. The simplest way is 4 bytes per character (UTF-32), but that makes an English text four times bigger. <strong>UTF-8</strong>, sketched by Ken Thompson and Rob Pike on a placemat in a diner in 1992, is used today by more than 98% of web pages. The idea: small numbers take few bytes, big ones more.</p>
 
@@ -233,7 +233,7 @@ b"\xc5\x9f".decode()     # 'ş'
 </pre>
 </div>
 
-<h2><span class="sec">§ 6.8</span>Anatomy of garbled text</h2>
+<h2><span class="sec">§ 7.8</span>Anatomy of garbled text</h2>
 
 <p>The Japanese even have a name for it: <strong>mojibake</strong>, “character transformation”. If a program reads text saved as UTF-8 thinking it is Windows-1252 (the Windows cousin of Latin-1), every multi-byte character turns into two or three meaningless symbols. Try your own text:</p>
 
@@ -249,7 +249,7 @@ b"\xc5\x9f".decode()     # 'ş'
 
 <aside class="aside hist"><span class="t">A special trap: the Turkish I</span>In most languages the lower case of “I” is “i”. In Turkish, however, I ↔ ı and İ ↔ i. A program that ignores the language lowercases “IŞIK” to “işik”; in Java, <code>"title".toUpperCase()</code> on a computer set to Turkish returns “TİTLE”, breaking code that looks for an English keyword. Developers call this the “Turkish I problem”. The fix: locale-aware functions (<code>toLocaleUpperCase('tr')</code>) where language matters, and locale-independent ones for identifiers.</aside>
 
-<h2><span class="sec">§ 6.9</span>Try it yourself</h2>
+<h2><span class="sec">§ 7.9</span>Try it yourself</h2>
 
 <div id="try"></div>
 
