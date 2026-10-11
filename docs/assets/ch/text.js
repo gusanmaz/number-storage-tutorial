@@ -110,7 +110,7 @@
 
   /* ---------- Şekil 5: bellekte metin ---------- */
   let memMode = 'c', broken = false;
-  const SECRET = 'parola=K4R4';
+  const SECRET = t({ tr: 'parola=K4R4', en: 'passwd=K4R4' });
   const mseg = el('div', { class: 'seg', role: 'group' });
   [['c', { tr: 'C: sonda NUL', en: 'C: NUL at the end' }], ['p', { tr: 'Başta uzunluk', en: 'Length prefix' }]].forEach(([k, l]) => mseg.append(el('button', { type: 'button', 'aria-pressed': String(k === memMode), text: t(l), onclick: (e) => { memMode = k; broken = false; $$('button', mseg).forEach((b) => b.setAttribute('aria-pressed', String(b === e.currentTarget))); drawMem(); } })));
   $('#mem-mode').append(mseg);

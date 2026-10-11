@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bits and references in code · Zeros &amp; Ones</title>
+<meta name="description" content="0b, 0o, 0x literals and base conversions in Python and JavaScript, integer limits, bitwise operations, masks and permission flags, values and references, copying, is and id. An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../kod.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/code.js" defer></script>
+</head>
+<body data-chapter="code">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 9</div>
+  <h1>Bits and references in code</h1>
+  <p class="lede">Everything we have learned so far shows up in the code you write: writing numbers in different bases, playing with individual bits, and knowing what a variable really holds.</p>
+  <div class="meta"><span>Reading: ~40 min</span><span>Before: Chapters 2, 4 and 8</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 9.1</span>Writing numbers in code</h2>
+
+<p class="dropcap">There is no difference at all between writing <code>255</code>, <code>0xFF</code>, <code>0o377</code> and <code>0b11111111</code> in code: all four become the same bit pattern in memory. They are called number <strong>literals</strong>. The prefix only tells the compiler which base to read the digits in. The base is not stored in the variable.</p>
+
+<figure class="fig narrow" id="f-lit">
+  <div class="fig-in">
+    <div class="center"><input id="lit-in" class="inp" value="0xFF" spellcheck="false" autocapitalize="off" style="width:14rem;text-align:center;font-size:1.15rem" aria-label="literal"></div>
+    <div class="chips" id="lit-pre" style="margin-top:.7rem"></div>
+    <div id="lit-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>A literal translator.</b> Type a number literal: <code>0b1010</code>, <code>0o17</code>, <code>1_000_000</code>, <code>-0x80</code>, <code>1e3</code>… It shows how the same value is written in every base and the code that produces it in both languages.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>What</th><th>Python</th><th>JavaScript</th></tr></thead>
+  <tbody>
+    <tr><td>Binary literal</td><td class="m">0b1010</td><td class="m">0b1010</td></tr>
+    <tr><td>Octal literal</td><td class="m">0o17</td><td class="m">0o17</td></tr>
+    <tr><td>Hex literal</td><td class="m">0xFF</td><td class="m">0xFF</td></tr>
+    <tr><td>Digit separator</td><td class="m">1_000_000</td><td class="m">1_000_000</td></tr>
+    <tr><td>Number → binary text</td><td class="m">bin(10) → '0b1010'</td><td class="m">(10).toString(2) → "1010"</td></tr>
+    <tr><td>Number → hex text</td><td class="m">hex(255) → '0xff'</td><td class="m">(255).toString(16) → "ff"</td></tr>
+    <tr><td>Zero padding</td><td class="m">f"{5:08b}" → '00000101'</td><td class="m">(5).toString(2).padStart(8, "0")</td></tr>
+    <tr><td>Text → number</td><td class="m">int("ff", 16) → 255</td><td class="m">parseInt("ff", 16) → 255</td></tr>
+  </tbody>
+</table></div>
+
+<aside class="aside warn"><span class="t">An old trap</span>In C and old JavaScript a number starting with 0 is read as octal: <code>010</code> is not ten but <em>eight</em>. Python 3 banned this completely (<code>SyntaxError</code>), and JavaScript’s strict mode does not allow it. If you want octal, always write <code>0o</code>.</aside>
+
+<h2><span class="sec">§ 9.2</span>Languages store integers differently</h2>
+
+<p>In Chapter 3 we saw that fixed-width boxes can overflow, and in Chapter 5 that doubles skip integers after 2<sup>53</sup>. Languages deal with these limits in different ways:</p>
+<ul>
+  <li><strong>C, Java, Go:</strong> <code>int8</code>, <code>int32</code>, <code>uint64</code>… Fixed width; they wrap around on overflow.</li>
+  <li><strong>Python:</strong> <code>int</code> is unbounded. As the number grows Python gives it more bytes; <code>2**1000</code> is no problem. The price: some slowness.</li>
+  <li><strong>JavaScript:</strong> every <code>number</code> is a double. Integers are safe up to 2<sup>53</sup> − 1 (<code>Number.MAX_SAFE_INTEGER</code>). For bigger ones there is <code>BigInt</code>, written with a trailing <code>n</code>: <code>2n ** 100n</code>. And a surprise: bitwise operators temporarily convert the number to a <em>signed 32-bit integer</em>.</li>
+</ul>
+
+<p>Guess the result of each expression first, then flip the card:</p>
+
+<div class="predict" id="predict"></div>
+
+<h2><span class="sec">§ 9.3</span>Bitwise operations</h2>
+
+<p>Bitwise operations treat two numbers not as numbers but as <strong>columns of bits</strong>, and apply the logic gates of Chapter 1 in every column. The processor does them in a single step, which is why they are everywhere in low-level code, graphics, cryptography and compression.</p>
+
+<figure class="fig" id="f-bits">
+  <div class="fig-in">
+    <div class="center" id="bw-ops"></div>
+    <div class="bw" id="bw"></div>
+    <div class="readout" id="bw-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>A bitwise lab.</b> Tap the bits of A and B and pick an operation. Every column is computed independently of the others; there is no carry. For shifts, B is the shift amount (0–7).</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>Operation</th><th>Syntax</th><th>Rule</th><th>Typical use</th></tr></thead>
+  <tbody>
+    <tr><td>AND</td><td class="m">a &amp; b</td><td>1 if both are 1</td><td>selecting bits, masking</td></tr>
+    <tr><td>OR</td><td class="m">a | b</td><td>1 if either is 1</td><td>turning bits on, adding flags</td></tr>
+    <tr><td>XOR</td><td class="m">a ^ b</td><td>1 if they differ</td><td>flipping bits, simple ciphers</td></tr>
+    <tr><td>NOT</td><td class="m">~a</td><td>flip every bit</td><td>inverting a mask</td></tr>
+    <tr><td>Shift left</td><td class="m">a &lt;&lt; n</td><td>push bits n left</td><td>× 2<sup>n</sup></td></tr>
+    <tr><td>Shift right</td><td class="m">a &gt;&gt; n</td><td>push bits n right</td><td>÷ 2<sup>n</sup> (rounds down)</td></tr>
+  </tbody>
+</table></div>
+
+<div class="think">
+  <p class="q">Why is <code>~5</code> equal to −6 in Python?</p>
+  <details><summary>Think first, then open</summary>
+    <p>~ flips every bit. In two’s complement “flip every bit” means −x − 1 (the first half of Chapter 4’s “flip, add 1” rule). So ~5 = −5 − 1 = −6.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 9.4</span>Masks and flags</h2>
+
+<p>We can use a byte as 8 separate yes/no switches. We give each bit a meaning (these are called <strong>flags</strong>) and read or change them one by one with bitwise operations. The best-known example is Unix file permissions: read (r), write (w) and execute (x) for the owner, the group and everyone else. 9 bits; grouped in threes, so written in octal. The 755 in <code>chmod 755</code> is exactly this.</p>
+
+<figure class="fig" id="f-perm">
+  <div class="fig-in">
+    <div id="perm-lamps"></div>
+    <div class="perm-heads" id="perm-heads"></div>
+    <div class="readout" id="perm-out"></div>
+    <div class="ctl center" id="perm-ctl" style="margin-top:.6rem"></div>
+    <div class="tell" id="perm-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>File permissions = 9 flags.</b> Tap the bits or try the operations below. Every octal digit is the three bits of one group: r = 4, w = 2, x = 1. 7 = rwx, 5 = r-x, 4 = r--.</figcaption>
+</figure>
+
+<p>Four basic patterns are worth memorizing:</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+READ, WRITE, EXEC = 0b100, 0b010, 0b001   # 4, 2, 1
+
+perm = READ | WRITE            # add a flag (OR)          → 0b110
+if perm &amp; WRITE:               # test a flag (AND)
+    print("writable")
+perm &amp;= ~WRITE                 # remove a flag (AND NOT)  → 0b100
+perm ^= EXEC                   # toggle a flag (XOR)      → 0b101
+
+color = 0xFF8800
+green = (color >> 8) &amp; 0xFF    # extract a field: shift + mask → 136
+</pre>
+<pre data-lang="js">
+const READ = 0b100, WRITE = 0b010, EXEC = 0b001;
+
+let perm = READ | WRITE;        // add
+if (perm &amp; WRITE) console.log("writable");
+perm &amp;= ~WRITE;                 // remove
+perm ^= EXEC;                   // toggle
+
+const isOdd = (n) => (n &amp; 1) === 1;      // last bit 1 means odd
+const isPowerOfTwo = (n) => n > 0 &amp;&amp; (n &amp; (n - 1)) === 0;
+</pre>
+</div>
+
+<h2><span class="sec">§ 9.5</span>Is a variable a box or a label?</h2>
+
+<p>In Chapter 8 we said a variable name is a nickname for an address. In C that is exactly right: <code>int a</code> is a box and <code>b = a</code> copies the bytes inside the box. In Python and JavaScript the story is a bit different, and it is the source of many bugs.</p>
+
+<p><strong>In Python every value is an object</strong> that lives at its own place in memory. A variable is a <em>label</em> stuck on that object. <code>b = a</code> does not create a new object; it sticks a second label on the same object. <strong>In JavaScript</strong>, <em>primitive</em> values such as numbers, strings and booleans are copied directly, while arrays and objects are shared by reference, as in Python.</p>
+
+<figure class="fig" id="f-ref">
+  <div class="fig-in">
+    <div class="center" id="ref-lang"></div>
+    <div class="ref">
+      <pre class="prog-code ref-code" id="ref-code"></pre>
+      <div class="ref-view"><svg id="ref-svg" viewBox="0 0 520 330" role="img" aria-label="references"></svg></div>
+    </div>
+    <div class="tell" id="ref-tell"></div>
+    <div id="ref-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Names and objects.</b> Variable names on the left, objects in memory on the right. An arrow means “this name points to that object”. After <code>b = a</code> both arrows point to the same list; a change made through one is visible through the other. In Python even numbers are objects, but <em>immutable</em> ones: <code>y = y + 1</code> does not change the old object, it creates a new one and moves the label there.</figcaption>
+</figure>
+
+<div class="two">
+  <div><p><strong>Immutable</strong>: in Python <code>int</code>, <code>float</code>, <code>str</code>, <code>tuple</code>; in JavaScript all primitive types. Sharing them is safe; “changing” always produces a new value.</p></div>
+  <div><p><strong>Mutable</strong>: <code>list</code>, <code>dict</code>, <code>set</code>, and arrays and objects in JavaScript. Changing a shared object in place affects <em>every</em> name that points to it.</p></div>
+</div>
+
+<p>Identity and equality are different questions. <code>==</code> asks “is the content the same?”, Python’s <code>is</code> asks “is it the same object?”. In CPython <code>id(x)</code> is the object’s address in memory; this is exactly where Chapter 8 connects.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+a = [1, 2, 3]
+b = a              # the same object
+c = a[:]           # new object, same content (shallow copy)
+print(a == c, a is c)     # True False
+print(a is b)             # True
+print(hex(id(a)))         # like '0x7f3a2c1d4e80': an address!
+
+def add(lst):
+    lst.append(99)        # changes the caller’s list!
+add(a); print(b)          # [1, 2, 3, 99]
+
+import copy
+m = [[0, 0], [0, 0]]
+s = m.copy()              # shallow: inner lists are shared
+d = copy.deepcopy(m)      # deep: everything is new
+m[0][0] = 7
+print(s[0][0], d[0][0])   # 7 0
+</pre>
+<pre data-lang="js">
+const a = [1, 2, 3];
+const b = a;               // the same array
+const c = [...a];          // new array (shallow copy)
+console.log(a === c, a === b);  // false true
+
+a.push(4);                 // const, yet it can change!
+// a = [];                 // TypeError: assignment to const
+
+let x = 10, y = x;         // primitive: the value is copied
+y++;
+console.log(x, y);         // 10 11
+
+const m = [[0, 0], [0, 0]];
+const s = [...m];                    // shallow
+const d = structuredClone(m);        // deep
+m[0][0] = 7;
+console.log(s[0][0], d[0][0]);       // 7 0
+</pre>
+</div>
+
+<p class="key"><code>const</code> (JavaScript) forbids moving the name to another object, not changing the object’s <strong>insides</strong>. When you pass a list to a function or assign it to another variable you share <strong>the list itself, not a copy</strong>. If you want a copy, make it explicitly.</p>
+
+<aside class="aside"><span class="t">The secret of small numbers</span>CPython creates the integers from −5 to 256 in advance and reuses them. So <code>a = 256; b = 256; a is b</code> can be true while the same thing for 257 can be false. The lesson: compare numbers and strings with <code>==</code>, not <code>is</code>. Use <code>is</code> only for <code>None</code>.</aside>
+
+<h2><span class="sec">§ 9.6</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p>What is <code>0x10 + 0b10 + 0o10</code>?</p>
+    <ul><li>30</li><li>0x30</li><li>26</li><li>36</li></ul>
+    <div class="quiz-why">16 + 2 + 8 = 26.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>Which tells you fastest whether a number is odd?</p>
+    <ul><li><code>n | 1</code></li><li><code>n &amp; 1</code></li><li><code>n ^ 1</code></li><li><code>n &gt;&gt; 1</code></li></ul>
+    <div class="quiz-why">The last bit (the ones place) is 1 in odd numbers.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>After <code>chmod 640</code>, what can “others” do?</p>
+    <ul><li>Read</li><li>Write</li><li>Execute</li><li>Nothing</li></ul>
+    <div class="quiz-why">The last digit 0 = ---. (6 = rw-, 4 = r--.)</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>Python: after <code>a = [1]; b = a; b.append(2)</code>, what is <code>a</code>?</p>
+    <ul><li>[1, 2]</li><li>[1]</li><li>[2]</li><li>Error</li></ul>
+    <div class="quiz-why">a and b point to the same list.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>Why is <code>(1 &lt;&lt; 31)</code> negative in JavaScript?</p>
+    <ul><li>A bug</li><li>Because there is no overflow</li><li>Bitwise operators work on signed 32-bit integers; bit 31 is the sign bit</li><li>JavaScript likes negative numbers</li></ul>
+    <div class="quiz-why">The result is −2,147,483,648. For unsigned, use <code>(1 &lt;&lt; 31) &gt;&gt;&gt; 0</code>.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

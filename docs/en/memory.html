@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memory: one long strip of bytes · Zeros &amp; Ones</title>
+<meta name="description" content="Memory addresses and hex, reading the same bytes as different types, little and big endian byte order, variables, arrays, pointers and the bytes inside files. An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../bellek.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/memory.js" defer></script>
+</head>
+<body data-chapter="memory">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 8</div>
+  <h1>Memory: one long strip of bytes</h1>
+  <p class="lede">So far we have looked at single numbers, letters and colors. They all live in the same place: one strip made of billions of numbered bytes. In this chapter we walk along that strip.</p>
+  <div class="meta"><span>Reading: ~40 min</span><span>Before: Chapters 3, 4 and 6</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 8.1</span>Every byte has an address</h2>
+
+<p class="dropcap">Think of the computer’s main memory (RAM) as a very long street. Every house on the street holds exactly 8 bits, one byte, and every house has a door number: its <strong>address</strong>. The processor tells memory “give me the byte at this address” or “write this at that address”. It knows nothing else; concepts like variables, arrays and strings are all built on top of these two commands.</p>
+
+<figure class="fig" id="f-strip">
+  <div class="fig-in">
+    <div class="strip" id="strip"></div>
+    <div class="readout" id="strip-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>A slice of memory.</b> Each box is a byte, with its address underneath. Addresses are numbers too, and are almost always written in hex: they are shorter, and boundaries at multiples of 16 (…<span class="h">00</span>, …<span class="h">10</span>, …<span class="h">20</span>) are visible at a glance. Tap a box.</figcaption>
+</figure>
+
+<p>Since addresses are written in bits too, how many bytes a processor can reach depends on the number of address bits. With <span id="k-ab"></span>-bit addresses you can reach at most <span class="out" data-o="addr"></span> of memory. That is why 32-bit computers could not use more than 4 GB of RAM. Today’s 64-bit processors use 48 bits in practice, which is 256 TiB.</p>
+
+<h2><span class="sec">§ 8.2</span>Bytes don’t know what they are</h2>
+
+<p>We are back to the main idea of Chapter 1: a bit pattern carries no meaning of its own. Eight bytes side by side in memory can be text, two integers, a floating-point number or an address. The program that reads them decides what we are looking at. Edit the bytes below (in hex) and look at different readings of the same 8 bytes.</p>
+
+<figure class="fig" id="f-lens">
+  <div class="fig-in">
+    <div class="hexrow" id="lens-bytes"></div>
+    <div class="chips" id="lens-pre" style="margin-top:.8rem"></div>
+    <div class="tbl lens-t" id="lens-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>The same 8 bytes, many types.</b> Each row looks at the same memory through different glasses. Casts like <code>(float*)</code> in C, <code>DataView</code> in JavaScript and the <code>struct</code> module in Python do exactly this: they change the interpretation without touching the bytes.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 8.3</span>Byte order: endianness</h2>
+
+<p>Numbers bigger than a byte spread across several addresses. The 32-bit number <span class="h">0x12345678</span> takes 4 bytes: <span class="h">12</span>, <span class="h">34</span>, <span class="h">56</span>, <span class="h">78</span>. Which one goes to the lowest address? There are two answers, and both are in use:</p>
+<ul>
+  <li><strong>Big endian</strong> (big end first): the most significant byte at the lowest address. This is how we write numbers, and how network protocols send them (“network byte order”).</li>
+  <li><strong>Little endian</strong> (little end first): the least significant byte at the lowest address. Intel/AMD (x86) and nearly all ARM processors work this way, so most devices you use today do.</li>
+</ul>
+
+<figure class="fig" id="f-endian">
+  <div class="fig-in">
+    <div class="center"><span class="muted">0x</span><input id="end-in" class="inp" value="12345678" maxlength="8" spellcheck="false" style="width:9rem;text-align:center" aria-label="hex"> <span class="muted" id="end-dec"></span></div>
+    <div class="endian" id="endian"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>One number, two orders.</b> Addresses grow from left to right. In little endian the bytes look “reversed”, but that is a convenience for the processor: the low byte of a number is always at the same address, so reading a 32-bit number as 8 or 16 bits needs no change of address.</figcaption>
+</figure>
+
+<aside class="aside hist"><span class="t">Where the name comes from</span>“Endian” comes from Jonathan Swift’s <em>Gulliver’s Travels</em>. In the novel two nations go to war over whether a boiled egg should be cracked at the big end (Big-Endians) or the little end (Little-Endians). In 1980 computer scientist Danny Cohen borrowed the terms to say that this debate was just as arbitrary.</aside>
+
+<p>Byte order matters when data moves between machines. A file format or network protocol always specifies it: PNG and network packets are big endian, BMP and WAV files little endian.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+import struct, sys
+print(sys.byteorder)                       # 'little' (on most computers)
+print(struct.pack("<I", 0x12345678).hex(" "))  # 78 56 34 12  (little)
+print(struct.pack(">I", 0x12345678).hex(" "))  # 12 34 56 78  (big)
+print((0x12345678).to_bytes(4, "little"))  # b'xV4\x12'
+print(struct.unpack("<f", bytes.fromhex("0000803f")))  # (1.0,)
+</pre>
+<pre data-lang="js">
+const buf = new ArrayBuffer(4);
+const dv = new DataView(buf);
+dv.setUint32(0, 0x12345678, true);         // true = little endian
+console.log([...new Uint8Array(buf)].map(b => b.toString(16)));
+// ["78", "56", "34", "12"]
+console.log(dv.getUint32(0, false).toString(16));  // "78563412"
+console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 1
+</pre>
+</div>
+
+<h2><span class="sec">§ 8.4</span>Variables, arrays, pointers</h2>
+
+<p>When you write <code>int age = 17;</code> in a program, the compiler reserves 4 bytes of memory and pairs the name “age” with that address. A variable name is a memorable nickname for an address. An <strong>array</strong> is elements of the same type laid out one after another in memory; the address of <code>arr[i]</code> is a simple calculation:</p>
+
+<p class="formula">address(arr[i]) = start + i × element size</p>
+
+<p>This formula is also why arrays start at zero: the first element is zero away from the start. A <strong>pointer</strong> is a variable whose value is an address. Run the small C program below step by step and watch memory change.</p>
+
+<figure class="fig" id="f-prog">
+  <div class="fig-in">
+    <div class="prog">
+      <pre class="prog-code" id="prog-code"></pre>
+      <div class="prog-mem" id="prog-mem"></div>
+    </div>
+    <div class="tell" id="prog-tell"></div>
+    <div id="prog-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>How a program uses memory.</b> Each color is a variable. <code>&amp;x</code> means “the address of x”, <code>*p</code> means “the value at the address p points to”. <code>p + 1</code> moves the address not by 1 but by the size of the type it points to (4 bytes here). Note that the bytes are written in little endian order.</figcaption>
+</figure>
+
+<div class="think">
+  <p class="q">What would happen if the program wrote <code>arr[5]</code>? The array only has 3 elements.</p>
+  <details><summary>Think first, then open</summary>
+    <p>C does not check: following the formula it goes to start + 5 × 4 and reads or overwrites whatever is there. Maybe it corrupts another variable, maybe the program crashes. This “buffer overflow” is one of the most exploited security holes in history. Python and JavaScript check the bounds on every access and raise an error.</p>
+  </details>
+</div>
+
+<p>Pointers live in memory too: on a 64-bit system every pointer is 8 bytes. A pointer that points nowhere is called <code>NULL</code> and its value is usually 0. A program that tries to access address 0 is stopped by the operating system; that is the famous “segmentation fault”.</p>
+
+<aside class="aside"><span class="t">Alignment</span>Processors read a 4-byte number faster from addresses that are multiples of 4. So compilers sometimes put empty bytes (padding) between variables. That is why the gray bytes after the <code>char</code> and after the array are empty in the figure.</aside>
+
+<h2><span class="sec">§ 8.5</span>Files are byte sequences too</h2>
+
+<p>A disk is a byte strip that is much slower than memory but permanent. A file is a sequence of bytes on that strip plus a name. The fact “this is a PNG image” is written inside the file, usually in the first few bytes. These bytes are called a <strong>magic number</strong> or file signature. Changing the file extension does not change the file type; the signature stays the same.</p>
+
+<figure class="fig" id="f-hex">
+  <div class="fig-in">
+    <div class="center hexctl" id="hex-ctl"></div>
+    <div class="tell" id="hex-sig"></div>
+    <div class="hexdump" id="hexdump"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>A hex viewer.</b> Pick one of the samples or open a file from your computer. The file is not sent anywhere; your browser reads it only on this page. The left column is the position in the file (offset), the middle the hex bytes, the right the same bytes read as ASCII.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>Type</th><th>First bytes (hex)</th><th>ASCII</th></tr></thead>
+  <tbody>
+    <tr><td>PNG image</td><td class="m">89 50 4E 47 0D 0A 1A 0A</td><td class="m">.PNG....</td></tr>
+    <tr><td>JPEG image</td><td class="m">FF D8 FF</td><td class="m">...</td></tr>
+    <tr><td>GIF image</td><td class="m">47 49 46 38 39 61</td><td class="m">GIF89a</td></tr>
+    <tr><td>PDF document</td><td class="m">25 50 44 46 2D</td><td class="m">%PDF-</td></tr>
+    <tr><td>ZIP (and .docx, .xlsx, .jar)</td><td class="m">50 4B 03 04</td><td class="m">PK..</td></tr>
+    <tr><td>WAV audio</td><td class="m">52 49 46 46 … 57 41 56 45</td><td class="m">RIFF….WAVE</td></tr>
+    <tr><td>Linux program (ELF)</td><td class="m">7F 45 4C 46</td><td class="m">.ELF</td></tr>
+    <tr><td>Windows program</td><td class="m">4D 5A</td><td class="m">MZ</td></tr>
+  </tbody>
+</table></div>
+
+<p>The PNG signature is especially clever: the first byte is above 127 (to warn programs that mistake the file for text), it contains Windows (<span class="h">0D 0A</span>) and Unix (<span class="h">0A</span>) line endings and <span class="h">1A</span> (“end of file” in old DOS). If a faulty transfer “fixes” the line endings, the signature breaks and the error is noticed immediately.</p>
+
+<p class="key">Memory and disk alike are just numbered bytes. The <strong>address</strong> says where, the <strong>type</strong> says how to read it, and the <strong>byte order</strong> says how multi-byte values are laid out. Know those three and you can read any data byte by byte.</p>
+
+<h2><span class="sec">§ 8.6</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="1">
+    <p>On a little endian machine the 32-bit <span class="h">0xAABBCCDD</span> is written at address 0x100. The byte at 0x100?</p>
+    <ul><li>AA</li><li>DD</li><li>BB</li><li>CC</li></ul>
+    <div class="quiz-why">Little end first: the least significant byte (DD) goes to the lowest address.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>If an <code>int</code> (4-byte) array starts at 0x2000, where is <code>arr[3]</code>?</p>
+    <ul><li>0x2003</li><li>0x2012</li><li>0x200C</li><li>0x2030</li></ul>
+    <div class="quiz-why">0x2000 + 3 × 4 = 0x2000 + 12 = 0x200C.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>What does a pointer variable hold?</p>
+    <ul><li>A memory address</li><li>The variable’s name</li><li>Always an integer value</li><li>The array length</li></ul>
+    <div class="quiz-why">A pointer’s value is an address; <code>*p</code> reads the value at that address.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>What happens when you rename a file from <code>.png</code> to <code>.txt</code>?</p>
+    <ul><li>The file turns into text</li><li>The bytes are re-encoded</li><li>The file is corrupted</li><li>The bytes stay the same; only the program that opens it changes</li></ul>
+    <div class="quiz-why">The content, including the signature in the first bytes, stays exactly as it was.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>How many bytes can 16-bit addresses reach at most?</p>
+    <ul><li>16</li><li>65,536</li><li>256</li><li>4,294,967,296</li></ul>
+    <div class="quiz-why">2<sup>16</sup> = 65,536 = 64 KiB. That is where the Commodore 64 got its name.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

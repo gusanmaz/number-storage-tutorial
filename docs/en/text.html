@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giving letters numbers · Zeros &amp; Ones</title>
+<meta name="description" content="The ASCII table, control characters and escape sequences, text in memory and the NUL terminator, code pages, Unicode, UTF-8 and garbled characters (mojibake). An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../metin.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/text.js" defer></script>
+</head>
+<body data-chapter="text">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 6</div>
+  <h1>Giving letters numbers</h1>
+  <p class="lede">Computers do not know letters; they only store numbers. Every letter on this page is a number someone agreed on. The story of that agreement also explains where garbled text like “cafÃ©” comes from.</p>
+  <div class="meta"><span>Reading: ~40 min</span><span>Before: Chapters 1 and 3</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 6.1</span>There is no such thing as a letter</h2>
+
+<p class="dropcap">In Chapter 1 we saw that the same bit pattern can be a number, a color or a letter. To store text, all we need is a <strong>table</strong>: a list that gives every character a number and that everyone uses the same way. The sender writes 65 for “A”, the receiver sees 65 and draws an “A”. In between, the computer carries nothing but 65.</p>
+
+<p>If you were designing such a table, how many bits would you reserve? That depends on which characters you want:</p>
+
+<figure class="fig narrow" id="f-sets">
+  <div class="fig-in">
+    <div id="sets"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>Bigger character sets need more bits.</b> Telegraph machines made do with 5 bits, but only had capital letters. Covering all the world’s scripts takes 21 bits.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 6.2</span>ASCII: the 7-bit agreement</h2>
+
+<p>In 1963 the American standards body published <strong>ASCII</strong> (American Standard Code for Information Interchange). 7 bits, so 128 numbers: 33 control codes, the space, digits, upper and lower case English letters and punctuation. Every character encoding you use today still contains ASCII as its first 128 numbers.</p>
+
+<p>The table is not arranged at random. The columns are split by the top 3 bits of the number, so characters of the same kind gather in the same columns. Tap a cell and look for the patterns.</p>
+
+<figure class="fig" id="f-ascii">
+  <div class="fig-in">
+    <div class="chips" id="ascii-hl"></div>
+    <div id="ascii"></div>
+    <div class="readout" id="ascii-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>The complete ASCII table.</b> Rows show the low 4 bits (0–F), columns the top 3 bits (0–7). So a character’s hex code reads directly as “column row”: <span class="h">41</span> = column 4, row 1 = <code>A</code>. Gray cells are control codes that do not print.</figcaption>
+</figure>
+
+<p>Three patterns in the table show how thoughtful ASCII’s designers were:</p>
+<ul>
+  <li><strong>Digits</strong> start at <span class="h">0x30</span>. The low 4 bits are the digit itself: <code>'7'</code> = <span class="h">0x37</span>. To turn a digit character into a number you just take the low nibble (or subtract 48).</li>
+  <li><strong>Letters</strong> start at <span class="h">0x41</span> and <span class="h">0x61</span>; the low 5 bits are the letter’s position in the alphabet: <code>A</code> = 1, <code>B</code> = 2…</li>
+  <li><strong>Upper and lower case</strong> differ by exactly 32, which is <em>a single bit</em>. Try it below.</li>
+</ul>
+
+<figure class="fig narrow" id="f-case">
+  <div class="fig-in">
+    <div id="case-lamps"></div>
+    <div class="readout" id="case-out"></div>
+    <div class="ctl center" id="case-ctl" style="margin-top:.8rem"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>The case bit.</b> When the 32 lamp (bit 5) is on, the letter is lower case; when it is off, upper case. On some early terminals the Shift key flipped exactly this bit for letters.</figcaption>
+</figure>
+
+<div class="think">
+  <p class="q">What are <code>'a' - 'A'</code> and <code>'7' - '0'</code>? Why are these two subtractions among programmers’ favorite tricks?</p>
+  <details><summary>Think first, then open</summary>
+    <p>97 − 65 = 32 and 55 − 48 = 7. The first converts case and the second turns a digit character into a number, each in a single operation. In C, writing <code>c - '0'</code> means “the value of this digit character”.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 6.3</span>Invisible characters</h2>
+
+<p>ASCII’s first 32 codes and 127 are not letters but <strong>commands</strong>. ASCII was designed in the age of machines that printed text, teleprinters. These codes gave the machine orders like “ring the bell”, “feed the paper one line”, “move the head back to the start of the line”. The teleprinter below understands some of them.</p>
+
+<figure class="fig" id="f-tty">
+  <div class="fig-in">
+    <div class="tty" id="tty" aria-live="polite"></div>
+    <div class="ctl center" id="tty-ctl" style="margin-top:.9rem"></div>
+    <div class="readout" id="tty-bytes"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Teleprinter.</b> Type some letters, then try CR and LF separately. CR (carriage return) moves the head to the left without feeding the paper, so the next letters are printed over the old ones. LF (line feed) feeds the paper but does not move the head left. Starting a new line takes both.</figcaption>
+</figure>
+
+<p>This split lives on today: Windows stores line endings as <strong>CR LF</strong> (<span class="h">0D 0A</span>), Linux and macOS as just <strong>LF</strong> (<span class="h">0A</span>). That is why lines sometimes merge or show stray <code>^M</code> marks when you open a file on another system.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Code</th><th>Name</th><th>Escape</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td class="m">0 · 00</td><td>NUL</td><td class="m">\0</td><td>Nothing. Marks the end of a string in C.</td></tr>
+    <tr><td class="m">7 · 07</td><td>BEL</td><td class="m">\a</td><td>Ring the bell. Can still beep in a terminal.</td></tr>
+    <tr><td class="m">8 · 08</td><td>BS</td><td class="m">\b</td><td>Go back one.</td></tr>
+    <tr><td class="m">9 · 09</td><td>HT</td><td class="m">\t</td><td>Tab: jump to the next tab stop.</td></tr>
+    <tr><td class="m">10 · 0A</td><td>LF</td><td class="m">\n</td><td>Line feed; “new line” on Unix.</td></tr>
+    <tr><td class="m">13 · 0D</td><td>CR</td><td class="m">\r</td><td>Carriage return.</td></tr>
+    <tr><td class="m">27 · 1B</td><td>ESC</td><td class="m">\x1b</td><td>Escape: the bytes that follow are a special command (like terminal colors).</td></tr>
+    <tr><td class="m">127 · 7F</td><td>DEL</td><td class="m">\x7f</td><td>Delete. On punched tape, punching all 7 holes “erased” a wrong character.</td></tr>
+  </tbody>
+</table></div>
+
+<p>To write these invisible characters in programming languages we use <strong>escape sequences</strong>: a letter after a backslash means “read this not as a plain letter but as a special code”. <code>\n</code> looks like two characters but is a single byte in memory: <span class="h">0A</span>.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+print(ord("A"), chr(97))          # 65 a
+print("name\tsurname\nAda\tLovelace")  # tab and newline
+print(len("\n"))                  # 1  (a single character!)
+print(repr("a\tb"))               # 'a\tb'  makes escapes visible
+print("\x41B")               # AB  (characters by hex)
+print("\a")                       # beeps in some terminals!
+print("\x1b[31mred\x1b[0m")       # terminal color via ESC
+</pre>
+<pre data-lang="js">
+console.log("A".charCodeAt(0), String.fromCharCode(97)); // 65 "a"
+console.log("name\tsurname\nAda\tLovelace");
+console.log("\n".length);           // 1
+console.log(JSON.stringify("a\tb")); // "a\tb"
+console.log("\x41B");          // "AB"
+console.log("\x1b[31mred\x1b[0m");  // red in a Node terminal
+</pre>
+</div>
+
+<h2><span class="sec">§ 6.4</span>A string in memory</h2>
+
+<p>A string is nothing but bytes sitting side by side in memory. But there is a problem: memory is one long strip of bytes and we need to know <em>where the text ends</em>. There are two classic solutions. C puts a <strong>NUL</strong> (<span class="h">00</span>) at the end; Pascal and modern languages store the <strong>length</strong> at the start or alongside.</p>
+
+<figure class="fig" id="f-mem">
+  <div class="fig-in">
+    <div class="center"><input id="mem-in" class="inp" value="Hello" maxlength="14" spellcheck="false" style="width:14rem;text-align:center" aria-label="text"></div>
+    <div class="center" id="mem-mode" style="margin-top:.7rem"></div>
+    <div id="mem" class="memrow"></div>
+    <div class="ctl center" id="mem-ctl"></div>
+    <div class="tell" id="mem-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Where does the text end?</b> In C, <code>printf</code> reads up to the first <span class="h">00</span>. Delete the NUL and it does not stop: it keeps reading the memory next to the text, whatever is there. In real programs this is a kind of security hole that leaks secrets such as passwords.</figcaption>
+</figure>
+
+<p>The terminator approach has another cost: to find a string’s length, C’s <code>strlen</code> has to count every byte until it finds the NUL. Python and JavaScript, which store the length separately, know it instantly, and their strings can even contain NUL.</p>
+
+<h2><span class="sec">§ 6.5</span>When 128 is not enough: code pages</h2>
+
+<p>ASCII has no é, ñ, ü, ç or ş. Since a byte is 8 bits, the unused 8th bit could buy 128 more numbers. Everyone did just that, but <em>everyone differently</em>. ISO-8859-1 (Latin-1) for Western Europe, ISO-8859-9 (Latin-5) and Windows-1254 for Turkish, KOI8-R for Russian… These are called <strong>code pages</strong>. The same byte is a different letter depending on which code page reads it.</p>
+
+<figure class="fig narrow" id="f-cp">
+  <div class="fig-in">
+    <div class="center"><input id="cp-in" class="inp" value="Işık İstanbul'da" spellcheck="false" style="width:16rem;text-align:center" aria-label="text"></div>
+    <div id="cp-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>Same bytes, two tables.</b> The Turkish text is turned into bytes with the Turkish table (Latin-5), then read back with the Western European table (Latin-1). The two tables differ in only six positions: Ğ ğ İ ı Ş ş. That is exactly where things break.</figcaption>
+</figure>
+
+<p>This is why Turkish e-mails in the 1990s arrived as “Ýyi günler, þimdi…”: the sender’s computer wrote in Latin-5 while the receiver’s read in Latin-1. The bytes arrived perfectly; what was broken was the <em>agreement</em>.</p>
+
+<h2><span class="sec">§ 6.6</span>Unicode: one number per character</h2>
+
+<p>To end this chaos, <strong>Unicode</strong> appeared in 1991. The idea is simple: give every character of every writing system in the world a single, permanent number. That number is called a <strong>code point</strong> and is written in hex after <span class="h">U+</span>: <code>A</code> = U+0041, <code>ş</code> = U+015F, <code>€</code> = U+20AC, <code>😀</code> = U+1F600.</p>
+
+<p>Unicode has 1,114,112 slots (U+0000 … U+10FFFF); about 150,000 are filled today: Latin, Arabic, Chinese and Indic scripts, mathematical symbols, Egyptian hieroglyphs and emoji. Paste any text below and open it up:</p>
+
+<figure class="fig" id="f-uni">
+  <div class="fig-in">
+    <div class="center"><input id="uni-in" class="inp" value="Aş€😀" spellcheck="false" style="width:16rem;text-align:center;font-size:1.2rem" aria-label="text"></div>
+    <div class="chips" id="uni-pre" style="margin-top:.7rem"></div>
+    <div id="uni" class="uni"></div>
+    <div class="tell" id="uni-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 7</span><b>Code points and their bytes.</b> Each card is one code point. Underneath: how many bytes it takes in UTF-8. Try the “é” example: what looks like one letter on screen is sometimes two code points (e + a combining accent). Emoji with skin tones or families are combinations of several code points.</figcaption>
+</figure>
+
+<aside class="aside"><span class="t">Character ≠ code point ≠ byte</span>What we see as a “letter” (Unicode calls it a <em>grapheme</em>) corresponds to one or more code points. Each code point takes one or more bytes depending on the encoding. So “how many characters is this text?” can have three different answers.</aside>
+
+<h2><span class="sec">§ 6.7</span>UTF-8: pouring the number into bytes</h2>
+
+<p>Unicode gives the number; the <strong>encoding</strong> decides how that number is stored in memory. The simplest way is 4 bytes per character (UTF-32), but that makes an English text four times bigger. <strong>UTF-8</strong>, sketched by Ken Thompson and Rob Pike on a placemat in a diner in 1992, is used today by more than 98% of web pages. The idea: small numbers take few bytes, big ones more.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Code point range</th><th>Bytes</th><th>Bit template</th></tr></thead>
+  <tbody>
+    <tr><td class="m">U+0000 – U+007F</td><td class="m">1</td><td class="m">0xxxxxxx</td></tr>
+    <tr><td class="m">U+0080 – U+07FF</td><td class="m">2</td><td class="m">110xxxxx 10xxxxxx</td></tr>
+    <tr><td class="m">U+0800 – U+FFFF</td><td class="m">3</td><td class="m">1110xxxx 10xxxxxx 10xxxxxx</td></tr>
+    <tr><td class="m">U+10000 – U+10FFFF</td><td class="m">4</td><td class="m">11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td></tr>
+  </tbody>
+</table></div>
+
+<p>The code point’s bits are poured into the template’s <span class="mono">x</span>s from right to left. Pick a character and follow along step by step:</p>
+
+<figure class="fig" id="f-utf8">
+  <div class="fig-in">
+    <div class="chips" id="u8-pre"></div>
+    <div class="u8" id="u8"></div>
+    <div class="tell" id="u8-tell"></div>
+    <div id="u8-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 8</span><b>A UTF-8 encoder.</b> Colored bits come from the code point, black bits are the fixed part of the template. The number of 1s in the first byte tells the total number of bytes; continuation bytes always start with <span class="b">10</span>.</figcaption>
+</figure>
+
+<p>This design has four lovely consequences:</p>
+<ul>
+  <li><strong>ASCII compatible.</strong> The first 128 characters stay single bytes; every old English file is already valid UTF-8.</li>
+  <li><strong>Self-synchronizing.</strong> Even if you start reading at a random byte, you can skip the ones starting with <span class="b">10</span> and find the start of the next character.</li>
+  <li><strong>No fake NULs or “/”.</strong> All bytes of a multi-byte character are above 127, so C’s NUL-terminated strings and file paths are not broken.</li>
+  <li><strong>Sorting is preserved.</strong> Sorting the bytes gives the same order as sorting the code points.</li>
+</ul>
+
+<p><strong>UTF-16</strong> stores characters in 2 or 4 bytes and lives inside Windows, Java and JavaScript. Code points above U+FFFF are split into two 16-bit pieces, a <em>surrogate pair</em>. Because JavaScript’s <code>length</code> counts these 16-bit pieces, surprises follow:</p>
+
+<div class="code-tabs">
+<pre data-lang="js">
+"ş".length                     // 1
+"😀".length                    // 2  ← two UTF-16 pieces
+[..."😀"].length               // 1  ← number of code points
+"😀".codePointAt(0).toString(16) // "1f600"
+new TextEncoder().encode("ş")   // Uint8Array [197, 159]  (UTF-8: C5 9F)
+"ş" === "ş"               // true
+"\u{1F600}"                    // "😀"
+</pre>
+<pre data-lang="py">
+len("ş")                 # 1
+len("😀")                # 1  ← Python counts code points
+"ş".encode("utf-8")      # b'\xc5\x9f'
+len("😀".encode())       # 4  ← number of bytes
+hex(ord("😀"))           # '0x1f600'
+"\N{EURO SIGN}"          # '€'
+b"\xc5\x9f".decode()     # 'ş'
+</pre>
+</div>
+
+<h2><span class="sec">§ 6.8</span>Anatomy of garbled text</h2>
+
+<p>The Japanese even have a name for it: <strong>mojibake</strong>, “character transformation”. If a program reads text saved as UTF-8 thinking it is Windows-1252 (the Windows cousin of Latin-1), every multi-byte character turns into two or three meaningless symbols. Try your own text:</p>
+
+<figure class="fig" id="f-moji">
+  <div class="fig-in">
+    <div class="center"><input id="moji-in" class="inp" value="Café déjà vu: “naïve” ½ €5" spellcheck="false" style="width:min(26rem,100%);text-align:center" aria-label="text"></div>
+    <div id="moji"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 9</span><b>The mojibake machine.</b> Right bytes, wrong table. It happens the other way too: read a file saved in Latin-1 as if it were UTF-8 and the invalid bytes show up as <code>�</code> (U+FFFD, the “replacement character”). That information is gone for good.</figcaption>
+</figure>
+
+<p class="key">A text file does not say which encoding it was written in. That is why we write <code>&lt;meta charset="utf-8"&gt;</code> in HTML and <code>open(name, encoding="utf-8")</code> in Python. <strong>Always state the encoding explicitly, and choose UTF-8.</strong></p>
+
+<aside class="aside hist"><span class="t">A special trap: the Turkish I</span>In most languages the lower case of “I” is “i”. In Turkish, however, I ↔ ı and İ ↔ i. A program that ignores the language lowercases “IŞIK” to “işik”; in Java, <code>"title".toUpperCase()</code> on a computer set to Turkish returns “TİTLE”, breaking code that looks for an English keyword. Developers call this the “Turkish I problem”. The fix: locale-aware functions (<code>toLocaleUpperCase('tr')</code>) where language matters, and locale-independent ones for identifiers.</aside>
+
+<h2><span class="sec">§ 6.9</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="1">
+    <p>If the ASCII code of <code>'C'</code> is <span class="h">0x43</span>, what is <code>'c'</code>?</p>
+    <ul><li>0x44</li><li>0x63</li><li>0x53</li><li>0xC3</li></ul>
+    <div class="quiz-why">Lower case = upper case + 0x20 (bit 5).</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>How many bytes does the string <code>"a\nb"</code> take in memory (without a terminator)?</p>
+    <ul><li>4</li><li>5</li><li>3</li><li>2</li></ul>
+    <div class="quiz-why"><code>\n</code> is a single character: 61 0A 62.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>In UTF-8, which byte can sit in the <em>middle</em> of a character?</p>
+    <ul><li>10xxxxxx</li><li>0xxxxxxx</li><li>110xxxxx</li><li>11110xxx</li></ul>
+    <div class="quiz-why">Continuation bytes always start with 10.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>What usually causes garbled text like “cafÃ©”?</p>
+    <ul><li>A corrupted file</li><li>A missing font</li><li>A network error</li><li>UTF-8 bytes read with a different code page</li></ul>
+    <div class="quiz-why">The bytes are fine, the interpretation is wrong: “é” = C3 A9 → “Ã” and “©” in Windows-1252.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>Why is <code>"😀".length</code> 2 in JavaScript?</p>
+    <ul><li>Because the emoji is 2 bytes</li><li>Because length counts UTF-16 pieces</li><li>Because of a bug</li><li>Because the emoji is made of two characters</li></ul>
+    <div class="quiz-why">U+1F600 is written as a surrogate pair (2 × 16 bits) in UTF-16. In UTF-8 it is 4 bytes.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

@@ -105,9 +105,9 @@
   }
   const doOp = (label, f, code) => { const old = PL.value(), nv = f(old) & 0o777; PL.set(nv, true); drawPerm('<code>' + esc(code) + '</code>: ' + pad(old.toString(8), 3) + ' → <b>' + pad(nv.toString(8), 3) + '</b>'); };
   $('#perm-ctl').append(
-    el('button', { class: 'btn sm', type: 'button', text: t({ tr: 'Gruba yazma ekle', en: 'Give group write' }), onclick: () => doOp('', (v) => v | 0o020, 'izin |= 0o020') }),
-    el('button', { class: 'btn sm', type: 'button', text: t({ tr: 'Diğerlerinden okumayı al', en: 'Take read from others' }), onclick: () => doOp('', (v) => v & ~0o004, 'izin &= ~0o004') }),
-    el('button', { class: 'btn sm', type: 'button', text: t({ tr: 'Sahibin x’ini çevir', en: 'Toggle owner x' }), onclick: () => doOp('', (v) => v ^ 0o100, 'izin ^= 0o100') }),
+    el('button', { class: 'btn sm', type: 'button', text: t({ tr: 'Gruba yazma ekle', en: 'Give group write' }), onclick: () => doOp('', (v) => v | 0o020, t({ tr: 'izin |= 0o020', en: 'perm |= 0o020' })) }),
+    el('button', { class: 'btn sm', type: 'button', text: t({ tr: 'Diğerlerinden okumayı al', en: 'Take read from others' }), onclick: () => doOp('', (v) => v & ~0o004, t({ tr: 'izin &= ~0o004', en: 'perm &= ~0o004' })) }),
+    el('button', { class: 'btn sm', type: 'button', text: t({ tr: 'Sahibin x’ini çevir', en: 'Toggle owner x' }), onclick: () => doOp('', (v) => v ^ 0o100, t({ tr: 'izin ^= 0o100', en: 'perm ^= 0o100' })) }),
     ...[0o755, 0o644, 0o600, 0o777].map((p) => el('button', { class: 'btn sm ghost', type: 'button', text: pad(p.toString(8), 3), onclick: () => { PL.set(p, true); drawPerm(''); } })),
   );
   drawPerm('');

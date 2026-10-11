@@ -80,6 +80,7 @@
 
   /* ---------- Şekil 4: program ve bellek ---------- */
   const B = 0x1000;
+  const AR = t({ tr: 'dizi', en: 'arr' }), L = (x) => x.replace(/dizi/g, AR);
   const CODE = [
     'int a = 5;',
     'short b = -2;',
@@ -90,7 +91,7 @@
     'p = p + 1;',
     '*p = *p + 1;',
     'a = dizi[0] + *p;',
-  ];
+  ].map(L);
   const VARS = { a: [0, 4, 'v0'], b: [4, 2, 'v1'], c: [6, 1, 'v2'], dizi: [8, 12, 'v3'], p: [24, 8, 'v4'] };
   const PADS = [7, 20, 21, 22, 23];
   function stateAt(k) {
@@ -122,12 +123,12 @@
       h += '<div class="pm-row"><span class="pm-a">0x' + toBase(B + r * 16, 16) + '</span>';
       for (let i = r * 16; i < r * 16 + 16; i++) {
         const o = owner[i], pd = PADS.includes(i) && st.live[i < 8 ? 'c' : 'dizi'] && (i === 7 || st.live.p);
-        h += '<span class="pm' + (o ? ' ' + o[1] : pd ? ' pad' : '') + (i >= tgt && i < tgt + 4 && tgt >= 0 ? ' tgt' : '') + '">' + (o ? hx(st.m[i]) : pd ? '··' : '<span class="muted">?' + '</span>') + (o && o[2] ? '<small>' + o[0] + '</small>' : '') + '</span>';
+        h += '<span class="pm' + (o ? ' ' + o[1] : pd ? ' pad' : '') + (i >= tgt && i < tgt + 4 && tgt >= 0 ? ' tgt' : '') + '">' + (o ? hx(st.m[i]) : pd ? '··' : '<span class="muted">?' + '</span>') + (o && o[2] ? '<small>' + L(o[0]) + '</small>' : '') + '</span>';
       }
       h += '</div>';
     }
     $('#prog-mem').innerHTML = h + (st.p != null ? '<div class="pm-note">p = <b class="h">0x' + toBase(st.p, 16) + '</b> → *p = <b>' + (st.m.slice(tgt, tgt + 4).reduceRight((a, b) => a * 256 + b, 0) | 0) + '</b></div>' : '');
-    $('#prog-tell').innerHTML = st.msg;
+    $('#prog-tell').innerHTML = L(st.msg);
   }
   steps($('#prog-steps'), { count: CODE.length + 1, render: drawProg, nextLabel: t({ tr: 'Satırı çalıştır →', en: 'Run line →' }) });
 

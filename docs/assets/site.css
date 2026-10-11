@@ -895,3 +895,4 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .hexgrid span { display: grid; grid-template-columns: 1.4rem 1fr auto; gap: 0.2rem; background: var(--paper-2); border-radius: 5px; padding: 0.15rem 0.35rem; }
 .hexgrid i { font-style: normal; color: var(--ink-3); }
 @media print { .sheet { transform: none; margin: 1rem 0; width: auto; } .try, #try, .prose > p:has(#print) { display: none; } }
+@media (max-width: 420px) { #unix-lamps .lamps { gap: 1px; } #unix-lamps .lamps .bulb { --s: 9px; } #unix-lamps .lamps .gap { width: 5px; } #unix-lamps .lamp .w { font-size: 8.5px; } }
