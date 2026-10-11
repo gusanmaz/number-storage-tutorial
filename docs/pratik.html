@@ -1,108 +1,129 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Karma Pratik · Sayı Sistemleri</title>
-    <meta name="description" content="Tüm konulardan karışık, sınırsız alıştırma sorusu ve tek sayfalık özet kartı.">
-    <link rel="alternate" hreflang="en" href="en/practice.html">
-    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
-    <link rel="stylesheet" href="styles.css">
-    <script src="js/common.js" defer></script>
-    <script src="js/generators.js" defer></script>
-    <script src="js/pages/practice.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kendini sına · Sıfırlar ve Birler</title>
+<meta name="description" content="Taban dönüşümleri, bitler ve byte’lar, ikiye tümleyen, binary kesirler, ASCII ve UTF-8, renk kodları ve bit işlemleri için sınırsız alıştırma; tek sayfalık özet.">
+<link rel="alternate" hreflang="en" href="en/practice.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/practice.js" defer></script>
 </head>
 <body data-chapter="practice">
-<main class="content">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 10</div>
+  <h1>Kendini sına</h1>
+  <p class="lede">Bütün bölümlerden, her seferinde yeniden üretilen sorular. Konuları aç-kapat, cevabını yaz, takıldığında ipucuna bak. Altta da hepsinin tek sayfalık özeti var.</p>
+  <div class="meta"><span>Sınırsız soru</span><span>Yazdırılabilir özet</span></div>
+</header>
 
-    <header class="chapter-hero">
-        <div class="eyebrow"></div>
-        <h1>Karma Pratik</h1>
-        <p class="lead">Bütün bölümlerden rastgele sorular. Konuları üstteki düğmelerle açıp kapatabilirsin. Sınava hazırlanıyorsan ya da öğrendiklerini
-            pekiştirmek istiyorsan, serini (🔥) ne kadar uzatabileceğine bak!</p>
-    </header>
+<article class="prose">
 
-    <div id="practice"></div>
+<h2><span class="sec">§ 10.1</span>Karışık alıştırma</h2>
 
-    <h2>Özet kartı</h2>
-    <p>Bilmen gereken her şey tek bir yerde. Yazdırıp yanında tutabilirsin.</p>
-    <div class="cheat">
-        <div class="cheat-card">
-            <h4>2’nin kuvvetleri</h4>
-            <table class="compact"><tbody>
-                <tr><td class="m">2⁰ = 1</td><td class="m">2⁶ = 64</td></tr>
-                <tr><td class="m">2¹ = 2</td><td class="m">2⁷ = 128</td></tr>
-                <tr><td class="m">2² = 4</td><td class="m">2⁸ = 256</td></tr>
-                <tr><td class="m">2³ = 8</td><td class="m">2¹⁰ = 1 024</td></tr>
-                <tr><td class="m">2⁴ = 16</td><td class="m">2¹⁶ = 65 536</td></tr>
-                <tr><td class="m">2⁵ = 32</td><td class="m">2³² ≈ 4,29 × 10⁹</td></tr>
-            </tbody></table>
-        </div>
-        <div class="cheat-card">
-            <h4>Hex ↔ binary</h4>
-            <div class="cheat-hex" id="cheat-hex"></div>
-        </div>
-        <div class="cheat-card">
-            <h4>Dönüşümler</h4>
-            <ul>
-                <li><b>b → 10:</b> rakam × b<sup>konum</sup> topla</li>
-                <li><b>10 → b:</b> b’ye böl, kalanları ters yaz</li>
-                <li><b>2 ↔ 16:</b> 4’erli grupla</li>
-                <li><b>2 ↔ 8:</b> 3’erli grupla</li>
-                <li><b>Kesir → 2:</b> 2 ile çarp, tam kısmı al</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>Boyutlar</h4>
-            <ul>
-                <li>n bit → 2ⁿ değer, 0 … 2ⁿ−1</li>
-                <li>İşaretli n bit: −2ⁿ⁻¹ … 2ⁿ⁻¹−1</li>
-                <li>N değer için ⌈log₂ N⌉ bit</li>
-                <li>1 byte = 8 bit = 2 hex</li>
-                <li>KiB = 1024 B, kB = 1000 B</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>İkiye tümleyen</h4>
-            <ul>
-                <li>En sol bit = −2ⁿ⁻¹ (8 bitte −128)</li>
-                <li>Negatif: ters çevir + 1</li>
-                <li><span class="mono">11111111</span> = −1</li>
-                <li><span class="mono">10000000</span> = −128</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>IEEE 754 float</h4>
-            <ul>
-                <li>1 işaret · 8 üs · 23 mantis</li>
-                <li>(−1)ˢ × 1.m × 2^(e−127)</li>
-                <li>double: 1 · 11 · 52, bias 1023</li>
-                <li>0,1 tam saklanamaz → tolerans kullan</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>Metin</h4>
-            <ul>
-                <li>'0' = 48 = 0x30</li>
-                <li>'A' = 65 = 0x41</li>
-                <li>'a' = 97 = 0x61 (A + 32)</li>
-                <li>UTF-8: 1–4 byte, ASCII uyumlu</li>
-                <li>ç ğ ı ö ş ü → 2 byte</li>
-            </ul>
-        </div>
-        <div class="cheat-card">
-            <h4>Medya ve bellek</h4>
-            <ul>
-                <li>#RRGGBB = 3 byte</li>
-                <li>Görüntü = g × y × byte/piksel</li>
-                <li>Ses = hız × bit/8 × kanal × sn</li>
-                <li>Nyquist: hız &gt; 2 × frekans</li>
-                <li>adres(a[i]) = başlangıç + i × boyut</li>
-                <li>x86/ARM: little-endian</li>
-            </ul>
-        </div>
-    </div>
+<p>Cevapları yazarken önek kullanmak zorunda değilsin: <code>0x1F</code> da <code>1F</code> de kabul edilir; boşluklar ve alt çizgiler göz ardı edilir. Ondalıklı cevaplarda virgül ya da nokta kullanabilirsin.</p>
 
+<div id="try"></div>
+
+<h2><span class="sec">§ 10.2</span>Tek sayfalık özet</h2>
+
+<p>Bütün site, aşağıdaki kartlara sığıyor. <button type="button" class="btn sm" id="print">Yazdır</button></p>
+
+<div class="sheet">
+  <section class="sc-card">
+    <h3>İkinin kuvvetleri</h3>
+    <div class="pow" id="pow"></div>
+  </section>
+  <section class="sc-card">
+    <h3>Onlu · ikili · hex</h3>
+    <div class="hexgrid" id="hexgrid"></div>
+  </section>
+  <section class="sc-card">
+    <h3>Dönüşüm tarifleri</h3>
+    <ul>
+      <li><b>x → onlu:</b> her rakam × taban<sup>konum</sup>, topla.</li>
+      <li><b>onlu → x:</b> tabana böl, kalanları sondan başa yaz.</li>
+      <li><b>ikili ↔ hex:</b> sağdan 4’erli grupla. <b>ikili ↔ sekizli:</b> 3’erli.</li>
+      <li><b>kesir → ikili:</b> 2 ile çarp, tam kısmı al, tekrarla.</li>
+      <li>Payda 2’nin kuvveti değilse ikili kesir <b>sonsuz</b> tekrar eder (0,1 gibi).</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Bit, byte, birimler</h3>
+    <ul>
+      <li>n bit → <b>2<sup>n</sup></b> desen; işaretsiz en büyük <b>2<sup>n</sup> − 1</b>.</li>
+      <li>N şeyi kodlamak için <b>⌈log₂ N⌉</b> bit.</li>
+      <li>1 byte = 8 bit = 2 hex rakamı.</li>
+      <li>kB = 1000 B · <b>KiB = 1024 B</b> · MiB = 1024² · GiB = 1024³</li>
+      <li>Mbit/s ÷ 8 = MB/s</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>İşaretli tamsayılar</h3>
+    <div class="tbl"><table><thead><tr><th>bit</th><th>işaretsiz</th><th>işaretli</th></tr></thead><tbody>
+      <tr><td class="m">8</td><td class="m">0 … 255</td><td class="m">−128 … 127</td></tr>
+      <tr><td class="m">16</td><td class="m">0 … 65 535</td><td class="m">−32 768 … 32 767</td></tr>
+      <tr><td class="m">32</td><td class="m">0 … 4,29 × 10⁹</td><td class="m">±2,15 × 10⁹</td></tr>
+      <tr><td class="m">64</td><td class="m">0 … 1,8 × 10¹⁹</td><td class="m">±9,2 × 10¹⁸</td></tr>
+    </tbody></table></div>
+    <p><b>−x</b> = bitleri ters çevir, <b>+1</b>. En soldaki bit −2<sup>n−1</sup> değerindedir. Taşan sayı başa sarar.</p>
+  </section>
+  <section class="sc-card">
+    <h3>Kayan nokta (IEEE 754)</h3>
+    <p class="mono" style="font-size:13px">(−1)<sup>s</sup> × 1,m × 2<sup>e − bias</sup></p>
+    <ul>
+      <li><b>float:</b> 1 + 8 + 23 bit, bias 127, ≈ 7 basamak</li>
+      <li><b>double:</b> 1 + 11 + 52 bit, bias 1023, ≈ 16 basamak</li>
+      <li>Üs hep 1 → ∞ / NaN · üs hep 0 → 0 ve alt-normal</li>
+      <li>0,1 + 0,2 ≠ 0,3 → toleransla karşılaştır</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Metin</h3>
+    <ul>
+      <li>ASCII 7 bit: <b>'0'</b> = 48 = 0x30 · <b>'A'</b> = 65 = 0x41 · <b>'a'</b> = 97 = 0x61</li>
+      <li>büyük ↔ küçük harf: <b>bit 5</b> (0x20)</li>
+      <li>NUL 0 · TAB 9 · LF 10 (<code>\n</code>) · CR 13 (<code>\r</code>) · boşluk 32</li>
+      <li>UTF-8: ≤ U+007F 1 byte · ≤ U+07FF 2 · ≤ U+FFFF 3 · gerisi 4</li>
+      <li>Devam byte’ları <b>10xxxxxx</b></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Renk ve medya</h3>
+    <ul>
+      <li><b>#RRGGBB</b>: 3 byte; <b>#RRGGBBAA</b>: alfa ile 4</li>
+      <li>Resim = genişlik × yükseklik × byte/piksel</li>
+      <li>Ses = örnek/s × bit/örnek × kanal · CD: 44,1 kHz, 16 bit, 2 kanal</li>
+      <li>Nyquist: örnekleme hızı &gt; 2 × en yüksek frekans</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Bellek</h3>
+    <ul>
+      <li>Her byte’ın bir adresi var; adresler hex yazılır.</li>
+      <li><b>Little endian</b>: küçük byte küçük adreste (x86, ARM). <b>Big endian</b>: ağ, PNG.</li>
+      <li>dizi[i] = başlangıç + i × boyut · pointer = adres tutan değişken</li>
+      <li>Dosya türü ilk byte’larda: PNG <code>89 50 4E 47</code>, PDF <code>%PDF</code>, ZIP <code>PK</code></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Kod</h3>
+    <ul>
+      <li><code>0b</code> ikili · <code>0o</code> sekizli · <code>0x</code> hex · <code>1_000</code></li>
+      <li><code>&amp;</code> seç · <code>|</code> aç · <code>^</code> çevir · <code>&amp; ~</code> kapat · <code>&lt;&lt;</code> ×2 · <code>&gt;&gt;</code> ÷2</li>
+      <li>Python int sınırsız; JS number = double (güvenli 2<sup>53</sup>), bit işlemleri 32 bit</li>
+      <li>Listeler/nesneler referansla paylaşılır; kopyayı açıkça yap.</li>
+    </ul>
+  </section>
+</div>
+
+</article>
 </main>
 </body>
 </html>

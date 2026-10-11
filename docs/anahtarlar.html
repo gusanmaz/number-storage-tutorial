@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bir anahtar, iki dünya · Sıfırlar ve Birler</title>
+<meta name="description" content="Bit nedir, neden bilgisayarlar iki durum kullanır, bir bit ne kadar bilgi taşır ve aynı bit deseni neden farklı şeyler anlatır? Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/switches.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/switches.js" defer></script>
+</head>
+<body data-chapter="switches">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 1</div>
+  <h1>Bir anahtar, iki dünya</h1>
+  <p class="lede">Bilgisayarın içinde harf yok, renk yok, aslında sayı bile yok. Sadece açılıp kapanan milyarlarca küçük anahtar var. Her şey buradan başlıyor.</p>
+  <div class="meta"><span>Okuma: ~20 dk</span><span>Gerekenler: merak</span></div>
+</header>
+
+<article class="prose">
+
+<p class="dropcap">Bu cümleyi okurken cihazının içinde saniyede milyarlarca kez açılıp kapanan anahtarlar var. Ekrandaki harflerin şekli, arka planın rengi, sayfanın nereye kadar kaydırıldığı… hepsi o anahtarların o anki durumunda saklı. Bu anlatının tek bir iddiası var ve sonuna kadar onu açacağız:</p>
+
+<p class="key">Bilgisayardaki her şey <strong>anahtar desenlerinden</strong> ve bu desenleri nasıl okuyacağımıza dair <strong>anlaşmalardan</strong> ibarettir.</p>
+
+<p>İşe en küçük parçadan, tek bir anahtardan başlayalım. Aşağıdaki ampule dokun.</p>
+
+<figure class="fig narrow" id="f-switch">
+  <div class="fig-in">
+    <div class="center" id="sw-lamp"></div>
+    <div class="tell" id="sw-tell">Kapalı. Bu duruma <b>0</b> diyelim.</div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Bir bit.</b> İki durumu var: kapalı ve açık. Bunlara 0 ve 1 deriz ama “0” ve “1” sadece etiket; “hayır/evet” ya da “karanlık/aydınlık” da diyebilirdik.</figcaption>
+</figure>
+
+<p>Bu tek anahtarın adı <strong>bit</strong>: İngilizce <em>binary digit</em>, yani “ikili rakam”. Bir bit, var olabilecek en küçük bilgi parçasıdır. Daha küçüğü olamaz, çünkü tek bir durumu olan bir şey hiçbir şey söylemez: hep aynı kalan bir lamba sana bir şey anlatamaz.</p>
+
+<h2><span class="sec">§ 1.1</span>Bir bit ne anlatabilir?</h2>
+
+<p>İki seçeneği olan her şeyi: evet ya da hayır, doğru ya da yanlış, yazı ya da tura, kapı açık ya da kapalı. Bilgisayar programlarında buna <em>boolean</em> denir ve <code>true</code>/<code>false</code> diye yazılır. Ama tek bir bitin cevaplayabileceği soru sayısı da tektir.</p>
+
+<aside class="aside hist side"><span class="t">Tarihten</span>1775’te Amerikalı devrimciler, İngiliz askerlerinin Boston’dan hangi yolla geleceğini kilise kulesine asılan fenerlerle haber verdi: “Karadan gelirlerse bir, denizden gelirlerse iki fener.” Bu, kelimenin tam anlamıyla bir <b>kodlamadır</b>: önceden yapılmış bir anlaşma.</aside>
+
+<p>Peki daha fazlasını anlatmak istersek? Örneğin haftanın hangi günü olduğunu, bir harfi ya da bir rengi? Cevap basit: <strong>daha fazla anahtar</strong> kullanırız.</p>
+
+<h2><span class="sec">§ 1.2</span>Anahtarları çoğaltınca</h2>
+
+<p>Elimizde <span id="k-n"></span> anahtar olsun. Bu anahtarlarla tam olarak <span class="out" data-o="pat">8</span> farklı desen yapabiliriz. Sayıyı sağa sola sürükleyerek (ya da oklara basarak) anahtar ekleyip çıkar ve desenlerin nasıl çoğaldığına bak.</p>
+
+<figure class="fig" id="f-grow">
+  <div class="fig-in">
+    <div class="grow" id="grow"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Her yeni anahtar desen sayısını ikiye katlar.</b> Neden? Yeni anahtar kapalıyken eski desenlerin hepsi bir kez daha yapılabilir (sol grup), açıkken bir kez daha (sağ grup). Yani eski listenin iki kopyası.</figcaption>
+</figure>
+
+<p>Bu ikiye katlanma, bilgisayar biliminin belki de en çok kullanılan gerçeği. 1 anahtar 2 desen, 2 anahtar 4 desen, 3 anahtar 8 desen… Her seferinde ikiyle çarpıyoruz:</p>
+
+<p class="formula">n anahtar → 2 × 2 × … × 2 = 2<sup>n</sup> desen</p>
+
+<p>İkiye katlanma ilk başta yavaş görünür ama inanılmaz hızlanır. <span class="out" data-o="nn">3</span> anahtar: <span class="out" data-o="pat2">8</span> desen. <span data-o="fact" class="muted"></span></p>
+
+<h2><span class="sec">§ 1.3</span>Bir bit = bir evet/hayır sorusu</h2>
+
+<p>Bit’i anlamanın en güzel yolu bir oyun. Aklından <strong>0 ile 127 arasında</strong> bir sayı tut. Ben sana sadece evet/hayır soruları soracağım ve en fazla yedi soruda bulacağım.</p>
+
+<figure class="fig" id="f-game">
+  <div class="fig-in">
+    <div class="game" id="game"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Her cevap bir bit.</b> Sorular aralığı her seferinde ikiye böldüğü için her cevap tam olarak bir bit bilgi taşır. Oyun bitince cevaplarının (evet = 1, hayır = 0) sayının ta kendisi olduğuna dikkat et.</figcaption>
+</figure>
+
+<p>Neden yedi soru yetiyor? Çünkü her “evet” ya da “hayır”, kalan olasılıkları tam ikiye böler. 128 sayıyla başlarsın; bir sorudan sonra 64 kalır, sonra 32, 16, 8, 4, 2, 1. Yedi bölmede tek bir sayıya inersin ve 2<sup>7</sup> = 128.</p>
+
+<p>Bu oyun bize bitin gerçek anlamını veriyor: <strong>bir bit, iyi sorulmuş bir evet/hayır sorusunun cevabıdır.</strong> Bir şeyi kodlamak için kaç bit gerektiğini merak ettiğinde kendine şunu sor: “Bunu bulmak için kaç evet/hayır sorusu sormam gerekir?”</p>
+
+<aside class="aside hist"><span class="t">Tarihten</span>Bilgiyi bu şekilde ölçmeyi 1948’de Claude Shannon önerdi; “A Mathematical Theory of Communication” makalesi modern iletişimin temelidir. “Bit” kelimesini de bu makale yaygınlaştırdı; Shannon kelimeyi meslektaşı John Tukey’e borçlu olduğunu yazar.</aside>
+
+<div class="think">
+  <p class="q">Bir kart destesindeki 52 karttan birini bulmak için kaç evet/hayır sorusu gerekir?</p>
+  <details><summary>Düşündükten sonra aç</summary>
+    <p>5 soru 2<sup>5</sup> = 32 olasılığı ayırt eder, yetmez. 6 soru 64 olasılığı ayırt eder, yeter. Yani <b>6 bit</b>. Genel kural: N şeyi ayırt etmek için 2<sup>n</sup> ≥ N olan en küçük n kadar bit gerekir.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 1.4</span>Neden iki? Neden on değil?</h2>
+
+<p>Biz on parmakla sayıyoruz. Neden on farklı voltaj seviyesiyle çalışan, doğrudan onluk sistemde düşünen bilgisayarlar yapmıyoruz? Cevap fizikte: <strong>gürültü</strong>. Elektrik sinyalleri asla kusursuz değildir; sıcaklık, kablolar arası parazit, kozmik ışınlar bile voltajı biraz oynatır. Aşağıda aynı gürültü altında iki farklı sistemin mesaj göndermesini izle.</p>
+
+<figure class="fig" id="f-noise">
+  <div class="fig-in">
+    <div id="noise"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>İki seviye, gürültüye karşı çok daha dayanıklıdır.</b> Her sembol bir voltaj seviyesiyle gönderiliyor, alıcı en yakın seviyeye yuvarlıyor. On seviyede seviyeler birbirine o kadar yakın ki küçük bir sarsıntı bile sembolü komşusuna dönüştürür.</figcaption>
+</figure>
+
+<p>İki seviyede alıcının tek sorusu vardır: “Voltaj yüksek mi, alçak mı?” Arada geniş bir güvenlik payı kalır. Bu dayanıklılık sayesinde milyarlarca transistör, her saniye milyarlarca kez hatasız çalışabilir. Ayrıca iki durumlu bir anahtarı üretmek, on durumlu bir anahtardan çok daha basit, küçük ve ucuzdur.</p>
+
+<h2><span class="sec">§ 1.5</span>Anahtarlar düşünebilir mi?</h2>
+
+<p>İki durum seçmenin bir hediyesi daha var. 1854’te matematikçi George Boole, mantığı yalnızca “doğru” ve “yanlış” değerleriyle yapılan bir cebire çevirdi. 1937’de henüz yüksek lisans öğrencisi olan Claude Shannon, anahtarlardan yapılmış devrelerin tam olarak bu cebiri hesaplayabildiğini gösterdi. Aşağıdaki iki anahtara dokun:</p>
+
+<figure class="fig narrow" id="f-gate">
+  <div class="fig-in">
+    <div class="center" id="gate-mode"></div>
+    <div id="gate"></div>
+    <div class="tell" id="gate-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Anahtarlarla mantık.</b> Seri bağlı iki anahtar “VE” (ikisi de açıksa lamba yanar), paralel bağlı iki anahtar “VEYA” (biri yeterli) demektir. Bugünkü işlemcilerdeki milyarlarca transistör, bu tür kapıların akıl almaz sayıda birleşimidir.</figcaption>
+</figure>
+
+<p>Yani anahtarlar sadece bilgiyi <em>saklamakla</em> kalmaz, onu <em>işleyebilir</em> de: iki sayıyı toplayan bir devre, aslında doğru bağlanmış VE, VEYA ve ÖZEL VEYA kapılarından oluşur. Bu anlatıda işlemekten çok saklamaya odaklanacağız, ama bunun aynı anahtarlarla yapıldığını unutma.</p>
+
+<h2><span class="sec">§ 1.6</span>Bitler nerede yaşar?</h2>
+
+<p>“Anahtar” bir benzetme. Gerçekte bit, iki durumu güvenilir şekilde ayırt edilebilen herhangi bir fiziksel şeydir:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Nerede</th><th>“0”</th><th>“1”</th></tr></thead>
+  <tbody>
+    <tr><td>İşlemci</td><td>Transistör iletmiyor (≈ 0 V)</td><td>Transistör iletiyor (≈ 1 V)</td></tr>
+    <tr><td>RAM</td><td>Minik kondansatör boş</td><td>Kondansatör dolu (saniyede onlarca kez tazelenir!)</td></tr>
+    <tr><td>SSD, USB bellek</td><td>Hücrede tutsak elektron yok</td><td>Elektronlar hücrede hapsolmuş</td></tr>
+    <tr><td>Sabit disk</td><td>Manyetik alan bir yönde</td><td>Manyetik alan ters yönde</td></tr>
+    <tr><td>Fiber optik kablo</td><td>Işık yok</td><td>Işık darbesi</td></tr>
+  </tbody>
+</table></div>
+
+<h2><span class="sec">§ 1.7</span>Desenin kendisi bir şey söylemez</h2>
+
+<p>Şimdi en önemli fikre geldik. Aşağıda sekiz ampul var. Bu sekiz ampulün yaptığı desen <em>ne anlama geliyor?</em> Cevap şaşırtıcı: tek başına hiçbir şey. Anlamı, deseni okuyan tarafın kullandığı <strong>anlaşma</strong> belirler. Ampullerle oyna ve farklı “mercekler” arasında geçiş yap.</p>
+
+<figure class="fig" id="f-lens">
+  <div class="fig-in">
+    <div id="lens-lamps"></div>
+    <div class="chips" id="lens-chips" style="margin-top:1rem"></div>
+    <div class="lens-out" id="lens-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Aynı desen, farklı anlamlar.</b> Bilgisayar desenin “sayı” mı “harf” mi olduğunu bilmez. Hangisi olduğunu deseni okuyan program bilir. Bu anlatının geri kalanı, bu merceklerin her birini tek tek öğrenmekten ibaret.</figcaption>
+</figure>
+
+<p>İşte bu yüzden bu anlatı bir “sayı sistemleri” dersinden fazlası. Her bölüm bir anlaşmayı ele alıyor: desenleri <a href="sayma.html">sayı olarak okumak</a>, <a href="negatif.html">negatif sayılar</a>, <a href="kesir.html">kesirler</a>, <a href="metin.html">harfler</a>, <a href="medya.html">renkler ve sesler</a>. Sonunda hepsinin <a href="bellek.html">tek bir uzun byte şeridinde</a> nasıl yan yana durduğunu göreceğiz.</p>
+
+<h2><span class="sec">§ 1.8</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p>Bir bit kaç farklı değer alabilir?</p>
+    <ul><li>1</li><li>8</li><li>2</li><li>10</li></ul>
+    <div class="quiz-why">İki: 0 ve 1. Tek değerli bir şey bilgi taşımaz.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>Bir anahtar eklersen yapabileceğin desen sayısı ne olur?</p>
+    <ul><li>1 artar</li><li>İki katına çıkar</li><li>Karesi alınır</li><li>Değişmez</li></ul>
+    <div class="quiz-why">Eski desenlerin hepsi yeni anahtar kapalıyken bir kez, açıkken bir kez daha yapılabilir: 2 kat.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Bilgisayarların ikili sistem kullanmasının asıl sebebi nedir?</p>
+    <ul><li>İkili sistemde hesap yapmak insanlar için kolaydır</li><li>Daha az enerji harcayan bir gelenek</li><li>Onlu sistem icat edilmeden önce yapıldıkları için</li><li>İki durumu ayırt etmek gürültüye karşı çok daha güvenilirdir</li></ul>
+    <div class="quiz-why">İki seviye arasında geniş bir güvenlik payı kalır; küçük gürültüler okumayı bozmaz. Ayrıca iki durumlu anahtarlar basit ve küçüktür.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p><span class="b">01000001</span> deseni neyi temsil eder?</p>
+    <ul><li>Hangi anlaşmayla okunduğuna bağlıdır</li><li>Her zaman 65 sayısını</li><li>Her zaman “A” harfini</li><li>Hiçbir şeyi</li></ul>
+    <div class="quiz-why">Sayı olarak 65, ASCII harf olarak “A”, gri ton olarak koyu bir gri… Anlamı okuyan taraf belirler.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Byte’lar ve bilginin ölçüsü · Sıfırlar ve Birler</title>
+<meta name="description" content="Byte neden 8 bit? Bir şeyi kodlamak için kaç bit gerekir? Sabit genişlik ve taşma, KB ile KiB farkı, bit ve byte, verinin ölçeği. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/bytes.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/bytes.js" defer></script>
+</head>
+<body data-chapter="bytes">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 3</div>
+  <h1>Byte’lar ve bilginin ölçüsü</h1>
+  <p class="lede">Tek tek bitlerle çalışmak, bir kitabı harf harf okumak gibidir. Bilgisayarlar bitleri sekizerli paketlerle taşır. Bu bölümde o paketi, sınırlarını ve verinin büyüklüğünü nasıl ölçtüğümüzü göreceğiz.</p>
+  <div class="meta"><span>Okuma: ~20 dk</span><span>Önce: Bölüm 2</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 3.1</span>Neden sekiz?</h2>
+
+<p class="dropcap">Bir grup bite <strong>byte</strong> denir ve bugün neredeyse her yerde bir byte <strong>8 bittir</strong>. Ama bu bir doğa kanunu değil. 1950’lerin bilgisayarları 6 bitlik karakterler ve 36 bitlik “kelimeler” kullanıyordu. 1956’da IBM mühendisi Werner Buchholz bit gruplarına <em>byte</em> adını verdi; “bit” ile karışmasın diye “bite” yerine y ile yazdı. 1964’te IBM System/360 serisi 8 bitlik byte’ı kullandı ve bu, standart hâline geldi.</p>
+
+<p>Sekiz neden iyi bir seçim? Çünkü üç işi birden görür: bir harfi (ve küçük-büyük harfleri, rakamları, noktalama işaretlerini) saklamaya yeter, ikinin kuvvetidir (donanım için kullanışlı) ve tam olarak <strong>iki onaltılık rakama</strong> bölünür. Aşağıdaki byte’la oyna.</p>
+
+<figure class="fig" id="f-byte">
+  <div class="fig-in">
+    <div id="byte-lamps"></div>
+    <div class="byte-anat" id="byte-anat"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Bir byte’ın anatomisi.</b> Sekiz bit, iki tane dört bitlik yarıma (<em>nibble</em>) ayrılır. Her yarım tek bir onaltılık rakam olur; bu yüzden bir byte her zaman iki hex rakamıyla yazılır: 00’dan FF’ye.</figcaption>
+</figure>
+
+<p>Bir byte 2<sup>8</sup> = <strong>256</strong> farklı desen yapabilir. Bu desenler 0’dan 255’e kadar sayılar olabilir, ama Bölüm 1’deki merceği hatırla: aynı 256 desen bir harf, bir gri tonu, bir rengin kırmızı bileşeni ya da (Bölüm 4’te göreceğimiz gibi) −128 ile 127 arası bir sayı da olabilir.</p>
+
+<aside class="aside side"><span class="t">Terimler</span><b>Nibble</b>: 4 bit (yarım byte). <b>Word</b> (kelime): işlemcinin bir seferde işlediği boyut; bugün çoğunlukla 64 bit. <b>Byte</b>: bellekte adresi olan en küçük birim; tek bir biti doğrudan adresleyemezsin.</aside>
+
+<h2><span class="sec">§ 3.2</span>Kaç bit gerekir?</h2>
+
+<p>Bölüm 1’de bir biti “bir evet/hayır sorusu” olarak tanımlamıştık. Aynı fikir en pratik soruyu cevaplar: <em>N farklı şeyi ayırt etmek için kaç bit gerekir?</em> Her bit olasılıkları ikiye böler; tek bir olasılık kalana kadar kaç kez ikiye bölmen gerekiyorsa o kadar bit lazımdır.</p>
+
+<p><span id="k-items"></span> farklı şeyi kodlamak istiyoruz. Sırayla ikiye bölelim:</p>
+
+<figure class="fig narrow" id="f-halve">
+  <div class="fig-in">
+    <div class="halve" id="halve"></div>
+    <div class="tell" id="halve-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Her bit olasılıkları yarıya indirir.</b> Tek olasılık kalana kadar geçen adım sayısı, gereken bit sayısıdır. Matematikte buna ⌈log₂ N⌉ denir, ama aslında sadece “kaç kez ikiye bölebilirim?” sorusudur.</figcaption>
+</figure>
+
+<p>Bit sayısı her zaman tamsayı olmak zorunda olduğu için çoğu zaman bazı desenler boşta kalır. 1000 öğrenciye numara vermek için 10 bit gerekir, ama 10 bit 1024 desen verir: 24 desen hiç kullanılmaz. Bu israf kaçınılmazdır; 9,97 bit diye bir şey yoktur.</p>
+
+<h2><span class="sec">§ 3.3</span>Sabit genişlik: kutu dolunca ne olur?</h2>
+
+<p>Kâğıt üzerinde bir sayının basamak sayısı sınırsızdır; gerektiği kadar sola rakam eklersin. Bilgisayarda ise her sayının sabit büyüklükte bir “kutusu” vardır: 8 bit, 16 bit, 32 bit, 64 bit. Kutu dolunca ne olduğunu görmek için aşağıdaki 8 bitlik sayacı 255’in ötesine götür.</p>
+
+<figure class="fig" id="f-odo">
+  <div class="fig-in">
+    <div id="odo-lamps"></div>
+    <div class="readout" id="odo-out"></div>
+    <div class="ctl" id="odo-ctl"></div>
+    <div class="tell" id="odo-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Sekiz bitlik bir kutu.</b> 255 = 11111111’e 1 ekleyince bütün bitler zincirleme taşar; dokuzuncu bit için yer olmadığından o taşma kaybolur ve sayaç 0’a döner. Buna <em>taşma</em> (overflow) denir ve Bölüm 4’te gerçek hayattaki sonuçlarını göreceğiz.</figcaption>
+</figure>
+
+<div class="tbl"><table>
+  <thead><tr><th>Kutu</th><th>Farklı değer</th><th>İşaretsiz aralık</th><th>Nerede?</th></tr></thead>
+  <tbody>
+    <tr><td class="m">8 bit</td><td class="m">256</td><td class="m">0 – 255</td><td>Bir renk kanalı, bir ASCII karakteri</td></tr>
+    <tr><td class="m">16 bit</td><td class="m">65 536</td><td class="m">0 – 65 535</td><td>Ağ port numaraları, CD ses örnekleri</td></tr>
+    <tr><td class="m">32 bit</td><td class="m">≈ 4,29 milyar</td><td class="m">0 – 4 294 967 295</td><td>IPv4 adresleri, birçok tamsayı</td></tr>
+    <tr><td class="m">64 bit</td><td class="m">≈ 1,8 × 10¹⁹</td><td class="m">0 – 18 446 744 073 709 551 615</td><td>Bellek adresleri, zaman damgaları</td></tr>
+  </tbody>
+</table></div>
+
+<div class="aside"><span class="t">Gerçek hayatta</span>IPv4 adresleri 32 bittir: en fazla 4,29 milyar adres, yani Dünya’daki insan sayısından az. Adresler 2011–2019 arasında bölgesel kayıt kuruluşlarında tükendi; bu yüzden 128 bitlik IPv6’ya geçiliyor. 2<sup>128</sup>, Dünya’daki her kum tanesine milyarlarca adres verecek kadar büyük.</div>
+
+<h2><span class="sec">§ 3.4</span>Kilo 1000 mü, 1024 mü?</h2>
+
+<p>Bilgisayarlar ikinin kuvvetleriyle çalıştığı için 2<sup>10</sup> = 1024’e uzun süre “kilo” dendi; 1000’e çok yakındı. Ama SI sisteminde kilo her zaman 1000’dir (kilometre, kilogram). Küçük farkın büyüdükçe nasıl açıldığına bak:</p>
+
+<figure class="fig narrow" id="f-units">
+  <div class="fig-in"><div id="units"></div></div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Ondalık ve ikili ön ekler ayrışıyor.</b> 1998’de IEC karışıklığı gidermek için ikili ön ekleri tanımladı: kibi (KiB), mebi (MiB), gibi (GiB), tebi (TiB). kB/MB/GB = 1000’in kuvvetleri, KiB/MiB/GiB = 1024’ün kuvvetleri.</figcaption>
+</figure>
+
+<p>Disk üreticileri ondalık birim kullanır; Windows ise ikili birimlerle hesaplayıp sonucu “GB” diye gösterir. Sonuç: kutusunda <span id="k-disk"></span> GB yazan bir disk, Windows’ta <span class="out" data-o="gib"></span> GB görünür. Hiçbir byte kaybolmadı; sadece iki farklı “kilo” kullanılıyor. (macOS 2009’dan beri ondalık birim kullanır ve diski kutusundaki kapasiteyle gösterir.)</p>
+
+<h2><span class="sec">§ 3.5</span>Bit mi, byte mı?</h2>
+
+<p>Bir tuzak daha: internet hızları <strong>bit</strong> (küçük <b>b</b>: Mbit/s, Mbps), dosya boyutları <strong>byte</strong> (büyük <b>B</b>: MB) ile ölçülür. Arada 8 kat fark var. <span id="k-speed"></span> Mbit/s’lik bir bağlantıyla <span id="k-file"></span> GB’lık bir film en iyi ihtimalle <span class="out" data-o="dl"></span> içinde iner (saniyede <span class="out" data-o="mbs"></span> MB).</p>
+
+<h2><span class="sec">§ 3.6</span>Ölçeğin hissi</h2>
+
+<p>Rakamlar büyüdükçe sezgimiz kaybolur. Aşağıdaki merdivende her basamak bir öncekinin yaklaşık bin katı.</p>
+
+<figure class="fig" id="f-ladder">
+  <div class="fig-in"><div class="ladder" id="ladder"></div></div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Veri merdiveni.</b> Örnekler yaklaşık değerlerdir ve sıkıştırma, kalite gibi ayrıntılara göre değişir; amaç büyüklük sıralarını hissetmek.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 3.7</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="0">
+    <p>Üç onaltılık rakamla (000–FFF) kaç farklı değer yazılabilir?</p>
+    <ul><li>4 096</li><li>256</li><li>48</li><li>65 536</li></ul>
+    <div class="quiz-why">3 hex rakamı = 12 bit → 2<sup>12</sup> = 4 096.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>40 kişilik bir sınıfta herkese ayrı bir ikili numara vermek için en az kaç bit gerekir?</p>
+    <ul><li>5</li><li>40</li><li>6</li><li>8</li></ul>
+    <div class="quiz-why">2<sup>5</sup> = 32 yetmez, 2<sup>6</sup> = 64 yeter.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>8 bitlik bir sayaçta 255’e 1 eklenirse ne olur?</p>
+    <ul><li>256 olur</li><li>255’te kalır</li><li>Program hata verir</li><li>0 olur</li></ul>
+    <div class="quiz-why">Dokuzuncu bit için yer yoktur; taşma kaybolur ve sayaç başa döner.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>1 GiB kaç byte’tır?</p>
+    <ul><li>1 000 000 000</li><li>1 073 741 824</li><li>1 024 000 000</li><li>8 589 934 592</li></ul>
+    <div class="quiz-why">2<sup>30</sup> = 1024 × 1024 × 1024.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>50 Mbit/s’lik bir bağlantıyla 100 MB’lık dosya en iyi ihtimalle kaç saniyede iner?</p>
+    <ul><li>16 sn</li><li>2 sn</li><li>50 sn</li><li>0,5 sn</li></ul>
+    <div class="quiz-why">100 MB = 800 Mbit; 800 ÷ 50 = 16.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harflere numara vermek · Sıfırlar ve Birler</title>
+<meta name="description" content="ASCII tablosu, kontrol karakterleri ve kaçış dizileri, bellekte metin ve NUL sonlandırıcı, kod sayfaları, Unicode, UTF-8 ve bozulan Türkçe karakterler. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/text.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/text.js" defer></script>
+</head>
+<body data-chapter="text">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 6</div>
+  <h1>Harflere numara vermek</h1>
+  <p class="lede">Bilgisayar harf tanımaz; sadece sayı saklar. Bu sayfadaki her harf, üzerinde anlaşılmış bir numaradır. O anlaşmanın hikâyesi, “Ä°stanbul” gibi bozuk yazıların nereden geldiğini de açıklıyor.</p>
+  <div class="meta"><span>Okuma: ~40 dk</span><span>Önce: Bölüm 1 ve 3</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 6.1</span>Harf diye bir şey yok</h2>
+
+<p class="dropcap">Bölüm 1’de aynı bit deseninin bir sayı, bir renk ya da bir harf olabileceğini gördük. Metni saklamak için tek ihtiyacımız bir <strong>tablo</strong>: her karaktere bir numara veren, herkesin aynı şekilde kullandığı bir liste. Gönderen “A” için 65 yazar, alan 65’i görünce “A” çizer. Bilgisayar ikisinin arasında yalnızca 65’i taşır.</p>
+
+<p>Böyle bir tabloyu sen kursaydın kaç bit ayırırdın? Bu, hangi karakterleri istediğine bağlı:</p>
+
+<figure class="fig narrow" id="f-sets">
+  <div class="fig-in">
+    <div id="sets"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Karakter kümesi büyüdükçe bit sayısı artar.</b> Telgraf makineleri 5 bitle yetindi; ama sadece büyük harf vardı. Dünyanın bütün yazılarını kapsamak için 21 bit gerekiyor.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 6.2</span>ASCII: 7 bitlik anlaşma</h2>
+
+<p>1963’te Amerikan standartlar kurumu <strong>ASCII</strong>’yi (American Standard Code for Information Interchange) yayımladı. 7 bit, yani 128 numara: 33 kontrol kodu, boşluk, rakamlar, büyük ve küçük İngilizce harfler, noktalama. Bugün kullandığın her karakter kodlaması ASCII’yi hâlâ ilk 128 numarası olarak içerir.</p>
+
+<p>Tablo rastgele dizilmemiş. Sütunlar, numaranın üst 3 bitine göre ayrılıyor; bu yüzden aynı türden karakterler aynı sütunlarda toplanıyor. Bir hücreye dokun ve desenlere bak.</p>
+
+<figure class="fig" id="f-ascii">
+  <div class="fig-in">
+    <div class="chips" id="ascii-hl"></div>
+    <div id="ascii"></div>
+    <div class="readout" id="ascii-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>ASCII tablosunun tamamı.</b> Satırlar alt 4 biti (0–F), sütunlar üst 3 biti (0–7) gösterir. Yani bir karakterin hex kodu doğrudan “sütun satır” olarak okunur: <span class="h">41</span> = 4. sütun, 1. satır = <code>A</code>. Gri hücreler ekrana basılmayan kontrol kodlarıdır.</figcaption>
+</figure>
+
+<p>Tablodaki üç desen, ASCII’yi tasarlayanların ne kadar düşünceli olduğunu gösteriyor:</p>
+<ul>
+  <li><strong>Rakamlar</strong> <span class="h">0x30</span>’dan başlar. Alt 4 bit rakamın kendisidir: <code>'7'</code> = <span class="h">0x37</span>. Bir rakam karakterini sayıya çevirmek için alt yarım byte’ı alman (ya da 48 çıkarman) yeter.</li>
+  <li><strong>Harfler</strong> <span class="h">0x41</span> ve <span class="h">0x61</span>’den başlar; alt 5 bit, harfin alfabedeki sırasıdır: <code>A</code> = 1, <code>B</code> = 2…</li>
+  <li><strong>Büyük ve küçük harf</strong> tam 32 farklıdır; yani <em>tek bir bit</em>. Aşağıda dene.</li>
+</ul>
+
+<figure class="fig narrow" id="f-case">
+  <div class="fig-in">
+    <div id="case-lamps"></div>
+    <div class="readout" id="case-out"></div>
+    <div class="ctl center" id="case-ctl" style="margin-top:.8rem"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Büyük/küçük harf biti.</b> 32’lik ampul (bit 5) yanınca harf küçülür, sönünce büyür. Erken dönem bazı terminallerde Shift tuşu harflerde tam olarak bu biti değiştirirdi.</figcaption>
+</figure>
+
+<div class="think">
+  <p class="q"><code>'a' - 'A'</code> ve <code>'7' - '0'</code> kaç eder? Bu iki çıkarma neden programcıların en sevdiği hilelerdendir?</p>
+  <details><summary>Düşündükten sonra aç</summary>
+    <p>97 − 65 = 32 ve 55 − 48 = 7. İlki büyük/küçük harf dönüşümünü, ikincisi rakam karakterini sayıya çevirmeyi tek bir işlemle yapar. C’de <code>c - '0'</code> yazmak, “bu rakam karakterinin değeri” demektir.</p>
+  </details>
+</div>
+
+<h2><span class="sec">§ 6.3</span>Görünmeyen karakterler</h2>
+
+<p>ASCII’nin ilk 32 kodu ve 127, harf değil <strong>komuttur</strong>. ASCII, metni yazdıran makinelerin, yani teleprinterlerin çağında tasarlandı. Bu kodlar makineye “zili çal”, “kâğıdı bir satır kaydır”, “kafayı satır başına götür” gibi emirler veriyordu. Aşağıdaki daktilo bu komutların bir kısmını anlıyor.</p>
+
+<figure class="fig" id="f-tty">
+  <div class="fig-in">
+    <div class="tty" id="tty" aria-live="polite"></div>
+    <div class="ctl center" id="tty-ctl" style="margin-top:.9rem"></div>
+    <div class="readout" id="tty-bytes"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Teleprinter.</b> Harflere bas, sonra CR ve LF’yi ayrı ayrı dene. CR (satır başı) kafayı sola götürür ama kâğıdı kaydırmaz, sonraki harfler eskilerin üstüne basılır. LF (satır besleme) kâğıdı kaydırır ama kafayı sola götürmez. Yeni bir satıra geçmek için ikisi birden gerekir.</figcaption>
+</figure>
+
+<p>Bu ikilik bugün hâlâ yaşıyor: Windows satır sonlarını <strong>CR LF</strong> (<span class="h">0D 0A</span>) ile, Linux ve macOS yalnızca <strong>LF</strong> (<span class="h">0A</span>) ile saklar. Bir dosyayı başka sistemde açtığında satırların birleşmesi ya da sonlarda garip <code>^M</code> işaretleri görmen bundandır.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Kod</th><th>Ad</th><th>Kaçış</th><th>Ne işe yarar</th></tr></thead>
+  <tbody>
+    <tr><td class="m">0 · 00</td><td>NUL</td><td class="m">\0</td><td>Hiçlik. C’de metnin sonunu işaretler.</td></tr>
+    <tr><td class="m">7 · 07</td><td>BEL</td><td class="m">\a</td><td>Zili çal. Terminalde hâlâ bip sesi çıkarabilir.</td></tr>
+    <tr><td class="m">8 · 08</td><td>BS</td><td class="m">\b</td><td>Bir geri git.</td></tr>
+    <tr><td class="m">9 · 09</td><td>HT</td><td class="m">\t</td><td>Sekme: bir sonraki sekme durağına atla.</td></tr>
+    <tr><td class="m">10 · 0A</td><td>LF</td><td class="m">\n</td><td>Satır besleme; Unix’te “yeni satır”.</td></tr>
+    <tr><td class="m">13 · 0D</td><td>CR</td><td class="m">\r</td><td>Satır başı.</td></tr>
+    <tr><td class="m">27 · 1B</td><td>ESC</td><td class="m">\x1b</td><td>Kaçış: ardından gelen baytlar özel komuttur (terminal renkleri gibi).</td></tr>
+    <tr><td class="m">127 · 7F</td><td>DEL</td><td class="m">\x7f</td><td>Sil. Delikli şeritte 7 deliğin hepsini açmak, hatalı karakteri “silmek” demekti.</td></tr>
+  </tbody>
+</table></div>
+
+<p>Programlama dillerinde bu görünmez karakterleri yazmak için <strong>kaçış dizileri</strong> kullanırız: ters bölü işaretinden sonra gelen harf, “bunu düz harf olarak değil, özel kod olarak oku” demektir. <code>\n</code> iki karakter gibi görünür, ama bellekte tek bir byte’tır: <span class="h">0A</span>.</p>
+
+<div class="code-tabs">
+<pre data-lang="py">
+print(ord("A"), chr(97))        # 65 a
+print("ad\tsoyad\nAli\tVeli")  # sekme ve yeni satır
+print(len("\n"))                # 1  (tek karakter!)
+print(repr("a\tb"))             # 'a\tb'  kaçışları görünür kılar
+print("\x41B")             # AB  (hex ile karakter yazmak)
+print("\a")                     # bazı terminallerde bip!
+print("\x1b[31mkırmızı\x1b[0m")  # ESC ile terminal rengi
+</pre>
+<pre data-lang="js">
+console.log("A".charCodeAt(0), String.fromCharCode(97)); // 65 "a"
+console.log("ad\tsoyad\nAli\tVeli");
+console.log("\n".length);           // 1
+console.log(JSON.stringify("a\tb")); // "a\tb"
+console.log("\x41B");          // "AB"
+console.log("\x1b[31mkırmızı\x1b[0m"); // Node terminalinde kırmızı
+</pre>
+</div>
+
+<h2><span class="sec">§ 6.4</span>Bellekte bir metin</h2>
+
+<p>Bir metin, bellekte yan yana duran byte’lardan ibarettir. Ama bir sorun var: bellek uzun bir byte şerididir ve metnin <em>nerede bittiğini</em> bilmemiz gerekir. İki klasik çözüm var. C dili metnin sonuna <strong>NUL</strong> (<span class="h">00</span>) koyar; Pascal ve modern diller ise başa ya da yanına <strong>uzunluk</strong> yazar.</p>
+
+<figure class="fig" id="f-mem">
+  <div class="fig-in">
+    <div class="center"><input id="mem-in" class="inp" value="Merhaba" maxlength="14" spellcheck="false" style="width:14rem;text-align:center" aria-label="metin"></div>
+    <div class="center" id="mem-mode" style="margin-top:.7rem"></div>
+    <div id="mem" class="memrow"></div>
+    <div class="ctl center" id="mem-ctl"></div>
+    <div class="tell" id="mem-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Metnin sonu nerede?</b> C’de <code>printf</code> ilk <span class="h">00</span>’a kadar okur. NUL’u silersen durmaz: metnin yanındaki belleği de, orada ne varsa, okumaya devam eder. Gerçek programlarda bu, şifre gibi gizli verilerin sızmasına yol açan bir güvenlik açığı türüdür.</figcaption>
+</figure>
+
+<p>Sonlandırıcı yaklaşımının bir bedeli daha var: metnin uzunluğunu öğrenmek için C’deki <code>strlen</code> NUL’u bulana kadar bütün byte’ları tek tek saymak zorundadır. Uzunluğu ayrıca saklayan Python ve JavaScript ise bunu anında söyler; üstelik metnin içinde NUL bulunabilir.</p>
+
+<h2><span class="sec">§ 6.5</span>128 yetmeyince: kod sayfaları</h2>
+
+<p>ASCII’de ç, ğ, ı, ö, ş, ü yok. Byte 8 bit olduğuna göre, kullanılmayan 8. bit ile 128 numara daha kazanılabilirdi. Herkes de öyle yaptı, ama <em>herkes farklı şekilde</em>. Batı Avrupa için ISO-8859-1 (Latin-1), Türkçe için ISO-8859-9 (Latin-5) ve Windows-1254, Rusça için KOI8-R… Bunlara <strong>kod sayfası</strong> denir. Aynı byte, hangi kod sayfasıyla okunduğuna göre farklı harftir.</p>
+
+<figure class="fig narrow" id="f-cp">
+  <div class="fig-in">
+    <div class="center"><input id="cp-in" class="inp" value="Işık İstanbul'da" spellcheck="false" style="width:16rem;text-align:center" aria-label="metin"></div>
+    <div id="cp-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Aynı byte’lar, iki tablo.</b> Metin Türkçe tabloyla (Latin-5) byte’a çevriliyor, sonra Batı Avrupa tablosuyla (Latin-1) geri okunuyor. İki tablo yalnızca altı numarada ayrışıyor: Ğ ğ İ ı Ş ş. Sorun da tam orada çıkıyor.</figcaption>
+</figure>
+
+<p>1990’larda Türkçe e-postaların “Ýyi günler, þimdi…” diye gelmesinin sebebi buydu: gönderenin bilgisayarı Latin-5 ile yazıyor, alanınki Latin-1 ile okuyordu. Byte’lar kusursuz şekilde iletiliyordu; bozuk olan, <em>anlaşmaydı</em>.</p>
+
+<h2><span class="sec">§ 6.6</span>Unicode: her karaktere tek numara</h2>
+
+<p>Bu kaosa son vermek için 1991’de <strong>Unicode</strong> ortaya çıktı. Fikir basit: dünyadaki her yazı sisteminin her karakterine, tek ve kalıcı bir numara ver. Bu numaraya <strong>kod noktası</strong> denir ve <span class="h">U+</span> ile hex olarak yazılır: <code>A</code> = U+0041, <code>ş</code> = U+015F, <code>€</code> = U+20AC, <code>😀</code> = U+1F600.</p>
+
+<p>Unicode’da 1 114 112 yer var (U+0000 … U+10FFFF); bugün yaklaşık 150 000’i dolu: Latin, Arap, Çin, Hint yazıları, matematik sembolleri, Mısır hiyeroglifleri ve emojiler. Herhangi bir metni aşağıya yapıştır ve içini aç:</p>
+
+<figure class="fig" id="f-uni">
+  <div class="fig-in">
+    <div class="center"><input id="uni-in" class="inp" value="Aş€😀" spellcheck="false" style="width:16rem;text-align:center;font-size:1.2rem" aria-label="metin"></div>
+    <div class="chips" id="uni-pre" style="margin-top:.7rem"></div>
+    <div id="uni" class="uni"></div>
+    <div class="tell" id="uni-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 7</span><b>Kod noktaları ve byte’ları.</b> Her kart bir kod noktası. Altında, UTF-8 ile kaç byte tuttuğu. “é” örneğini dene: ekranda tek harf görünen şey bazen iki kod noktasıdır (e + birleşen aksan). Ten rengi seçilmiş ya da aile emojileri birkaç kod noktasının birleşimidir.</figcaption>
+</figure>
+
+<aside class="aside"><span class="t">Karakter ≠ kod noktası ≠ byte</span>Ekranda gördüğümüz “harf”e (Unicode buna <em>grafem</em> der) bir ya da daha fazla kod noktası karşılık gelir. Her kod noktası da kodlamaya göre bir ya da daha fazla byte tutar. Bu yüzden “bu metin kaç karakter?” sorusunun üç farklı cevabı olabilir.</aside>
+
+<h2><span class="sec">§ 6.7</span>UTF-8: numarayı byte’lara dökmek</h2>
+
+<p>Unicode numarayı verir; o numaranın bellekte nasıl saklanacağını <strong>kodlama</strong> belirler. En basit yol her karakter için 4 byte ayırmaktır (UTF-32), ama bu İngilizce bir metni dört kat şişirir. 1992’de Ken Thompson ve Rob Pike’ın bir lokantada peçeteye çizdiği <strong>UTF-8</strong> bugün web sayfalarının %98’inden fazlasında kullanılıyor. Fikri şu: küçük numaralar az, büyükler çok byte tutsun.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Kod noktası aralığı</th><th>Byte</th><th>Bit şablonu</th></tr></thead>
+  <tbody>
+    <tr><td class="m">U+0000 – U+007F</td><td class="m">1</td><td class="m">0xxxxxxx</td></tr>
+    <tr><td class="m">U+0080 – U+07FF</td><td class="m">2</td><td class="m">110xxxxx 10xxxxxx</td></tr>
+    <tr><td class="m">U+0800 – U+FFFF</td><td class="m">3</td><td class="m">1110xxxx 10xxxxxx 10xxxxxx</td></tr>
+    <tr><td class="m">U+10000 – U+10FFFF</td><td class="m">4</td><td class="m">11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td></tr>
+  </tbody>
+</table></div>
+
+<p>Kod noktasının bitleri, şablondaki <span class="mono">x</span>’lerin yerine sağdan sola yerleştirilir. Bir karakter seç ve adım adım izle:</p>
+
+<figure class="fig" id="f-utf8">
+  <div class="fig-in">
+    <div class="chips" id="u8-pre"></div>
+    <div class="u8" id="u8"></div>
+    <div class="tell" id="u8-tell"></div>
+    <div id="u8-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 8</span><b>UTF-8 kodlayıcı.</b> Renkli bitler kod noktasından gelir, siyah bitler şablonun sabit kısmıdır. İlk byte’taki 1’lerin sayısı toplam byte sayısını söyler; devam byte’ları hep <span class="b">10</span> ile başlar.</figcaption>
+</figure>
+
+<p>Bu tasarımın dört güzel sonucu var:</p>
+<ul>
+  <li><strong>ASCII uyumlu.</strong> İlk 128 karakter aynen tek byte; eski bütün İngilizce dosyalar zaten geçerli UTF-8.</li>
+  <li><strong>Kendini toparlar.</strong> Rastgele bir byte’tan okumaya başlasan bile <span class="b">10</span> ile başlayanları atlayıp bir sonraki karakterin başını bulabilirsin.</li>
+  <li><strong>İçinde sahte NUL ya da “/” yok.</strong> Çok byte’lı karakterlerin bütün byte’ları 128’den büyüktür; C’nin NUL’la biten metinleri ve dosya yolları bozulmaz.</li>
+  <li><strong>Sıralama korunur.</strong> Byte’ları sıralamak, kod noktalarını sıralamakla aynı sonucu verir.</li>
+</ul>
+
+<p><strong>UTF-16</strong> ise karakterleri 2 ya da 4 byte ile saklar ve Windows, Java ile JavaScript’in içinde yaşar. U+FFFF’ten büyük kod noktaları iki 16 bitlik parçaya, bir <em>vekil çifte</em> (surrogate pair) bölünür. JavaScript’in <code>length</code> özelliği bu 16 bitlik parçaları saydığı için sürprizler çıkar:</p>
+
+<div class="code-tabs">
+<pre data-lang="js">
+"ş".length                     // 1
+"😀".length                    // 2  ← iki UTF-16 parçası
+[..."😀"].length               // 1  ← kod noktası sayısı
+"😀".codePointAt(0).toString(16) // "1f600"
+new TextEncoder().encode("ş")   // Uint8Array [197, 159]  (UTF-8: C5 9F)
+"ş" === "ş"               // true
+"\u{1F600}"                    // "😀"
+</pre>
+<pre data-lang="py">
+len("ş")                 # 1
+len("😀")                # 1  ← Python kod noktası sayar
+"ş".encode("utf-8")      # b'\xc5\x9f'
+len("😀".encode())       # 4  ← byte sayısı
+hex(ord("😀"))           # '0x1f600'
+"\N{EURO SIGN}"          # '€'
+b"\xc5\x9f".decode()     # 'ş'
+</pre>
+</div>
+
+<h2><span class="sec">§ 6.8</span>Bozuk karakterlerin anatomisi</h2>
+
+<p>Japonların bir adı bile var: <strong>mojibake</strong>, “karakter dönüşümü”. UTF-8 ile kaydedilmiş bir metni, bir program Windows-1252 (Latin-1’in Windows kuzeni) sanarak okursa, her çok byte’lı karakter iki üç anlamsız simgeye dönüşür. Kendi metnini dene:</p>
+
+<figure class="fig" id="f-moji">
+  <div class="fig-in">
+    <div class="center"><input id="moji-in" class="inp" value="Çağrı şöyle dedi: “Günaydın!”" spellcheck="false" style="width:min(26rem,100%);text-align:center" aria-label="metin"></div>
+    <div id="moji"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 9</span><b>Mojibake makinesi.</b> Doğru byte’lar, yanlış tablo. Ters yönde de olur: Latin-1 ile kaydedilmiş bir dosyayı UTF-8 sanarak okursan, geçersiz byte’lar <code>�</code> (U+FFFD, “yerine konan karakter”) olarak görünür. O bilgi artık geri getirilemez.</figcaption>
+</figure>
+
+<p class="key">Bir metin dosyası, hangi kodlamayla yazıldığını kendisi söylemez. Bu yüzden HTML’de <code>&lt;meta charset="utf-8"&gt;</code>, Python’da <code>open(ad, encoding="utf-8")</code> yazarız. <strong>Kodlamayı her zaman açıkça belirt ve UTF-8 seç.</strong></p>
+
+<aside class="aside hist"><span class="t">Türkçe için özel bir tuzak</span>Çoğu dilde büyük “I”nın küçüğü “i”dir. Türkçede ise I ↔ ı ve İ ↔ i. Dili bilmeyen bir program “IŞIK” kelimesini küçültünce “işik” yazar; Java’da <code>"title".toUpperCase()</code> ise Türkçe ayarlı bir bilgisayarda “TİTLE” verir ve İngilizce bir anahtar kelimeyi aramaya çalışan kodu bozar. Bu hataya yazılımcılar “Türk I problemi” der. Çözüm: dile duyarlı fonksiyonlar (<code>toLocaleUpperCase('tr')</code>) kullanmak.</aside>
+
+<h2><span class="sec">§ 6.9</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="1">
+    <p><code>'C'</code> karakterinin ASCII kodu <span class="h">0x43</span> ise <code>'c'</code> kaçtır?</p>
+    <ul><li>0x44</li><li>0x63</li><li>0x53</li><li>0xC3</li></ul>
+    <div class="quiz-why">Küçük harf = büyük harf + 0x20 (bit 5).</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p><code>"a\nb"</code> metni bellekte kaç byte tutar (sonlandırıcı hariç)?</p>
+    <ul><li>4</li><li>5</li><li>3</li><li>2</li></ul>
+    <div class="quiz-why"><code>\n</code> tek bir karakterdir: 61 0A 62.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>UTF-8’de hangi byte bir karakterin <em>ortasında</em> olabilir?</p>
+    <ul><li>10xxxxxx</li><li>0xxxxxxx</li><li>110xxxxx</li><li>11110xxx</li></ul>
+    <div class="quiz-why">Devam byte’ları hep 10 ile başlar.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>“ÅŸ” gibi bozuk yazıların sebebi genellikle nedir?</p>
+    <ul><li>Dosyanın bozulması</li><li>Fontun eksik olması</li><li>Ağ hatası</li><li>UTF-8 byte’larının başka bir kod sayfasıyla okunması</li></ul>
+    <div class="quiz-why">Byte’lar sağlam, yorumlama yanlış: “ş” = C5 9F → Windows-1252’de “Å” ve “Ÿ”.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>JavaScript’te <code>"😀".length</code> neden 2’dir?</p>
+    <ul><li>Emoji 2 byte olduğu için</li><li>length, UTF-16 parçalarını saydığı için</li><li>Bir hata yüzünden</li><li>Emoji iki karakterden oluştuğu için</li></ul>
+    <div class="quiz-why">U+1F600, UTF-16’da bir vekil çiftle (2 × 16 bit) yazılır. UTF-8’de 4 byte’tır.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

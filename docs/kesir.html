@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noktanın yeri: kesirli sayılar · Sıfırlar ve Birler</title>
+<meta name="description" content="Binary kesirler, 0,1 neden sonsuz, sabit nokta, oyuncak 8 bitlik float ile sayı doğrusundaki boşluklar, IEEE 754 ve 0.1 + 0.2 ≠ 0.3. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/fractions.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/fractions.js" defer></script>
+</head>
+<body data-chapter="fractions">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 5</div>
+  <h1>Noktanın yeri: kesirli sayılar</h1>
+  <p class="lede">3,14’ü ya da 0,1’i ampullerle nasıl yazarız? Cevap bizi programlamanın en ünlü tuhaflığına götürecek: bilgisayara göre 0,1 + 0,2, 0,3 etmez.</p>
+  <div class="meta"><span>Okuma: ~35 dk</span><span>Önce: Bölüm 2 ve 4</span></div>
+</header>
+
+<article class="prose">
+
+<h2><span class="sec">§ 5.1</span>Noktanın sağında da kutular var</h2>
+
+<p class="dropcap">Onlu sistemde noktanın sağındaki basamaklar onda bir, yüzde bir, binde bir değerindedir. Patlayan noktalar makinesini sağa doğru da uzatabiliriz: her kutu solundakinin <em>tabanda biri</em> kadar değerlidir. İkili sistemde bu, noktanın sağındaki kutuların <strong>yarım, çeyrek, sekizde bir…</strong> olması demek. Bir şeridi tekrar tekrar ikiye bölmek gibi.</p>
+
+<figure class="fig" id="f-bar">
+  <div class="fig-in">
+    <div id="bar-lamps"></div>
+    <div class="bar" id="bar"></div>
+    <div class="readout" id="bar-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>İkili kesirler = ikiye bölünmüş parçalar.</b> Her ampul, şeridin bir parçasını boyar: ½, ¼, ⅛, ¹⁄₁₆… Altı ampulle 0 ile 1 arasında 64 farklı değer yazabilirsin, ama hepsi 1/64’ün katlarıdır.</figcaption>
+</figure>
+
+<p>Bu bize hem güzel hem rahatsız edici bir şey söylüyor. ½, ¾, ⅝ gibi kesirler birkaç bitle <em>tam olarak</em> yazılabiliyor. Peki 0,1? Hiçbir ampul kombinasyonu şeridin tam onda birini boyamıyor. Bunu kanıtlayalım.</p>
+
+<h2><span class="sec">§ 5.2</span>0,1 neden ikili sistemde bitmez?</h2>
+
+<p>Bir kesri ikiliye çevirmenin yolu, onu <strong>tekrar tekrar 2 ile çarpmak</strong>: sonuç 1’i geçiyorsa o basamak 1’dir (ve 1’i atarız), geçmiyorsa 0. Kesir sıfıra inince dururuz. Önce 0,625’i, sonra 0,1’i dene.</p>
+
+<figure class="fig narrow" id="f-dbl">
+  <div class="fig-in">
+    <div class="chips" id="dbl-pre"></div>
+    <div class="dbl-rows" id="dbl-rows"></div>
+    <div class="readout" id="dbl-out"></div>
+    <div class="tell" id="dbl-tell"></div>
+    <div id="dbl-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Döngü yakalandı.</b> 0,1’i ikiyle çarpmaya devam edince bir noktada daha önce gördüğümüz bir kesre (0,2) geri döneriz. O andan sonra aynı bitler sonsuza kadar tekrarlanır: 0,0<u>0011</u>0011…</figcaption>
+</figure>
+
+<p>Onlu sistemde de aynı şey olur: 1/3 = 0,3333… asla bitmez, çünkü 3 sayısı 10’u bölmez. İkili sistemdeki kural da benzer: <strong>paydası (sadeleştirildikten sonra) 2’nin kuvveti olmayan her kesir ikili sistemde sonsuz tekrar eder.</strong> 1/10’un paydasında 5 var; bu yüzden 0,1, 0,2, 0,3 gibi günlük sayıların hiçbiri bilgisayarda tam olarak saklanamaz. Saklanan, ona çok yakın bir değerdir.</p>
+
+<h2><span class="sec">§ 5.3</span>Noktayı sabitlemek</h2>
+
+<p>En basit çözüm noktanın yerini önceden belirlemek: 8 bitin 4’ü tam kısım, 4’ü kesir kısmı olsun. Buna <strong>sabit nokta</strong> denir. Değerler sayı doğrusuna eşit aralıklarla dizilir.</p>
+
+<figure class="fig" id="f-fixed">
+  <div class="fig-in">
+    <div id="fx-lamps"></div>
+    <div class="readout" id="fx-out"></div>
+    <div id="fx-line"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Sabit nokta: eşit aralıklı cetvel.</b> 4.4 düzeninde 0’dan 15,9375’e kadar, 1/16 aralıklarla 256 değer var. Basit ve hızlı, ama ya çok küçük ya da çok büyük sayılar için yetersiz: 0,001 de 1000 de yazılamaz.</figcaption>
+</figure>
+
+<p>Sabit nokta bugün de kullanılır. Para hesaplarında kuruşla çalışmak (19,99 TL yerine 1999 kuruş) bir tür sabit noktadır ve yuvarlama sürprizlerini önler. Ama sabit nokta da 0,1’i tam yazamaz ve küçük hatalar birikebilir:</p>
+
+<aside class="aside warn"><span class="t">Gerçek hayatta</span>1991 Körfez Savaşı’nda bir Patriot füze savunma sistemi zamanı 0,1 saniyelik adımlarla sayıyor ve 0,1’i 24 bitlik sabit noktalı sayı olarak saklıyordu. Her adımdaki minicik hata 100 saatte yaklaşık 0,34 saniyeye ulaştı; bu sürede bir füze yarım kilometreden fazla yol alır. Gelen füze vurulamadı.</aside>
+
+<h2><span class="sec">§ 5.4</span>Noktayı kaydırmak: kayan nokta</h2>
+
+<p>Fizikte çok büyük ve çok küçük sayıları aynı anda yazmak için <em>bilimsel gösterim</em> kullanırız: Avogadro sayısı 6,022 × 10²³, bir elektronun kütlesi 9,1 × 10⁻³¹ kg. Sayının <em>basamakları</em> (6,022) ile <em>büyüklüğü</em> (10²³) ayrı ayrı yazılır ve nokta, üsse göre “kayar”.</p>
+
+<p>Bilgisayar aynı şeyi ikili sistemde yapar: <span class="b">110,11</span> = <span class="b">1,1011</span> × 2². Noktayı ilk 1’in hemen sağına getirip kaydırma miktarını üs olarak saklarız. Sıfır dışında her sayı bu şekilde <span class="b">1,xxxx</span> ile başlar.</p>
+
+<p class="formula">sayı = (işaret) × 1,mantis × 2<sup>üs</sup></p>
+
+<p>Bunun ne demek olduğunu gerçekten görmek için, gerçek formatın 8 bitlik minyatür bir kopyasını kuralım: 1 işaret biti, 4 üs biti, 3 mantis biti. 256 desenin hepsini sayı doğrusuna yerleştirebiliriz.</p>
+
+<figure class="fig" id="f-mini">
+  <div class="fig-in">
+    <div id="mini-lamps"></div>
+    <div class="legend3"><span class="s">işaret</span><span class="e">üs (4 bit, −7)</span><span class="m">mantis (3 bit)</span></div>
+    <div class="readout" id="mini-out"></div>
+    <div class="center" id="mini-zoom" style="margin-top:.8rem"></div>
+    <div id="mini-line"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Oyuncak bir float ve bütün değerleri.</b> Her çizgi, 8 bitle yazılabilen bir sayı. 1 ile 2 arasında 8 değer var, 2 ile 4 arasında da 8, 64 ile 128 arasında da 8. Değer sayısı her ikinin kuvveti aralığında aynı, aralık ise her seferinde iki katına çıkıyor. Kayan noktalı sayılar sıfıra yakın sık, büyüdükçe seyrektir.</figcaption>
+</figure>
+
+<p>Bu resim kayan noktanın özünü anlatıyor: <strong>bağıl hassasiyet sabittir, mutlak hassasiyet değil.</strong> Küçük sayılarda çok ince, büyük sayılarda kaba adımlarla ilerleriz. Bilimsel hesaplarda tam olarak istediğimiz budur: bir gezegenin uzaklığını milimetre hassasiyetiyle bilmemize gerek yok, bir atomun boyutunu ise bilmemiz gerek.</p>
+
+<h2><span class="sec">§ 5.5</span>Gerçek format: IEEE 754</h2>
+
+<p>1985’te yayımlanan <strong>IEEE 754</strong> standardı, bugün neredeyse her işlemcinin kullandığı formattır. 32 bitlik <code>float</code> şöyle bölünür: 1 işaret biti, 8 üs biti, 23 mantis biti. 64 bitlik <code>double</code>’da üs 11, mantis 52 bittir. JavaScript’in sayıları ve Python’un <code>float</code>’ı double’dır.</p>
+
+<div class="two">
+  <div><p><strong>Üs neden “+127” ile saklanır?</strong> Üs negatif de olabilir. İkiye tümleyen yerine sabit bir sayı (bias) eklenir; böylece 8 bit −126 … +127 arası üsleri tutar ve iki float, işaretsiz tamsayı gibi kolayca karşılaştırılabilir.</p></div>
+  <div><p><strong>Gizli bit.</strong> Normalleştirilmiş her sayı 1, ile başladığına göre o 1’i saklamaya gerek yok. Mantise sadece noktadan sonrası yazılır; 23 bitlik yer, 24 bitlik hassasiyet verir. Bedava bir bit!</p></div>
+</div>
+
+<p>Aşağıda gerçek bir 32 bitlik float var. Bir sayı yaz ya da bitlere dokun. En alttaki satıra dikkat: bellekte saklanan sayının <em>tam</em> değeri.</p>
+
+<figure class="fig" id="f-lab">
+  <div class="fig-in">
+    <div class="center"><input id="lab-in" class="inp" value="0.1" spellcheck="false" style="width:12rem;text-align:center" aria-label="sayı"></div>
+    <div class="chips" id="lab-pre" style="margin-top:.7rem"></div>
+    <div id="lab-lamps" style="margin-top:.6rem"></div>
+    <div class="legend3"><span class="s">işaret</span><span class="e">üs (8)</span><span class="m">mantis (23)</span></div>
+    <div class="labf" id="lab-fields"></div>
+    <div class="readout" id="lab-exact"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Bir float’ın içi.</b> 0,1 yazdığında bellekte 0,100000001490116… saklanır: 0,1’e en yakın float. Fark minik, ama sıfır değil.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 5.6</span>0,1 + 0,2 neden 0,3 değil?</h2>
+
+<p>Artık sırrı çözmek için her şeye sahibiz. 0,1, 0,2 ve 0,3’ün üçü de double olarak tam saklanamaz. Saklanan 0,1 ve 0,2 biraz büyük, saklanan 0,3 ise biraz küçüktür. Toplam, 0,3’ü temsil eden double’a değil, onun hemen yanındaki double’a düşer.</p>
+
+<figure class="fig narrow" id="f-sum">
+  <div class="fig-in">
+    <div class="center" style="gap:.5rem"><input id="sum-a" class="inp" value="0.1" style="width:7rem;text-align:center" aria-label="a"> <b>+</b> <input id="sum-b" class="inp" value="0.2" style="width:7rem;text-align:center" aria-label="b"></div>
+    <div id="sum-out"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>Gerçekte saklananlar.</b> Kırmızı rakamlar, yazdığın değerden sapmanın başladığı yer. JavaScript ve Python sonucu yazdırırken yeterince basamak gösterir; bu yüzden 0.30000000000000004 görürsün.</figcaption>
+</figure>
+
+<div class="code-tabs">
+<pre data-lang="py">
+print(0.1 + 0.2 == 0.3)               # False
+
+import math
+print(math.isclose(0.1 + 0.2, 0.3))   # True: "yeterince yakın mı?"
+
+from decimal import Decimal           # para ve kesin onlu hesap için
+print(Decimal("0.1") + Decimal("0.2"))   # 0.3
+print(Decimal(0.1))                   # saklanan gerçek değer:
+# 0.1000000000000000055511151231257827021181583404541015625
+</pre>
+<pre data-lang="js">
+console.log(0.1 + 0.2 === 0.3);        // false
+
+const close = (x, y, tol = 1e-9) => Math.abs(x - y) &lt; tol;
+console.log(close(0.1 + 0.2, 0.3));    // true
+
+// para için kuruş cinsinden tamsayı kullan:
+const fiyat = 1999;                    // 19,99 TL
+console.log(fiyat * 3 / 100);          // 59.97
+</pre>
+</div>
+
+<p class="key">İki ondalıklı sayıyı asla <strong>==</strong> ile karşılaştırma: farklarının küçük bir toleranstan az olup olmadığına bak. Parayla ilgili hesapları <strong>tamsayı kuruşla</strong> ya da ondalık türlerle (Python’da <code>Decimal</code>) yap.</p>
+
+<h2><span class="sec">§ 5.7</span>Hassasiyetin sınırı ve özel değerler</h2>
+
+<p>Oyuncak float’ta gördüğümüz boşluklar gerçek float’ta da var, sadece daha küçük. 32 bitlik float’ta 2<sup>24</sup> = 16 777 216’dan sonra tek sayılar artık yazılamaz: <span id="k-big"></span> float’a çevrilince <span class="out" data-o="f32"></span> olur. Double’da aynı sınır 2<sup>53</sup> ≈ 9 × 10<sup>15</sup>’tir.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th></th><th>float (32 bit)</th><th>double (64 bit)</th></tr></thead>
+  <tbody>
+    <tr><td>İşaret / üs / mantis</td><td class="m">1 / 8 / 23</td><td class="m">1 / 11 / 52</td></tr>
+    <tr><td>Anlamlı onlu basamak</td><td class="m">≈ 7</td><td class="m">≈ 15–17</td></tr>
+    <tr><td>En büyük değer</td><td class="m">≈ 3,4 × 10³⁸</td><td class="m">≈ 1,8 × 10³⁰⁸</td></tr>
+    <tr><td>Tam saklanan tamsayılar</td><td class="m">±2²⁴</td><td class="m">±2⁵³</td></tr>
+  </tbody>
+</table></div>
+
+<p>Üs bitlerinin tamamı 0 ya da tamamı 1 olduğunda özel anlamlar devreye girer. Laboratuvarda “0”, “−0”, “∞” ve “NaN” düğmelerini dene:</p>
+<ul>
+  <li><strong>±0</strong>: Evet, eksi sıfır da var (ama <code>0 === -0</code> doğrudur).</li>
+  <li><strong>±∞</strong>: <code>1 / 0</code> ya da çok büyük bir sonuç. Program çökmez, sonsuzla devam eder.</li>
+  <li><strong>NaN</strong> (“sayı değil”): <code>0 / 0</code>, <code>Math.sqrt(-1)</code>. NaN hiçbir şeye, kendisine bile eşit değildir: <code>NaN === NaN</code> yanlıştır.</li>
+  <li><strong>Alt-normal sayılar</strong>: Üs bitleri sıfırken gizli bit 0 kabul edilir; sıfıra çok yakın sayılar böyle yazılır.</li>
+</ul>
+
+<h2><span class="sec">§ 5.8</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="2">
+    <p><span class="b">0,11</span><span class="sub">2</span> onlu olarak kaçtır?</p>
+    <ul><li>0,11</li><li>0,3</li><li>0,75</li><li>3</li></ul>
+    <div class="quiz-why">½ + ¼ = 0,75.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>Hangisi float olarak <em>tam</em> saklanabilir?</p>
+    <ul><li>0,375</li><li>0,1</li><li>0,2</li><li>1/3</li></ul>
+    <div class="quiz-why">0,375 = 3/8; payda 2’nin kuvveti → 0,011<sub>2</sub>.</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Kayan noktalı sayılarda iki komşu değer arasındaki boşluk nasıl değişir?</p>
+    <ul><li>Her yerde aynıdır</li><li>Sıfıra yaklaştıkça büyür</li><li>Rastgeledir</li><li>Sayı büyüdükçe büyür</li></ul>
+    <div class="quiz-why">Her ikinin kuvveti aralığında aynı sayıda değer var; aralık büyüdükçe boşluklar da büyür.</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>Mantisin başındaki 1 neden saklanmaz?</p>
+    <ul><li>Sayıyı pozitif yapmak için</li><li>Normalleştirilmiş sayılarda hep 1 olduğu için</li><li>Üssü hesaplamak için</li><li>Saklanır, sadece gösterilmez</li></ul>
+    <div class="quiz-why">Bilinen bir şeyi saklamak israftır; o bit hassasiyete harcanır.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>JavaScript’te <code>NaN === NaN</code> sonucu?</p>
+    <ul><li>true</li><li>Hata</li><li>false</li><li>NaN</li></ul>
+    <div class="quiz-why">IEEE 754’e göre NaN hiçbir şeye eşit değildir. Kontrol için <code>Number.isNaN(x)</code>.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>
