@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bits &amp; Bytes · Number Systems</title>
+    <meta name="description" content="How many values fit in n bits? How many bits do you need for something? KB vs KiB, and why your disk looks smaller than advertised.">
+    <link rel="alternate" hreflang="tr" href="../bit-byte.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../js/common.js" defer></script>
+    <script src="../js/generators.js" defer></script>
+    <script src="../js/pages/bitbyte.js" defer></script>
+</head>
+<body data-chapter="bitbyte">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Bits &amp; Bytes</h1>
+        <p class="lead">Perhaps the most used formula in computer science: <strong>n bits give 2ⁿ different values</strong>.
+            In this chapter you will see why it is true and learn to calculate data sizes correctly.</p>
+        <div class="meta"><span>⏱ ~25 min</span><span>Prerequisites: Binary, Hex</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">By the end of this chapter you will</div>
+        <ul>
+            <li>calculate how many values n bits can represent, and their range;</li>
+            <li>find the <strong>minimum number of bits</strong> needed to encode a given number of things;</li>
+            <li>distinguish bit, nibble, byte and word;</li>
+            <li>explain the difference between KB and KiB, and why a 500 GB disk shows up as 465 GB.</li>
+        </ul>
+    </section>
+
+    <h2>Bit, nibble, byte</h2>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Unit</th><th>Size</th><th>Distinct values</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Bit</strong></td><td class="m">1 bit</td><td class="m">2</td><td>Yes/no, on/off, <code>true</code>/<code>false</code></td></tr>
+                <tr><td><strong>Nibble</strong></td><td class="m">4 bits</td><td class="m">16</td><td>One hex digit</td></tr>
+                <tr><td><strong>Byte</strong></td><td class="m">8 bits</td><td class="m">256</td><td>An ASCII character, a color channel</td></tr>
+                <tr><td><strong>Word</strong></td><td class="m">16/32/64 bits</td><td class="m">2¹⁶ … 2⁶⁴</td><td>The size a CPU handles at once (depends on the architecture)</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>
+        A byte being 8 bits is not a law of nature; it is a standard that spread in the 1960s with the IBM System/360. 8 bits are enough for a character,
+        split evenly into two hex digits, and are a power of two, which suits hardware.
+        <strong>The byte is the smallest addressable unit of memory</strong>: you cannot address a single bit directly.
+    </p>
+
+    <h2>The key formula: n bits = 2ⁿ values</h2>
+    <p>
+        Each bit offers two options. Add a second bit and for <em>each</em> state of the first there are again two options: 2 × 2 = 4.
+        A third bit doubles that again: 8. In other words, <strong>every new bit doubles the number of possibilities</strong>.
+    </p>
+    <section class="widget" id="dbl">
+        <h3 class="widget-title">Add a bit, double the possibilities</h3>
+        <p class="widget-desc">Press “Add a bit”: one copy of the current list gets a leading <span class="mono">0</span>, the other a leading <span class="mono">1</span>. The list doubles every time.</p>
+        <div class="controls">
+            <button class="btn" type="button" id="dbl-minus">− Remove a bit</button>
+            <button class="btn primary" type="button" id="dbl-plus">+ Add a bit</button>
+            <input type="range" id="dbl-range" min="1" max="32" value="2" aria-label="Number of bits" style="flex:1;min-width:140px">
+        </div>
+        <div class="stats" id="dbl-stats"></div>
+        <div class="dbl-list" id="dbl-list"></div>
+        <div class="dbl-bar" id="dbl-bar"></div>
+    </section>
+    <div class="big-formula">
+        n bits → 2ⁿ values &nbsp;·&nbsp; unsigned range: 0 … 2ⁿ − 1
+        <small>The largest value is 2ⁿ − 1 because counting starts at 0. 8 bits: 256 values, 0 … 255.</small>
+    </div>
+
+    <h2>Common sizes</h2>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Bits</th><th>Bytes</th><th>Hex digits</th><th>Distinct values</th><th>Unsigned range</th><th>Where?</th></tr></thead>
+            <tbody>
+                <tr><td class="m">1</td><td class="m">⅛</td><td class="m">–</td><td class="m">2</td><td class="m">0 – 1</td><td>Boolean</td></tr>
+                <tr><td class="m">4</td><td class="m">½</td><td class="m">1</td><td class="m">16</td><td class="m">0 – 15</td><td>Nibble</td></tr>
+                <tr><td class="m">8</td><td class="m">1</td><td class="m">2</td><td class="m">256</td><td class="m">0 – 255</td><td>Byte, color channel, <code>uint8</code></td></tr>
+                <tr><td class="m">16</td><td class="m">2</td><td class="m">4</td><td class="m">65,536</td><td class="m">0 – 65,535</td><td>Port numbers, <code>uint16</code></td></tr>
+                <tr><td class="m">24</td><td class="m">3</td><td class="m">6</td><td class="m">16,777,216</td><td class="m">0 – 16,777,215</td><td>RGB color (#RRGGBB)</td></tr>
+                <tr><td class="m">32</td><td class="m">4</td><td class="m">8</td><td class="m">≈ 4.29 billion</td><td class="m">0 – 4,294,967,295</td><td>IPv4 address, <code>uint32</code></td></tr>
+                <tr><td class="m">64</td><td class="m">8</td><td class="m">16</td><td class="m">≈ 1.8 × 10¹⁹</td><td class="m">0 – 18,446,744,073,709,551,615</td><td>64-bit addresses, <code>uint64</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout formula">
+        <span class="callout-title">Quick conversion rules</span>
+        <p class="mono" style="margin:0">bits = bytes × 8 &nbsp;·&nbsp; bits = hex digits × 4 &nbsp;·&nbsp; bytes = hex digits ÷ 2</p>
+    </div>
+    <div class="callout real">
+        <span class="callout-title">In the real world: 32 bits and the 4 GB limit</span>
+        <p>A 32-bit processor can form 2³² different memory addresses. Since each address points to one byte, it can directly address at most
+        2³² bytes = <strong>4 GiB</strong>. That is why 32-bit Windows couldn’t use more than 4 GB of RAM and the world moved to 64-bit.
+        (2⁶⁴ bytes = 16 EiB — far, far beyond today’s computers.)</p>
+    </div>
+
+    <h2>The reverse question: how many bits?</h2>
+    <p>
+        In everyday programming the question usually comes the other way round: <em>“How many bits do I need to encode N different things?”</em>
+        The answer is the smallest n with <strong>2ⁿ ≥ N</strong> (in maths: ⌈log₂ N⌉).
+    </p>
+    <section class="widget" id="need">
+        <h3 class="widget-title">How many bits are enough?</h3>
+        <div class="field-row">
+            <label class="field grow"><span>Number of distinct values to encode (N)</span><input id="need-n" class="input mono" type="number" min="1" value="26"></label>
+        </div>
+        <div class="controls" id="need-presets"></div>
+        <div class="expr" id="need-out" aria-live="polite"></div>
+    </section>
+    <div class="callout think">
+        <span class="callout-title">Think first</span>
+        <p>The English alphabet has 26 letters. How many bits do you need for uppercase letters only? For upper and lower case together?</p>
+        <details class="reveal"><summary>Show answer</summary>
+            <p>26 letters: 2⁴ = 16 &lt; 26 ≤ 32 = 2⁵ → <strong>5 bits</strong>. Upper + lower = 52: 2⁵ = 32 &lt; 52 ≤ 64 = 2⁶ → <strong>6 bits</strong>.
+            Add digits and punctuation and you reach 7 bits — which is exactly what ASCII uses (128 characters).</p>
+        </details>
+    </div>
+
+    <h2>Data units: KB or KiB?</h2>
+    <p>
+        There is genuine confusion here. Because computers work in powers of two, “kilo” was long taken to mean 1024.
+        But in the SI system “kilo” always means 1000 (kilometre, kilogram). To resolve the clash, in 1998 the IEC defined
+        <strong>binary prefixes</strong>: kibi (Ki), mebi (Mi), gibi (Gi)…
+    </p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Decimal (SI)</th><th>Value</th><th>Binary (IEC)</th><th>Value</th><th>Difference</th></tr></thead>
+            <tbody>
+                <tr><td class="m">1 kB</td><td class="m">10³ = 1,000</td><td class="m">1 KiB</td><td class="m">2¹⁰ = 1,024</td><td class="m">2.4%</td></tr>
+                <tr><td class="m">1 MB</td><td class="m">10⁶</td><td class="m">1 MiB</td><td class="m">2²⁰ = 1,048,576</td><td class="m">4.9%</td></tr>
+                <tr><td class="m">1 GB</td><td class="m">10⁹</td><td class="m">1 GiB</td><td class="m">2³⁰ = 1,073,741,824</td><td class="m">7.4%</td></tr>
+                <tr><td class="m">1 TB</td><td class="m">10¹²</td><td class="m">1 TiB</td><td class="m">2⁴⁰</td><td class="m">10%</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>Disk manufacturers use decimal units (GB, TB). Windows calculates in binary units but labels the result “GB”. The outcome:</p>
+    <section class="widget" id="disk">
+        <h3 class="widget-title">Why does my disk look smaller?</h3>
+        <div class="field-row">
+            <label class="field grow"><span>Capacity on the box</span><input id="disk-n" class="input mono" type="number" min="1" value="500"></label>
+            <label class="field"><span>Unit</span><select id="disk-u" class="input"><option value="9" selected>GB</option><option value="12">TB</option></select></label>
+        </div>
+        <div class="stats" id="disk-out"></div>
+        <p class="widget-foot" id="disk-foot"></p>
+    </section>
+    <div class="callout mistake">
+        <span class="callout-title">Common mistake: mixing up bits and bytes</span>
+        <p>Internet speeds are measured in <strong>bits</strong> (Mbps, lowercase <b>b</b>), file sizes in <strong>bytes</strong> (MB, uppercase <b>B</b>).
+        A 100 Mbps connection downloads at most 100 ÷ 8 = <strong>12.5 MB</strong> per second.</p>
+    </div>
+
+    <div id="practice"></div>
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>1 byte = 8 bits = 2 hex digits. The byte is the smallest addressable unit of memory.</li>
+            <li>n bits → 2ⁿ distinct values; unsigned range 0 … 2ⁿ − 1.</li>
+            <li>Encoding N values needs at least ⌈log₂ N⌉ bits (the smallest n with 2ⁿ ≥ N).</li>
+            <li>kB/MB/GB = powers of 1000; KiB/MiB/GiB = powers of 1024.</li>
+            <li>Network speed is in bits/s, file size in bytes: a factor of 8.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="0">
+            <p>How many different values can 3 hex digits (<code>000</code>–<code>FFF</code>) represent?</p>
+            <ul><li>4,096</li><li>256</li><li>48</li><li>65,536</li></ul>
+            <div class="quiz-explain">3 hex = 12 bits → 2¹² = 4,096. Or 16 × 16 × 16.</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p>A class has 40 students. What is the minimum number of bits to give each a distinct binary ID?</p>
+            <ul><li>5</li><li>40</li><li>6</li><li>8</li></ul>
+            <div class="quiz-explain">2⁵ = 32 is not enough, 2⁶ = 64 is → 6 bits.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>If you add one more bit, what happens to the number of distinct values?</p>
+            <ul><li>It increases by 1</li><li>It doubles</li><li>It increases by 8</li><li>It is squared</li></ul>
+            <div class="quiz-explain">2ⁿ⁺¹ = 2 × 2ⁿ. Every new bit doubles the possibilities.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>How many bytes is 1 GiB?</p>
+            <ul><li>1,000,000,000</li><li>1,024,000,000</li><li>1,000,000,024</li><li>1,073,741,824</li></ul>
+            <div class="quiz-explain">1 GiB = 2³⁰ = 1024 × 1024 × 1024 = 1,073,741,824 bytes.</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>At best, how long does a 100 MB file take to download over a 50 Mbps connection?</p>
+            <ul><li>16 s</li><li>2 s</li><li>0.5 s</li><li>50 s</li></ul>
+            <div class="quiz-explain">100 MB = 800 Mb. 800 ÷ 50 = 16 seconds.</div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

@@ -2,356 +2,211 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binary (İkili) Sistem | Sayı Sistemleri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>İkili Sistem (Binary) · Sayı Sistemleri</title>
+    <meta name="description" content="Bitlerle sayı kurmayı, binary ↔ onlu dönüşümünü ve elde ile binary toplamayı etkileşimli olarak öğren.">
+    <link rel="alternate" hreflang="en" href="en/binary.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
     <link rel="stylesheet" href="styles.css">
+    <script src="js/common.js" defer></script>
+    <script src="js/generators.js" defer></script>
+    <script src="js/pages/binary.js" defer></script>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
-            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
-            <ul class="nav-links" id="nav">
-                <li><a href="index.html">Giriş</a></li>
-                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
-                <li><a href="binary.html" class="active">Binary</a></li>
-                <li><a href="hexadecimal.html">Hexadecimal</a></li>
-                <li><a href="bit-byte.html">Bit & Byte</a></li>
-                <li><a href="memory.html">Memory</a></li>
-                <li><a href="programlama.html">Programlama</a></li>
-                <li><a href="renkler.html">Renkler</a></li>
-            </ul>
+<body data-chapter="binary">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>İkili Sistem (Binary)</h1>
+        <p class="lead">Bilgisayarın ana dili yalnızca iki rakamdan oluşur. Bu bölümde 0 ve 1 ile her sayıyı nasıl yazabildiğimizi,
+            bitlerle oynayarak keşfedeceksin.</p>
+        <div class="meta"><span>⏱ ~30 dk</span><span>Ön koşul: Taban Kavramı</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">Bu bölümün sonunda</div>
+        <ul>
+            <li>Bilgisayarların neden onlu değil ikili sistem kullandığını açıklayabileceksin.</li>
+            <li>8 bitlik bir binary sayıyı zihinden onluya çevirebileceksin.</li>
+            <li>Onlu bir sayıyı “2’nin kuvvetlerini çıkarma” yöntemiyle binary’ye çevirebileceksin.</li>
+            <li>İki binary sayıyı elde (carry) kullanarak toplayabileceksin.</li>
+        </ul>
+    </section>
+
+    <h2>Neden ikili?</h2>
+    <p>
+        Bir bilgisayar işlemcisinin içinde milyarlarca <strong>transistör</strong> vardır. Her biri bir anahtar gibi çalışır:
+        ya iletir (<strong>1</strong>) ya iletmez (<strong>0</strong>). Bilginin en küçük birimi olan bu tek 0/1 değerine
+        <strong>bit</strong> (<em>binary digit</em>) denir.
+    </p>
+    <div class="cards">
+        <div class="card"><span class="card-icon">⚡</span><h4>İşlemci ve RAM</h4><p>Yüksek voltaj = 1, düşük voltaj = 0</p></div>
+        <div class="card"><span class="card-icon">💾</span><h4>SSD / USB bellek</h4><p>Hücrede elektrik yükü var / yok</p></div>
+        <div class="card"><span class="card-icon">💿</span><h4>Optik disk</h4><p>Yüzeydeki çukur ışığı farklı yansıtır</p></div>
+        <div class="card"><span class="card-icon">🧲</span><h4>Sabit disk</h4><p>Manyetik alanın yönü</p></div>
+    </div>
+    <div class="callout think">
+        <span class="callout-title">Önce bir düşün</span>
+        <p>Neden 10 farklı voltaj seviyesiyle doğrudan onlu sistemde çalışan bilgisayarlar yapmıyoruz?</p>
+        <details class="reveal"><summary>Cevabı göster</summary>
+            <p>Elektrik sinyalleri her zaman biraz <strong>gürültülüdür</strong>: sıcaklık, parazit, kablo uzunluğu voltajı oynatır.
+            Sadece “yüksek mi, düşük mü?” diye sormak, 10 yakın seviyeyi birbirinden ayırmaya çalışmaktan çok daha güvenilir,
+            hızlı ve ucuzdur. Az sayıda durum = az hata.</p>
+        </details>
+    </div>
+
+    <h2>Bitlerle sayı kurmak</h2>
+    <p>
+        Binary de bir basamak değeri sistemidir, sadece taban 2’dir. Sağdan sola her bitin ağırlığı ikiye katlanır:
+        <span class="mono">1, 2, 4, 8, 16, 32, 64, 128</span>. Bir sayının değeri, <strong>1 olan bitlerin ağırlıklarının toplamıdır</strong>.
+    </p>
+
+    <section class="widget" id="toggler">
+        <h3 class="widget-title">8 bit, 256 olasılık</h3>
+        <p class="widget-desc">Bitlere tıklayarak aç/kapat. Altta değerin nasıl hesaplandığını gör. Sonra <strong>Hedef oyunu</strong>nu dene: verilen sayıyı bitlerle oluştur.</p>
+        <div id="tg-bits"></div>
+        <div class="expr" id="tg-expr" aria-live="polite"></div>
+        <div class="stats" id="tg-stats"></div>
+        <div class="controls">
+            <button class="btn sm" type="button" data-act="clear">Temizle</button>
+            <button class="btn sm" type="button" data-act="all">Hepsi 1</button>
+            <button class="btn sm" type="button" data-act="inc">+1</button>
+            <button class="btn sm" type="button" data-act="shl" title="Sola kaydır">×2 (sola kaydır)</button>
+            <button class="btn sm" type="button" data-act="shr" title="Sağa kaydır">÷2 (sağa kaydır)</button>
+            <span class="sep"></span>
+            <button class="btn sm primary" type="button" id="tg-game">🎯 Hedef oyunu</button>
         </div>
-    </nav>
+        <div class="msg" id="tg-msg" hidden></div>
+    </section>
 
-    <div class="container">
-        <section class="hero">
-            <h1>Binary (İkili) Sistem</h1>
-            <p>Bilgisayarların ana dili: sadece 0 ve 1</p>
-        </section>
+    <div class="callout tip">
+        <span class="callout-title">Kurcalarken fark ettin mi?</span>
+        <ul>
+            <li><strong>Tek sayılar</strong> her zaman <code>1</code> ile biter; çünkü 1’lik bit dışındaki tüm ağırlıklar çifttir.</li>
+            <li><strong>Sola kaydırmak</strong> sayıyı 2 ile çarpar (onluda sağa 0 eklemek 10 ile çarpmak gibi). Sağa kaydırmak 2’ye böler, kalan atılır.</li>
+            <li><strong>Bütün bitler 1</strong> olunca değer 2<sup>n</sup> − 1 olur: 8 bitte 255. Bir fazlası (256) 9. biti gerektirir.</li>
+        </ul>
+    </div>
 
-        <h2>Binary Neden Var?</h2>
+    <h2>2’nin kuvvetleri</h2>
+    <p>Bu değerleri ezbere bilmek binary ile çalışmayı inanılmaz hızlandırır. En azından 2¹⁰’a kadar öğrenmeye çalış.</p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Üs</th><th>Değer</th><th>Binary</th><th>Nerede karşına çıkar?</th></tr></thead>
+            <tbody>
+                <tr><td class="m">2⁰</td><td class="m"><b>1</b></td><td class="m bin">1</td><td>En sağdaki bit</td></tr>
+                <tr><td class="m">2¹</td><td class="m"><b>2</b></td><td class="m bin">10</td><td>1 bit ile 2 durum</td></tr>
+                <tr><td class="m">2²</td><td class="m"><b>4</b></td><td class="m bin">100</td><td></td></tr>
+                <tr><td class="m">2³</td><td class="m"><b>8</b></td><td class="m bin">1000</td><td>1 byte = 8 bit</td></tr>
+                <tr><td class="m">2⁴</td><td class="m"><b>16</b></td><td class="m bin">1 0000</td><td>4 bit = 1 hex rakamı</td></tr>
+                <tr><td class="m">2⁵</td><td class="m"><b>32</b></td><td class="m bin">10 0000</td><td>Büyük/küçük harf farkı (ASCII)</td></tr>
+                <tr><td class="m">2⁶</td><td class="m"><b>64</b></td><td class="m bin">100 0000</td><td></td></tr>
+                <tr><td class="m">2⁷</td><td class="m"><b>128</b></td><td class="m bin">1000 0000</td><td>Bir byte’ın en yüksek biti</td></tr>
+                <tr><td class="m">2⁸</td><td class="m"><b>256</b></td><td class="m bin">1 0000 0000</td><td>Bir byte’taki farklı değer sayısı</td></tr>
+                <tr><td class="m">2¹⁰</td><td class="m"><b>1024</b></td><td class="m bin">100 0000 0000</td><td>≈ bin (kibi-)</td></tr>
+                <tr><td class="m">2¹⁶</td><td class="m"><b>65 536</b></td><td class="m"></td><td>16 bit, ağ port numaraları</td></tr>
+                <tr><td class="m">2³²</td><td class="m"><b>≈ 4,3 milyar</b></td><td class="m"></td><td>32 bit, IPv4 adresleri</td></tr>
+            </tbody>
+        </table>
+    </div>
 
-        <p>
-            Bilgisayarın içindeki transistörler sadece iki durumda olabilir: 
-            <strong>açık</strong> veya <strong>kapalı</strong>. Bu iki durumu temsil etmek için 
-            sadece iki rakam gerekli: <code>0</code> (kapalı) ve <code>1</code> (açık).
-        </p>
+    <h2>Binary → onlu</h2>
+    <p>Sadece <strong>1 olan bitlerin</strong> ağırlıklarını topla. 0 olan bitleri tamamen yok sayabilirsin.</p>
+<pre class="plain"><code>Bit:      <span class="bin">1   1   0   1   0   1   1   0</span>
+Ağırlık: 128  64  32  16   8   4   2   1
+          ↓   ↓       ↓       ↓   ↓
+         128 +64     +16     +4  +2   = <b class="dec">214</b></code></pre>
 
-        <div class="cards-grid">
-            <div class="card">
-                <h4>⚡ Elektrik Sinyali</h4>
-                <p>Yüksek voltaj = 1<br>Düşük voltaj = 0</p>
-            </div>
-            <div class="card">
-                <h4>💡 LED Ampul</h4>
-                <p>Yanıyor = 1<br>Sönük = 0</p>
-            </div>
-            <div class="card">
-                <h4>🧲 Hard Disk</h4>
-                <p>Kuzey kutup = 1<br>Güney kutup = 0</p>
-            </div>
+    <h2>Onlu → binary: 2’nin kuvvetlerini çıkar</h2>
+    <p>
+        Önceki bölümde gördüğün <strong>tekrarlı bölme</strong> her zaman çalışır. Küçük sayılar için daha sezgisel bir yol daha var:
+        en büyük ağırlıktan başla; ağırlık kalan sayıya sığıyorsa o biti <strong>1</strong> yap ve ağırlığı çıkar, sığmıyorsa <strong>0</strong> yaz.
+    </p>
+    <section class="widget" id="greedy">
+        <h3 class="widget-title">Sığıyor mu? Sığmıyor mu?</h3>
+        <p class="widget-desc">0–255 arası bir sayı seç ve adım adım ilerle.</p>
+        <div class="field-row">
+            <label class="field grow"><span>Onlu sayı (0–255)</span><input id="gr-n" class="input mono" type="number" min="0" max="255" value="42"></label>
         </div>
+        <div class="gr-remain" id="gr-remain"></div>
+        <div class="digit-tiles gr-tiles" id="gr-tiles"></div>
+        <div class="step-note" id="gr-note"></div>
+        <div id="gr-stepper"></div>
+    </section>
 
-        <h2>İnteraktif: Bit Görselleştirici</h2>
-
-        <div class="interactive-section">
-            <h3>🎮 Bitlere Tıkla, Değeri Gör</h3>
-            <p style="color: var(--text-muted);">Her kutuya tıklayarak 0 ve 1 arasında değiştir</p>
-
-            <div class="bit-visual">
-                <div class="bit-group">
-                    <div class="bit" onclick="toggleBit(this, 7)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">128</span>
-                    </div>
-                    <div class="bit" onclick="toggleBit(this, 6)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">64</span>
-                    </div>
-                    <div class="bit" onclick="toggleBit(this, 5)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">32</span>
-                    </div>
-                    <div class="bit" onclick="toggleBit(this, 4)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">16</span>
-                    </div>
-                </div>
-                <div class="bit-group">
-                    <div class="bit" onclick="toggleBit(this, 3)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">8</span>
-                    </div>
-                    <div class="bit" onclick="toggleBit(this, 2)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">4</span>
-                    </div>
-                    <div class="bit" onclick="toggleBit(this, 1)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">2</span>
-                    </div>
-                    <div class="bit" onclick="toggleBit(this, 0)">
-                        <span class="bit-value">0</span>
-                        <span class="bit-weight">1</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="result-box success">
-                <div class="result-row">
-                    <div class="result-item">
-                        <div class="result-label">Binary</div>
-                        <div class="result-value bin" id="binResult">00000000</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Decimal</div>
-                        <div class="result-value dec" id="decResult">0</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Hex</div>
-                        <div class="result-value hex" id="hexResult">00</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="calculation" class="code-block" style="margin-top: 1rem;">
-                <div class="code-header">Hesaplama</div>
-                <div class="code-content"><pre id="calcDetail">0 + 0 + 0 + 0 + 0 + 0 + 0 + 0 = <span class="dec">0</span></pre></div>
-            </div>
+    <h2>Binary toplama ve elde</h2>
+    <p>Binary toplama, ilkokulda öğrendiğin toplamanın aynısıdır; tek fark 2’ye ulaşınca elde oluşmasıdır. Bilmen gereken dört kural var:</p>
+    <div class="table-wrap">
+        <table class="compact center-cells">
+            <thead><tr><th>İşlem</th><th>Sonuç</th><th>Yaz</th><th>Elde</th></tr></thead>
+            <tbody>
+                <tr><td class="m">0 + 0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td></tr>
+                <tr><td class="m">0 + 1</td><td class="m">1</td><td class="m">1</td><td class="m">0</td></tr>
+                <tr><td class="m">1 + 1</td><td class="m">2 = <span class="bin">10</span>₂</td><td class="m">0</td><td class="m"><b>1</b></td></tr>
+                <tr><td class="m">1 + 1 + 1 (elde)</td><td class="m">3 = <span class="bin">11</span>₂</td><td class="m">1</td><td class="m"><b>1</b></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <section class="widget" id="adder">
+        <h3 class="widget-title">Sütun sütun toplama</h3>
+        <p class="widget-desc">İki 8 bitlik sayı gir (binary) ve sağdan sola toplamayı izle. Elde satırı sarı ile gösterilir.</p>
+        <div class="field-row">
+            <label class="field grow"><span>A</span><input id="ad-a" class="input mono" value="01011011" maxlength="8" spellcheck="false"></label>
+            <label class="field grow"><span>B</span><input id="ad-b" class="input mono" value="00110110" maxlength="8" spellcheck="false"></label>
         </div>
+        <div class="adder-grid" id="ad-grid"></div>
+        <div class="step-note" id="ad-note"></div>
+        <div id="ad-stepper"></div>
+    </section>
+    <div class="callout warn">
+        <span class="callout-title">8 bite sığmazsa?</span>
+        <p>İki 8 bitlik sayının toplamı 255’i geçerse en soldan bir elde taşar ve 8 bitlik kutuya sığmaz. Bilgisayar bu 9. biti
+        çoğu zaman <strong>atar</strong>; sonuç “başa sarar”. Örneğin 8 bitte 200 + 100 = 300 değil, <strong>44</strong> olur (300 − 256).
+        Buna <strong>taşma (overflow)</strong> denir. Yukarıdaki kutuda <code>11001000</code> + <code>01100100</code> girerek dene!
+        Ayrıntılar Bölüm 5’te.</p>
+    </div>
 
-        <h2>2'nin Kuvvetleri</h2>
+    <div id="practice"></div>
 
-        <p>Binary'de her basamak 2'nin bir kuvvetini temsil eder. Bu değerleri bilmek çok işe yarar:</p>
+    <section class="summary">
+        <h2>Özet</h2>
+        <ul>
+            <li>Bit, iki değer alabilen en küçük bilgi birimidir. Donanım iki durumu güvenilir şekilde ayırt edebildiği için ikili sistem kullanılır.</li>
+            <li>Bitlerin ağırlıkları sağdan sola 1, 2, 4, 8, 16, 32, 64, 128…</li>
+            <li>Binary → onlu: 1 olan bitlerin ağırlıklarını topla.</li>
+            <li>Onlu → binary: en büyük ağırlıktan başlayıp sığanları çıkar (ya da 2’ye tekrar tekrar böl).</li>
+            <li>Toplamada 1 + 1 = 10₂: 0 yaz, 1 elde. Sabit bit sayısına sığmayan sonuç taşar.</li>
+        </ul>
+    </section>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Üs</th>
-                        <th>Hesaplama</th>
-                        <th>Değer</th>
-                        <th>Ne İşe Yarar?</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>2⁰</td><td>1</td><td><strong>1</strong></td><td>En küçük bit değeri</td></tr>
-                    <tr><td>2¹</td><td>2</td><td><strong>2</strong></td><td></td></tr>
-                    <tr><td>2²</td><td>4</td><td><strong>4</strong></td><td></td></tr>
-                    <tr><td>2³</td><td>8</td><td><strong>8</strong></td><td>1 byte = 8 bit</td></tr>
-                    <tr><td>2⁴</td><td>16</td><td><strong>16</strong></td><td>1 hex rakamı = 4 bit</td></tr>
-                    <tr><td>2⁷</td><td>128</td><td><strong>128</strong></td><td>1 byte'ın en yüksek biti</td></tr>
-                    <tr><td>2⁸</td><td>256</td><td><strong>256</strong></td><td>1 byte'da kaç farklı değer var</td></tr>
-                    <tr><td>2¹⁰</td><td>1024</td><td><strong>1024</strong></td><td>≈ 1000 (Kilo)</td></tr>
-                </tbody>
-            </table>
+    <div class="quiz">
+        <div class="quiz-q" data-correct="0">
+            <p><span class="num bin">11001</span>₂ onlu olarak kaçtır?</p>
+            <ul><li>25</li><li>21</li><li>19</li><li>29</li></ul>
+            <div class="quiz-explain">16 + 8 + 1 = 25.</div>
         </div>
-
-        <h2>Binary → Decimal Dönüşümü</h2>
-
-        <p>Sadece <strong>1</strong> olan bitlerin ağırlık değerlerini topla:</p>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: 11010110₂ → ?</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Her bitin pozisyon değeri</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>   Bit:     <span class="bin">1</span>   <span class="bin">1</span>   <span class="bin">0</span>   <span class="bin">1</span>   <span class="bin">0</span>   <span class="bin">1</span>   <span class="bin">1</span>   <span class="bin">0</span>
-<span class="line-num">4</span>   Ağırlık: 128  64  32  16   8   4   2   1
-<span class="line-num">5</span>
-<span class="line-num">6</span><span class="comment">// Sadece 1 olanları topla:</span>
-<span class="line-num">7</span>   128 + 64 + 16 + 4 + 2 = <span class="dec">214</span></pre>
-            </div>
+        <div class="quiz-q" data-correct="2">
+            <p>Bir binary sayının sonuna (sağına) bir <code>0</code> eklersen değeri ne olur?</p>
+            <ul><li>Değişmez</li><li>10 katına çıkar</li><li>2 katına çıkar</li><li>Yarıya iner</li></ul>
+            <div class="quiz-explain">Her bit bir sola kayar ve ağırlığı ikiye katlanır. Bu işleme <em>sola kaydırma</em> (<code>&lt;&lt; 1</code>) denir.</div>
         </div>
-
-        <div class="info-box concept">
-            <strong>Pratik İpucu</strong><br>
-            Sağdan sola ağırlıklar: 1, 2, 4, 8, 16, 32, 64, 128...<br>
-            Her adımda 2 ile çarpılıyor!
+        <div class="quiz-q" data-correct="3">
+            <p>Aşağıdakilerden hangisi <strong>kesinlikle tek</strong> bir sayıdır?</p>
+            <ul><li><code>1110</code></li><li><code>1000</code></li><li><code>1010</code></li><li><code>0111</code></li></ul>
+            <div class="quiz-explain">En sağdaki bit 1 ise sayı tektir: <code>0111</code> = 7.</div>
         </div>
-
-        <h2>Decimal → Binary Dönüşümü</h2>
-
-        <p>En büyük 2'nin kuvvetinden başla, sığanları çıkar:</p>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: 42₁₀ → ?</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// 42'den küçük veya eşit en büyük 2'nin kuvveti: 32</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>   42 ≥ 32? Evet  → bit 5 = <span class="bin">1</span>    42 - 32 = 10
-<span class="line-num">4</span>   10 ≥ 16? Hayır → bit 4 = <span class="bin">0</span>
-<span class="line-num">5</span>   10 ≥ 8?  Evet  → bit 3 = <span class="bin">1</span>    10 - 8 = 2
-<span class="line-num">6</span>    2 ≥ 4?  Hayır → bit 2 = <span class="bin">0</span>
-<span class="line-num">7</span>    2 ≥ 2?  Evet  → bit 1 = <span class="bin">1</span>    2 - 2 = 0
-<span class="line-num">8</span>    0 ≥ 1?  Hayır → bit 0 = <span class="bin">0</span>
-<span class="line-num">9</span>
-<span class="line-num">10</span><span class="comment">// Sonuç:</span>
-<span class="line-num">11</span>   42₁₀ = <span class="bin">101010</span>₂
-<span class="line-num">12</span>
-<span class="line-num">13</span><span class="comment">// Doğrulama: 32 + 8 + 2 = 42 ✓</span></pre>
-            </div>
+        <div class="quiz-q" data-correct="1">
+            <p><code>1</code> + <code>1</code> + <code>1</code> (binary, elde dahil) sonucunda ne yazılır ve ne elde edilir?</p>
+            <ul><li>0 yaz, 1 elde</li><li>1 yaz, 1 elde</li><li>1 yaz, elde yok</li><li>11 yaz, elde yok</li></ul>
+            <div class="quiz-explain">1 + 1 + 1 = 3 = <span class="bin">11</span>₂ → sağdaki 1 yazılır, soldaki 1 elde olarak bir sonraki sütuna geçer.</div>
         </div>
-
-        <h2>Binary ↔ Hex İlişkisi</h2>
-
-        <p>
-            Hexadecimal'in tabanı 16 = 2⁴. Bu demek oluyor ki <strong>her 4 bit = 1 hex rakamı</strong>.
-            Bu ilişki çok önemli!
-        </p>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Decimal</th>
-                        <th>Binary (4 bit)</th>
-                        <th>Hex</th>
-                        <th></th>
-                        <th>Decimal</th>
-                        <th>Binary (4 bit)</th>
-                        <th>Hex</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>0</td><td><span class="bin">0000</span></td><td><span class="hex">0</span></td>
-                        <td style="width: 20px;"></td>
-                        <td>8</td><td><span class="bin">1000</span></td><td><span class="hex">8</span></td>
-                    </tr>
-                    <tr>
-                        <td>1</td><td><span class="bin">0001</span></td><td><span class="hex">1</span></td>
-                        <td></td>
-                        <td>9</td><td><span class="bin">1001</span></td><td><span class="hex">9</span></td>
-                    </tr>
-                    <tr>
-                        <td>2</td><td><span class="bin">0010</span></td><td><span class="hex">2</span></td>
-                        <td></td>
-                        <td>10</td><td><span class="bin">1010</span></td><td><span class="hex">A</span></td>
-                    </tr>
-                    <tr>
-                        <td>3</td><td><span class="bin">0011</span></td><td><span class="hex">3</span></td>
-                        <td></td>
-                        <td>11</td><td><span class="bin">1011</span></td><td><span class="hex">B</span></td>
-                    </tr>
-                    <tr>
-                        <td>4</td><td><span class="bin">0100</span></td><td><span class="hex">4</span></td>
-                        <td></td>
-                        <td>12</td><td><span class="bin">1100</span></td><td><span class="hex">C</span></td>
-                    </tr>
-                    <tr>
-                        <td>5</td><td><span class="bin">0101</span></td><td><span class="hex">5</span></td>
-                        <td></td>
-                        <td>13</td><td><span class="bin">1101</span></td><td><span class="hex">D</span></td>
-                    </tr>
-                    <tr>
-                        <td>6</td><td><span class="bin">0110</span></td><td><span class="hex">6</span></td>
-                        <td></td>
-                        <td>14</td><td><span class="bin">1110</span></td><td><span class="hex">E</span></td>
-                    </tr>
-                    <tr>
-                        <td>7</td><td><span class="bin">0111</span></td><td><span class="hex">7</span></td>
-                        <td></td>
-                        <td>15</td><td><span class="bin">1111</span></td><td><span class="hex">F</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Binary → Hex: 4'lü grupla</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// 11011010₂ → Hex</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>   <span class="bin">1101</span>  <span class="bin">1010</span>    <span class="comment">← sağdan 4'erli grupla</span>
-<span class="line-num">4</span>     ↓      ↓
-<span class="line-num">5</span>     <span class="hex">D</span>      <span class="hex">A</span>      <span class="comment">← her grubu hex'e çevir</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span>   Sonuç: <span class="hex">DA</span>₁₆</pre>
-            </div>
-        </div>
-
-        <h2>Alıştırma</h2>
-
-        <div class="quiz-container">
-            <div class="quiz-question" id="quizQ">
-                <strong>Soru:</strong> <span class="bin">11001</span>₂ decimal olarak kaçtır?
-            </div>
-            <div class="quiz-options" id="quizOpts">
-                <div class="quiz-option" onclick="checkQuiz(this, 25)">25</div>
-                <div class="quiz-option" onclick="checkQuiz(this, 21)">21</div>
-                <div class="quiz-option" onclick="checkQuiz(this, 29)">29</div>
-                <div class="quiz-option" onclick="checkQuiz(this, 19)">19</div>
-            </div>
-            <div id="quizFeedback" style="margin-top: 1rem;"></div>
-        </div>
-
-        <div class="nav-buttons">
-            <a href="taban-kavrami.html" class="btn btn-secondary">← Taban Kavramı</a>
-            <a href="hexadecimal.html" class="btn btn-primary">Hexadecimal →</a>
+        <div class="quiz-q" data-correct="2">
+            <p>8 bit ile gösterilebilecek en büyük işaretsiz sayı hangisidir?</p>
+            <ul><li>256</li><li>128</li><li>255</li><li>127</li></ul>
+            <div class="quiz-explain">Tüm bitler 1: 128+64+32+16+8+4+2+1 = 255 = 2⁸ − 1. (256 farklı değer var ama sayım 0’dan başlar.)</div>
         </div>
     </div>
 
-    <footer class="footer">
-        Sayı Sistemleri Eğitimi • Bilgisayarda Sayılar Nasıl Saklanır?
-        <br><br>
-        Bu kitaba katkıda bulunmak ister misin? 🚀<br>
-        <a href="https://github.com/gusanmaz/number-storage-tutorial" target="_blank" rel="noopener noreferrer">github.com/gusanmaz/number-storage-tutorial</a> adresine pull request gönderebilirsin!
-    </footer>
-
-    <script>
-        // Bit toggler
-        function toggleBit(element, position) {
-            const valueSpan = element.querySelector('.bit-value');
-            const newValue = valueSpan.textContent === '0' ? '1' : '0';
-            valueSpan.textContent = newValue;
-            element.classList.toggle('active', newValue === '1');
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            const bits = document.querySelectorAll('.bit');
-            let binary = '';
-            let decimal = 0;
-            let calcParts = [];
-            
-            bits.forEach((bit, index) => {
-                const value = parseInt(bit.querySelector('.bit-value').textContent);
-                binary += value;
-                const weight = Math.pow(2, 7 - index);
-                if (value === 1) {
-                    decimal += weight;
-                    calcParts.push(weight);
-                }
-            });
-            
-            document.getElementById('binResult').textContent = binary;
-            document.getElementById('decResult').textContent = decimal;
-            document.getElementById('hexResult').textContent = decimal.toString(16).toUpperCase().padStart(2, '0');
-            
-            const calcStr = calcParts.length > 0 
-                ? calcParts.join(' + ') + ' = <span class="dec">' + decimal + '</span>'
-                : '0 = <span class="dec">0</span>';
-            document.getElementById('calcDetail').innerHTML = calcStr;
-        }
-
-        // Quiz
-        function checkQuiz(element, value) {
-            const correct = 25; // 16 + 8 + 1 = 25
-            const options = document.querySelectorAll('.quiz-option');
-            options.forEach(o => o.style.pointerEvents = 'none');
-            
-            if (value === correct) {
-                element.classList.add('correct');
-                document.getElementById('quizFeedback').innerHTML = 
-                    '<div class="result-box success">✓ Doğru! 16 + 8 + 0 + 0 + 1 = 25</div>';
-            } else {
-                element.classList.add('wrong');
-                document.getElementById('quizFeedback').innerHTML = 
-                    '<div class="result-box" style="border-color: var(--red);">✗ Yanlış. Doğru cevap: 25 (16+8+1)</div>';
-            }
-        }
-    </script>
+</main>
 </body>
 </html>

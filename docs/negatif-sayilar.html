@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Negatif Sayılar ve Taşma · Sayı Sistemleri</title>
+    <meta name="description" content="Bilgisayar eksi işaretini nasıl saklar? İkiye tümleyen (two's complement), sayı çemberi ve gerçek hayattan taşma (overflow) hataları.">
+    <link rel="alternate" hreflang="en" href="en/negative-numbers.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/common.js" defer></script>
+    <script src="js/generators.js" defer></script>
+    <script src="js/pages/negative.js" defer></script>
+</head>
+<body data-chapter="negative">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Negatif Sayılar ve Taşma</h1>
+        <p class="lead">Bellekte eksi işareti için ayrı bir sembol yok; sadece bitler var. Peki <span class="num">−5</span> nasıl saklanır?
+            Cevap, neredeyse tüm bilgisayarların kullandığı zekice bir hile: <strong>ikiye tümleyen</strong>.</p>
+        <div class="meta"><span>⏱ ~30 dk</span><span>Ön koşul: Binary, Bit ve Byte</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">Bu bölümün sonunda</div>
+        <ul>
+            <li>Neden basit bir “işaret biti” yönteminin yetersiz kaldığını açıklayabileceksin.</li>
+            <li>Bir sayıyı 8 bitlik ikiye tümleyen gösterime çevirebilecek ve geri okuyabileceksin.</li>
+            <li>İşaretli ve işaretsiz tamsayıların aralıklarını hesaplayabileceksin.</li>
+            <li>Taşmanın (overflow) ne olduğunu ve neden tehlikeli olduğunu anlayacaksın.</li>
+        </ul>
+    </section>
+
+    <h2>İlk fikir: bir bit işarete ayrılsın</h2>
+    <p>
+        Akla ilk gelen çözüm, en soldaki biti işaret olarak kullanmak: <code>0</code> = artı, <code>1</code> = eksi, kalan 7 bit de sayının büyüklüğü.
+        Buna <strong>işaret-büyüklük</strong> (sign-magnitude) gösterimi denir. <span class="num">+5</span> = <span class="mono"><b class="bad">0</b>0000101</span>,
+        <span class="num">−5</span> = <span class="mono"><b class="bad">1</b>0000101</span>. Basit, ama iki büyük sorunu var:
+    </p>
+    <div class="compare">
+        <div>
+            <h4>1. İki tane sıfır</h4>
+            <p class="mono" style="margin:0">00000000 = +0<br>10000000 = −0</p>
+            <p style="margin:.4rem 0 0">Aynı değer için iki farklı bit dizisi. Her karşılaştırmada iki durumu da kontrol etmek gerekir; bir değer de boşa gider.</p>
+        </div>
+        <div>
+            <h4>2. Toplama bozulur</h4>
+            <p class="mono" style="margin:0">&nbsp;&nbsp;00000011 (+3)<br>+ 10000011 (−3)<br>= 10000110 (−6 ?!)</p>
+            <p style="margin:.4rem 0 0">Normal binary toplama yanlış sonuç verir. İşlemcinin ayrı bir çıkarma devresine ihtiyacı olur.</p>
+        </div>
+    </div>
+
+    <h2>Çözüm: ikiye tümleyen (two’s complement)</h2>
+    <p>
+        Fikir şaşırtıcı derecede basit: en soldaki bitin ağırlığını <strong>+128 yerine −128</strong> yap. Diğer bitler aynı kalır.
+        Böylece en soldaki bit 1 olduğunda sayı otomatik olarak negatif olur.
+    </p>
+    <section class="widget" id="signed">
+        <h3 class="widget-title">Aynı bitler, iki farklı yorum</h3>
+        <p class="widget-desc">Bitlere tıkla. Aynı 8 bitin <strong>işaretsiz</strong> (en sol bit +128) ve <strong>işaretli</strong> (en sol bit −128) yorumunu karşılaştır.</p>
+        <div id="sg-bits"></div>
+        <div class="stats" id="sg-stats"></div>
+        <div class="expr" id="sg-expr"></div>
+        <div class="controls" id="sg-presets"><span class="muted" style="font-size:.85rem">Hazır değerler:</span></div>
+    </section>
+    <div class="callout tip">
+        <span class="callout-title">Fark ettin mi?</span>
+        <ul>
+            <li>En soldaki bit 1 ise sayı <strong>negatiftir</strong>. Bu yüzden ona hâlâ “işaret biti” denir.</li>
+            <li><code>11111111</code> = −128 + 127 = <strong>−1</strong>. Tüm bitler 1 olunca her zaman −1 elde edilir.</li>
+            <li>Sıfır yalnızca bir şekilde yazılır: <code>00000000</code>. “−0” yoktur.</li>
+            <li>0–127 arası sayılar her iki yorumda da aynıdır.</li>
+        </ul>
+    </div>
+
+    <h2>Bir sayının negatifini almak: ters çevir, 1 ekle</h2>
+    <p>Elle hesap için pratik bir kural vardır. Bir sayının negatifini bulmak için:</p>
+    <ol>
+        <li>Sayıyı (pozitif hâliyle) 8 bit olarak yaz.</li>
+        <li>Bütün bitleri <strong>ters çevir</strong> (0 → 1, 1 → 0). Buna “bire tümleyen” denir.</li>
+        <li>Sonuca <strong>1 ekle</strong>.</li>
+    </ol>
+    <section class="widget" id="neg">
+        <h3 class="widget-title">Ters çevir, 1 ekle — adım adım</h3>
+        <div class="field-row">
+            <label class="field grow"><span>Negatifini alacağın sayı (−127 … 127)</span><input id="neg-n" class="input mono" type="number" min="-127" max="127" value="5"></label>
+        </div>
+        <div class="neg-rows" id="neg-rows"></div>
+        <div class="step-note" id="neg-note"></div>
+        <div id="neg-stepper"></div>
+    </section>
+    <p>Aynı işlem iki yönde de çalışır: <span class="num">−5</span>’in negatifini alırsan (ters çevir + 1) yine <span class="num">+5</span>’e dönersin.</p>
+
+    <h2>Neden çalışıyor? Sayı çemberi</h2>
+    <p>
+        4 bitlik sayıları bir saatin kadranına dizdiğini düşün. <code>1111</code>’den sonra <code>0000</code> gelir; çember başa sarar.
+        <code>0000</code>’dan geriye bir adım gidersen <code>1111</code>’e ulaşırsın. O hâlde <code>1111</code>’e “−1” demek çok mantıklı!
+        Aynı şekilde <code>1110</code> = −2, <code>1101</code> = −3… İkiye tümleyen, çemberin sağ yarısını pozitif, sol yarısını negatif sayılara ayırmaktır.
+    </p>
+    <section class="widget" id="wheel">
+        <h3 class="widget-title">4 bitlik sayı çemberi</h3>
+        <p class="widget-desc">+1 ve −1 ile çemberde dolaş. Yorumu değiştir ve <strong style="color:var(--bad)">kırmızı çizgiyi</strong> geçtiğinde ne olduğuna bak: orası taşma noktası.</p>
+        <div class="controls">
+            <div class="seg" id="wh-mode" role="group" aria-label="Yorum">
+                <button type="button" aria-pressed="false" data-mode="u">İşaretsiz (0…15)</button>
+                <button type="button" aria-pressed="true" data-mode="s">İşaretli (−8…7)</button>
+            </div>
+        </div>
+        <div class="wheel-wrap"><svg id="wh-svg" viewBox="0 0 340 340" width="340" role="img" aria-label="Sayı çemberi"></svg></div>
+        <div class="controls" style="justify-content:center">
+            <button class="btn" type="button" id="wh-m">−1</button>
+            <button class="btn primary" type="button" id="wh-p">+1</button>
+            <button class="btn" type="button" id="wh-p3">+3</button>
+            <button class="btn" type="button" id="wh-play">▶ Oynat</button>
+        </div>
+        <div class="step-note" id="wh-note" aria-live="polite"></div>
+    </section>
+    <p>
+        Çemberde <strong>x eklemek</strong> saat yönünde x adım, <strong>x çıkarmak</strong> ise saat yönünün tersine x adım gitmektir.
+        Saat yönünün tersine 3 adım gitmek, saat yönünde 13 adım gitmekle aynı yere varır (16 − 3 = 13). Bu yüzden işlemci
+        <strong>çıkarma yerine negatifiyle toplama</strong> yapabilir: <code>7 − 3 = 7 + (−3)</code>. Tek bir toplama devresi yeter!
+    </p>
+<pre class="plain"><code>  0111   (+7)
++ 1101   (−3)
+------
+ 10100   → 5. bit atılır → 0100 = <b class="dec">+4</b> ✓</code></pre>
+
+    <h2>İşaretli ve işaretsiz aralıklar</h2>
+    <p>n bitlik ikiye tümleyen sayılar <strong>−2ⁿ⁻¹ … 2ⁿ⁻¹ − 1</strong> aralığındadır. Negatif tarafta bir sayı fazla vardır, çünkü sıfır pozitif taraftaki bir yeri kullanır.</p>
+    <div class="table-wrap">
+        <table class="compact">
+            <thead><tr><th>Tip (C)</th><th>Bit</th><th>İşaretsiz</th><th>İşaretli</th></tr></thead>
+            <tbody>
+                <tr><td class="m">int8_t / uint8_t</td><td class="m">8</td><td class="m">0 … 255</td><td class="m">−128 … 127</td></tr>
+                <tr><td class="m">int16_t / uint16_t</td><td class="m">16</td><td class="m">0 … 65 535</td><td class="m">−32 768 … 32 767</td></tr>
+                <tr><td class="m">int32_t / uint32_t</td><td class="m">32</td><td class="m">0 … 4 294 967 295</td><td class="m">−2 147 483 648 … 2 147 483 647</td></tr>
+                <tr><td class="m">int64_t / uint64_t</td><td class="m">64</td><td class="m">0 … 1,8 × 10¹⁹</td><td class="m">±9,2 × 10¹⁸</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Taşma (overflow)</h2>
+    <p>
+        Bir işlemin sonucu ayrılan bit sayısına sığmazsa <strong>taşma</strong> olur ve sonuç çemberde “başa sarar”.
+        8 bitlik işaretli bir sayıda <code>127 + 1</code> sonucu <strong>−128</strong> olur! Program hata vermez; sessizce yanlış hesaplar.
+        Bu yüzden taşma, yazılımdaki en sinsi hatalardandır.
+    </p>
+    <div class="tabs" data-sync="lang">
+        <div class="tab-panel" data-label="JavaScript">
+<pre class="code" data-lang="js">
+// JS sayıları normalde 64 bit ondalıklıdır; typed array ile 8 bit taşmayı görebiliriz
+const a = new Int8Array(1);
+a[0] = 127;
+a[0] += 1;
+console.log(a[0]);        // -128  (taşma!)
+
+const u = new Uint8Array([255]);
+u[0] += 1;
+console.log(u[0]);        // 0
+</pre>
+        </div>
+        <div class="tab-panel" data-label="Python">
+<pre class="code" data-lang="py">
+# Python tamsayıları sınırsız büyür, taşmaz:
+print(2 ** 100)            # 1267650600228229401496703205376
+
+# Ama C türlerini taklit edersek taşmayı görürüz:
+import ctypes
+print(ctypes.c_int8(127 + 1).value)    # -128
+print(ctypes.c_uint8(255 + 1).value)   # 0
+</pre>
+        </div>
+        <div class="tab-panel" data-label="C">
+<pre class="code" data-lang="c">
+#include &lt;stdint.h&gt;
+uint8_t  u = 255;  u = u + 1;   // 0   (işaretsizde başa sarma tanımlıdır)
+int8_t   s = 127;  s = s + 1;   // -128 (pratikte; dönüşüm derleyiciye bağlıdır)
+int      x = 2147483647;
+x = x + 1;                      // TANIMSIZ DAVRANIŞ! İşaretli int taşması
+</pre>
+        </div>
+    </div>
+
+    <div class="cards">
+        <div class="card"><span class="card-icon">🎮</span><h4>Pac-Man, 256. seviye (1980)</h4><p>Seviye sayacı 8 bitti. 256. seviyede sayaç taşınca ekranın yarısı anlamsız karakterlerle doldu ve oyun oynanamaz hâle geldi.</p></div>
+        <div class="card"><span class="card-icon">🚀</span><h4>Ariane 5 (1996)</h4><p>64 bitlik bir ondalık hız değeri 16 bitlik işaretli tamsayıya çevrilirken sığmadı. Roket kalkıştan 37 saniye sonra kendini imha etti.</p></div>
+        <div class="card"><span class="card-icon">📺</span><h4>Gangnam Style (2014)</h4><p>YouTube izlenme sayacı 32 bit işaretliydi; en fazla 2 147 483 647. Video bu sınıra yaklaşınca YouTube sayacı 64 bite çıkardı.</p></div>
+        <div class="card"><span class="card-icon">⏰</span><h4>2038 problemi</h4><p>Birçok sistem zamanı 1970’ten beri geçen saniye olarak 32 bit işaretli tutar. 19 Ocak 2038, 03:14:07 UTC’de bu sayı taşacak.</p></div>
+    </div>
+
+    <div id="practice"></div>
+
+    <section class="summary">
+        <h2>Özet</h2>
+        <ul>
+            <li>İkiye tümleyende en soldaki bitin ağırlığı negatiftir (8 bitte −128). Bu bit 1 ise sayı negatiftir.</li>
+            <li>Negatifini almak için: bitleri ters çevir, 1 ekle.</li>
+            <li>Tek bir sıfır vardır ve toplama devresi çıkarma için de kullanılabilir.</li>
+            <li>n bit işaretli aralık: −2ⁿ⁻¹ … 2ⁿ⁻¹ − 1 (8 bit: −128 … 127).</li>
+            <li>Sonuç sığmazsa taşma olur ve değer sessizce başa sarar.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="1">
+            <p>8 bit ikiye tümleyende <code>11111111</code> kaçtır?</p>
+            <ul><li>255</li><li>−1</li><li>−127</li><li>−128</li></ul>
+            <div class="quiz-explain">−128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = −1.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>−6’nın 8 bitlik ikiye tümleyen gösterimi hangisidir?</p>
+            <ul><li>10000110</li><li>11111001</li><li>00000110</li><li>11111010</li></ul>
+            <div class="quiz-explain">6 = 00000110 → ters: 11111001 → +1: 11111010. (10000110 işaret-büyüklük gösterimidir.)</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>8 bitlik işaretli bir değişkende <code>127 + 1</code> işleminin sonucu nedir?</p>
+            <ul><li>−128</li><li>128</li><li>0</li><li>Program hata verip durur</li></ul>
+            <div class="quiz-explain">01111111 + 1 = 10000000 = −128. Çemberde pozitiften negatife geçtik: taşma.</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p>16 bitlik işaretli bir tamsayının alabileceği en küçük değer nedir?</p>
+            <ul><li>−65 536</li><li>−32 767</li><li>−32 768</li><li>0</li></ul>
+            <div class="quiz-explain">−2¹⁵ = −32 768.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>İşlemcilerin ikiye tümleyeni tercih etmesinin <strong>en önemli</strong> sebebi nedir?</p>
+            <ul><li>Daha çok pozitif sayı sığdırması</li><li>Toplama ve çıkarma için aynı devrenin kullanılabilmesi</li><li>Okunmasının daha kolay olması</li><li>Daha az bit kullanması</li></ul>
+            <div class="quiz-explain">a − b = a + (−b). Negatif sayılar sıradan binary toplamayla doğru sonucu verir; ayrı çıkarma devresine gerek kalmaz.</div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

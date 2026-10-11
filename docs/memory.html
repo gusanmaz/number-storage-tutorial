@@ -2,1636 +2,202 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory ve Veri Saklama | Sayı Sistemleri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bellek (Memory) · Sayı Sistemleri</title>
+    <meta name="description" content="Bellek adresleri, byte sırası (endianness), değişkenlerin belleğe yerleşimi, hizalama, diziler ve pointer'lar — etkileşimli bellek simülatörü.">
+    <link rel="alternate" hreflang="en" href="en/memory.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .memory-visual {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            background: var(--bg-code);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 1.5rem 0;
-        }
-        .memory-header {
-            display: grid;
-            grid-template-columns: 100px repeat(8, 1fr) 100px;
-            background: rgba(255,255,255,0.03);
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        .memory-row {
-            display: grid;
-            grid-template-columns: 100px repeat(8, 1fr) 100px;
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--border);
-            align-items: center;
-        }
-        .memory-row:last-child {
-            border-bottom: none;
-        }
-        .memory-row:hover {
-            background: rgba(99, 102, 241, 0.05);
-        }
-        .mem-addr {
-            color: var(--orange);
-        }
-        .mem-cell {
-            text-align: center;
-            padding: 0.25rem;
-            border-radius: 4px;
-            margin: 0 2px;
-        }
-        .mem-cell.highlight-r { background: rgba(255, 68, 68, 0.3); }
-        .mem-cell.highlight-g { background: rgba(68, 255, 68, 0.3); }
-        .mem-cell.highlight-b { background: rgba(68, 136, 255, 0.3); }
-        .mem-cell.highlight-y { background: rgba(255, 200, 68, 0.3); }
-        .mem-ascii {
-            color: var(--green);
-        }
-        .byte-breakdown {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin: 1rem 0;
-        }
-        .byte-box {
-            background: var(--bg-code);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-            min-width: 80px;
-        }
-        .byte-box.active {
-            border-color: var(--accent);
-        }
-        .byte-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-        .byte-hex {
-            font-family: var(--font-mono);
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        .byte-dec {
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-        .pointer-visual {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            margin: 1.5rem 0;
-            flex-wrap: wrap;
-        }
-        .var-box {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            padding: 1rem 1.5rem;
-            text-align: center;
-        }
-        .var-name {
-            font-family: var(--font-mono);
-            color: var(--cyan);
-            font-size: 0.9rem;
-        }
-        .var-value {
-            font-family: var(--font-mono);
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0.5rem 0;
-        }
-        .var-addr {
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            color: var(--orange);
-        }
-        .arrow {
-            font-size: 2rem;
-            color: var(--accent);
-        }
-        .ieee-visual {
-            display: flex;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-        .ieee-bit {
-            width: 22px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            border: 1px solid var(--border);
-        }
-        .ieee-bit.sign { background: rgba(255, 68, 68, 0.3); }
-        .ieee-bit.exp { background: rgba(68, 200, 68, 0.3); }
-        .ieee-bit.mant { background: rgba(68, 136, 255, 0.3); }
-        .ieee-label {
-            text-align: center;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-        .ascii-full {
-            font-size: 0.85rem;
-        }
-        .ascii-full td, .ascii-full th {
-            padding: 0.35rem 0.5rem;
-            text-align: center;
-        }
-        .ascii-full td:nth-child(3n) {
-            font-family: var(--font-mono);
-            font-weight: 600;
-            color: var(--cyan);
-        }
-    </style>
+    <script src="js/common.js" defer></script>
+    <script src="js/pages/memory.js" defer></script>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
-            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
-            <ul class="nav-links" id="nav">
-                <li><a href="index.html">Giriş</a></li>
-                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
-                <li><a href="binary.html">Binary</a></li>
-                <li><a href="hexadecimal.html">Hexadecimal</a></li>
-                <li><a href="bit-byte.html">Bit & Byte</a></li>
-                <li><a href="memory.html" class="active">Memory</a></li>
-                <li><a href="programlama.html">Programlama</a></li>
-                <li><a href="renkler.html">Renkler</a></li>
-            </ul>
+<body data-chapter="memory">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Bellek (Memory)</h1>
+        <p class="lead">Şimdiye kadar sayıların, harflerin, renklerin ve seslerin nasıl byte’lara dönüştüğünü gördün. Bu bölümde o byte’ların
+            <strong>nereye</strong> konduğunu öğreneceksin: adresler, byte sırası, diziler ve pointer’lar.</p>
+        <div class="meta"><span>⏱ ~40 dk</span><span>Ön koşul: Hex, Negatif Sayılar, Ondalıklı Sayılar, Metin</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">Bu bölümün sonunda</div>
+        <ul>
+            <li>Belleği adreslenmiş byte’lardan oluşan bir dizi olarak düşünebileceksin.</li>
+            <li>Çok byte’lı bir değerin little-endian ve big-endian sıralamasını yazabileceksin.</li>
+            <li>Farklı türdeki değişkenlerin bellekte nasıl yer kapladığını ve hizalandığını göreceksin.</li>
+            <li>Bir dizi elemanının adresini hesaplayabilecek ve pointer’ların ne olduğunu açıklayabileceksin.</li>
+        </ul>
+    </section>
+
+    <h2>Bellek: numaralı kutulardan oluşan dev bir dizi</h2>
+    <p>
+        RAM’i, her biri <strong>tam bir byte</strong> alan küçük kutulardan oluşan çok uzun bir sıra olarak düşün. Her kutunun bir numarası vardır:
+        <strong>adres</strong>. 8 GB RAM’de yaklaşık 8,6 milyar kutu vardır. İşlemci “<span class="hex">0x7FFE0010</span> adresindeki byte’ı getir” der ve o kutunun içeriğini alır.
+    </p>
+    <div class="callout note">
+        <span class="callout-title">Adresler neden hex yazılır?</span>
+        <p>Adresler de sayıdır ve bitlerle ilgilidir: hangi bellek bloğu, hangi sayfa, hangi hizalama… Hex, her rakamı tam 4 bit olduğu için bu yapıyı gösterir.
+        Örneğin <span class="hex">0x1000</span>, <span class="hex">0x2000</span> gibi “yuvarlak” adresler 4096 byte’lık sayfaların başlarıdır. Onlu olarak 4096 ve 8192 bunu hiç belli etmez.</p>
+    </div>
+
+    <h2>Çok byte’lı değerler: byte sırası (endianness)</h2>
+    <p>
+        Bir <code>int</code> 4 byte tutar; peki bu 4 byte hangi sırayla dizilir? İki gelenek vardır. <strong>Big-endian</strong>’da (büyük uç önce) değerin
+        en anlamlı byte’ı en küçük adrese yazılır; insanın okuduğu sıra budur. <strong>Little-endian</strong>’da (küçük uç önce) tersi olur: en az anlamlı byte önce gelir.
+    </p>
+    <section class="widget" id="endian">
+        <h3 class="widget-title">Aynı sayı, iki sıra</h3>
+        <div class="field-row">
+            <label class="field grow"><span>32 bitlik değer (onlu ya da hex)</span><input id="en-in" class="input mono" value="0x12345678" spellcheck="false"></label>
         </div>
-    </nav>
+        <div class="en-bytes" id="en-bytes"></div>
+        <div class="en-rows" id="en-rows"></div>
+    </section>
+    <div class="callout real">
+        <span class="callout-title">Gerçek hayatta</span>
+        <p>Intel/AMD (x86) ve neredeyse tüm ARM işlemciler (telefonlar, Apple M serisi) <strong>little-endian</strong>’dır. İnternet protokolleri ise sayıları
+        <strong>big-endian</strong> gönderir (“network byte order”). Bu yüzden ağ programcılığında <code>htonl()</code> gibi dönüştürücü fonksiyonlar vardır.
+        İsim, Gulliver’in Gezileri’nde yumurtayı hangi ucundan kırmak gerektiği konusunda savaşan iki halktan gelir.</p>
+    </div>
 
-    <div class="container">
-        <section class="hero">
-            <h1>Memory ve Veri Saklama</h1>
-            <p>Veriler bellekte nasıl saklanır? Adresler neden hex?</p>
-        </section>
-
-        <h2>Memory Adresleri Neden Hexadecimal?</h2>
-
-        <p>
-            Bilgisayarın RAM'inde her byte'ın benzersiz bir <strong>adresi</strong> vardır. 
-            Bu adresler hexadecimal olarak gösterilir çünkü:
-        </p>
-
-        <div class="cards-grid">
-            <div class="card">
-                <h4>📏 Kompakt</h4>
-                <p>32-bit adres:<br>
-                Binary: 32 karakter<br>
-                Hex: sadece 8 karakter</p>
-            </div>
-            <div class="card">
-                <h4>🔍 Okunabilir</h4>
-                <p>Her 2 hex = 1 byte<br>
-                Byte sınırları kolayca görülür</p>
-            </div>
-            <div class="card">
-                <h4>🔄 Kolay Dönüşüm</h4>
-                <p>Hex ↔ Binary<br>
-                Her hex = 4 bit</p>
-            </div>
+    <h2>Bellek simülatörü</h2>
+    <p>
+        Şimdi kendi değişkenlerini tanımla ve belleğe nasıl yerleştiklerini izle. Simülatör, gerçek bir C derleyicisi gibi davranır:
+        her türün bir boyutu vardır ve değişkenler boyutlarının katı olan adreslere <strong>hizalanır</strong>.
+    </p>
+    <section class="widget" id="sim">
+        <h3 class="widget-title">Değişken tanımla, belleğe yaz</h3>
+        <div class="sim-form">
+            <label class="field"><span>Tür</span>
+                <select id="sim-type" class="input">
+                    <option value="char">char (1 B)</option>
+                    <option value="int8">int8_t (1 B)</option>
+                    <option value="int16">short (2 B)</option>
+                    <option value="int32" selected>int (4 B)</option>
+                    <option value="float">float (4 B)</option>
+                    <option value="double">double (8 B)</option>
+                    <option value="str">char[] (metin)</option>
+                    <option value="ptr">int* (pointer, 8 B)</option>
+                </select>
+            </label>
+            <label class="field"><span>Ad</span><input id="sim-name" class="input mono" value="x" maxlength="8" spellcheck="false"></label>
+            <label class="field grow"><span>Değer</span><input id="sim-val" class="input mono" value="42" spellcheck="false"></label>
+            <button class="btn primary" type="button" id="sim-add">Belleğe yaz</button>
         </div>
-
-        <div class="code-block">
-            <div class="code-header">Aynı Adres, Farklı Gösterimler</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// 32-bit memory adresi</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>Binary:  <span class="bin">01111111111111100100001010100000</span>  (32 karakter!)
-<span class="line-num">4</span>Hex:     <span class="hex">0x7FFE42A0</span>                        (8 karakter)
-<span class="line-num">5</span>Decimal: <span class="dec">2147369632</span>                        (okunması zor)</pre>
-            </div>
-        </div>
-
-        <h2>Memory Görselleştirmesi</h2>
-
-        <p>
-            Aşağıda bir bellek bölgesinin nasıl göründüğünü görüyorsun. 
-            Her satır 8 byte, her hücre 1 byte (2 hex rakamı).
-        </p>
-
-        <div class="memory-visual">
-            <div class="memory-header">
-                <span>Adres</span>
-                <span>+0</span><span>+1</span><span>+2</span><span>+3</span>
-                <span>+4</span><span>+5</span><span>+6</span><span>+7</span>
-                <span>ASCII</span>
-            </div>
-            <div class="memory-row">
-                <span class="mem-addr">0x7FFE0000</span>
-                <span class="mem-cell highlight-y">48</span>
-                <span class="mem-cell highlight-y">65</span>
-                <span class="mem-cell highlight-y">6C</span>
-                <span class="mem-cell highlight-y">6C</span>
-                <span class="mem-cell highlight-y">6F</span>
-                <span class="mem-cell">00</span>
-                <span class="mem-cell">00</span>
-                <span class="mem-cell">00</span>
-                <span class="mem-ascii">Hello...</span>
-            </div>
-            <div class="memory-row">
-                <span class="mem-addr">0x7FFE0008</span>
-                <span class="mem-cell highlight-r">2A</span>
-                <span class="mem-cell highlight-r">00</span>
-                <span class="mem-cell highlight-r">00</span>
-                <span class="mem-cell highlight-r">00</span>
-                <span class="mem-cell highlight-b">FF</span>
-                <span class="mem-cell highlight-b">00</span>
-                <span class="mem-cell">00</span>
-                <span class="mem-cell">00</span>
-                <span class="mem-ascii">*.......</span>
-            </div>
-            <div class="memory-row">
-                <span class="mem-addr">0x7FFE0010</span>
-                <span class="mem-cell highlight-g">00</span>
-                <span class="mem-cell highlight-g">E0</span>
-                <span class="mem-cell highlight-g">FF</span>
-                <span class="mem-cell highlight-g">7F</span>
-                <span class="mem-cell highlight-g">00</span>
-                <span class="mem-cell highlight-g">00</span>
-                <span class="mem-cell highlight-g">00</span>
-                <span class="mem-cell highlight-g">00</span>
-                <span class="mem-ascii">........</span>
+        <div class="controls">
+            <button class="btn sm" type="button" id="sim-demo">Örnek program</button>
+            <button class="btn sm ghost" type="button" id="sim-clear">Belleği temizle</button>
+            <span class="sep"></span>
+            <div class="seg" id="sim-endian" role="group" aria-label="Byte sırası">
+                <button type="button" aria-pressed="true" data-e="le">Little-endian</button>
+                <button type="button" aria-pressed="false" data-e="be">Big-endian</button>
             </div>
         </div>
+        <div class="msg" id="sim-msg" hidden></div>
+        <div class="sim-mem" id="sim-mem"></div>
+        <div class="sim-info" id="sim-info" aria-live="polite"></div>
+        <div class="sim-vars" id="sim-vars"></div>
+    </section>
+    <div class="callout tip">
+        <span class="callout-title">Simülatörde gördüklerin</span>
+        <ul>
+            <li><strong>Çizgili gri byte’lar boşluktur (padding).</strong> <code>char</code>’dan sonra gelen bir <code>int</code> 4’ün katı adrese kaydırılır; çünkü işlemciler hizalı veriyi çok daha hızlı okur.</li>
+            <li>Bir metin (<code>char[]</code>) her karakter için 1 byte ve sonda <code>00</code> (null) tutar.</li>
+            <li>Pointer’ın değeri başka bir değişkenin <strong>adresidir</strong>; byte’larına bakınca o adresin little-endian yazılışını görürsün.</li>
+            <li>Byte sırasını değiştirince yalnızca çok byte’lı değerlerin dizilişi değişir; <code>char</code> ve metinler değişmez.</li>
+        </ul>
+    </div>
 
-        <div class="info-box example">
-            <strong>Yukarıdaki Memory'de Ne Var?</strong><br>
-            <span style="color: #ffcc44;">Sarı:</span> "Hello" string'i (ASCII)<br>
-            <span style="color: #ff4444;">Kırmızı:</span> 42 sayısı (4 byte int, little-endian: 0x0000002A)<br>
-            <span style="color: #4488ff;">Mavi:</span> 255 sayısı (4 byte int: 0x000000FF)<br>
-            <span style="color: #44ff44;">Yeşil:</span> Bir pointer/adres (0x7FFFE000)
+    <h2>Diziler: yan yana dizilmiş değerler</h2>
+    <p>
+        Bir dizi (array), aynı türdeki elemanların bellekte <strong>arka arkaya</strong> durmasıdır. Bu sayede i. elemanın adresi tek bir çarpma ve toplamayla bulunur.
+        Dizilerin 0’dan başlamasının sebebi de budur: indis, başlangıçtan kaç eleman <em>uzakta</em> olduğumuzu söyler.
+    </p>
+    <div class="big-formula">adres(dizi[i]) = başlangıç adresi + i × eleman boyutu</div>
+    <section class="widget" id="arr">
+        <h3 class="widget-title">Dizi elemanının adresi</h3>
+        <div class="field-row">
+            <label class="field"><span>Eleman türü</span>
+                <select id="arr-t" class="input"><option value="1">char (1 B)</option><option value="2">short (2 B)</option><option value="4" selected>int (4 B)</option><option value="8">double (8 B)</option></select></label>
+            <label class="field grow"><span>İndis (i)</span><input id="arr-i" type="range" min="0" max="7" value="3"></label>
         </div>
+        <div class="arr-strip" id="arr-strip"></div>
+        <div class="expr" id="arr-out"></div>
+    </section>
 
-        <h2>Tam Sayılar (Integers) Bellekte</h2>
+    <h2>Pointer: adres tutan değişken</h2>
+    <p>
+        Madem her şeyin bir adresi var, adresleri de bir değişkende saklayabiliriz. Değeri bir <strong>adres</strong> olan değişkene <strong>pointer</strong> (işaretçi) denir.
+        64 bitlik sistemlerde bir pointer 8 byte’tır. C’de <code>&amp;x</code> “x’in adresi”, <code>*p</code> ise “p’nin gösterdiği yerdeki değer” demektir.
+    </p>
+    <section class="widget" id="ptr">
+        <h3 class="widget-title">Pointer’ı adım adım izle</h3>
+        <p class="widget-desc">▶ ile her satırı çalıştır; sağda bellekteki değişkenleri ve okları izle.</p>
+        <div id="ptr-box"></div>
+    </section>
+    <div class="callout warn">
+        <span class="callout-title">Pointer tehlikeleri</span>
+        <p>C ve C++ adreslerle doğrudan çalışmana izin verir; bu güç beraberinde risk getirir. Dizinin sonunu aşmak (<em>buffer overflow</em>), silinmiş
+        belleği kullanmak (<em>use-after-free</em>) ya da <code>NULL</code> bir pointer’ı okumak programı çökertebilir veya güvenlik açığı yaratır.
+        Python, JavaScript ve Java bu yüzden pointer’ları gizler; bir sonraki bölümde bunun yerine kullandıkları <strong>referansları</strong> göreceksin.</p>
+    </div>
 
-        <p>Tam sayılar sabit boyutta saklanır: 1, 2, 4 veya 8 byte.</p>
-
-        <div class="code-block">
-            <div class="code-header">42 sayısının bellekteki gösterimi</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// 42 decimal = 0x2A hex = 0b00101010 binary</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span><span class="comment">// 1 byte (int8):</span>
-<span class="line-num">4</span>   <span class="hex">2A</span>
-<span class="line-num">5</span>
-<span class="line-num">6</span><span class="comment">// 2 byte (int16) - little-endian:</span>
-<span class="line-num">7</span>   <span class="hex">2A 00</span>
-<span class="line-num">8</span>
-<span class="line-num">9</span><span class="comment">// 4 byte (int32) - little-endian:</span>
-<span class="line-num">10</span>   <span class="hex">2A 00 00 00</span>
-<span class="line-num">11</span>
-<span class="line-num">12</span><span class="comment">// 8 byte (int64) - little-endian:</span>
-<span class="line-num">13</span>   <span class="hex">2A 00 00 00 00 00 00 00</span></pre>
-            </div>
+    <h2>Stack ve heap</h2>
+    <div class="compare">
+        <div>
+            <h4>Stack (yığıt)</h4>
+            <p style="margin:0">Fonksiyonların yerel değişkenleri burada durur. Fonksiyon çağrılınca yer ayrılır, bitince otomatik silinir. Çok hızlıdır ama küçüktür (genelde birkaç MB).</p>
         </div>
-
-        <div class="info-box concept">
-            <strong>Little-Endian vs Big-Endian</strong><br>
-            <strong>Little-endian</strong> (Intel/AMD): Düşük byte önce yazılır<br>
-            0x12345678 → bellekte: <code class="hex">78 56 34 12</code><br><br>
-            <strong>Big-endian</strong> (Network): Yüksek byte önce yazılır<br>
-            0x12345678 → bellekte: <code class="hex">12 34 56 78</code>
-        </div>
-
-        <h3>İnteraktif: Sayıyı Bellekte Gör</h3>
-
-        <div class="interactive-section">
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Decimal Sayı</label>
-                    <input type="number" class="input-field" id="intInput" value="12345" min="0" max="4294967295">
-                </div>
-                <div class="input-group">
-                    <label>Boyut</label>
-                    <select class="input-field" id="intSize">
-                        <option value="1">1 byte (0-255)</option>
-                        <option value="2">2 byte (0-65535)</option>
-                        <option value="4" selected>4 byte</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" onclick="showIntMemory()">Göster</button>
-            </div>
-            <div id="intMemoryResult"></div>
-        </div>
-
-        <h2>ASCII: Karakterlerin Sayısal Karşılığı</h2>
-
-        <p>
-            Bilgisayar karakterleri sayı olarak saklar. <strong>ASCII</strong> (American Standard Code for Information Interchange) tablosu, 
-            her karaktere 0-127 arası bir sayı atar (7 bit, 1 byte'a sığar).
-        </p>
-
-        <h3>Kontrol Karakterleri (0-31): Non-Printable</h3>
-        
-        <div class="info-box concept">
-            <strong>Non-Printable Karakterler Neden Var?</strong><br>
-            ASCII, 1960'larda teletype (yazı makinesi) ve terminal cihazları için tasarlandı. 
-            İlk 32 karakter (0-31) ekrana yazılmaz, bunun yerine <strong>cihazı kontrol eder</strong>:<br><br>
-            • <strong>Metin biçimlendirme:</strong> Yeni satır, sekme, sayfa sonu<br>
-            • <strong>İletişim kontrolü:</strong> Başlangıç/bitiş sinyalleri, onay<br>
-            • <strong>Cihaz kontrolü:</strong> Zil çalma, silme, iptal<br><br>
-            Bugün çoğu kullanılmıyor ama <code>\n</code>, <code>\t</code>, <code>\r</code> hâlâ çok önemli!
-        </div>
-        
-        <p>En sık kullanılan kontrol karakterleri:</p>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Dec</th>
-                        <th>Hex</th>
-                        <th>Kod</th>
-                        <th>Escape</th>
-                        <th>Açıklama</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>0</td><td><span class="hex">00</span></td><td>NUL</td><td><code>\0</code></td><td>Null - String sonu işareti</td></tr>
-                    <tr><td>7</td><td><span class="hex">07</span></td><td>BEL</td><td><code>\a</code></td><td>Bell - Bip sesi çıkarır</td></tr>
-                    <tr><td>8</td><td><span class="hex">08</span></td><td>BS</td><td><code>\b</code></td><td>Backspace - Bir karakter geri</td></tr>
-                    <tr><td>9</td><td><span class="hex">09</span></td><td>TAB</td><td><code>\t</code></td><td>Horizontal Tab - Sekme</td></tr>
-                    <tr><td>10</td><td><span class="hex">0A</span></td><td>LF</td><td><code>\n</code></td><td>Line Feed - Yeni satır (Unix/Mac)</td></tr>
-                    <tr><td>11</td><td><span class="hex">0B</span></td><td>VT</td><td><code>\v</code></td><td>Vertical Tab - Dikey sekme</td></tr>
-                    <tr><td>12</td><td><span class="hex">0C</span></td><td>FF</td><td><code>\f</code></td><td>Form Feed - Sayfa sonu</td></tr>
-                    <tr><td>13</td><td><span class="hex">0D</span></td><td>CR</td><td><code>\r</code></td><td>Carriage Return - Satır başı</td></tr>
-                    <tr><td>27</td><td><span class="hex">1B</span></td><td>ESC</td><td><code>\e</code></td><td>Escape - Kaçış karakteri</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-box warning">
-            <strong>Yeni Satır Farkı</strong><br>
-            • <strong>Unix/Linux/Mac:</strong> <code>\n</code> (LF - 0x0A)<br>
-            • <strong>Windows:</strong> <code>\r\n</code> (CR+LF - 0x0D 0x0A)<br>
-            • Bu yüzden farklı sistemlerdeki text dosyaları bazen uyumsuz görünür!
-        </div>
-
-        <h3>Tam ASCII Tablosu (32-127)</h3>
-
-        <div class="table-wrap">
-            <table class="ascii-full">
-                <thead>
-                    <tr>
-                        <th>Dec</th><th>Hex</th><th>Chr</th>
-                        <th>Dec</th><th>Hex</th><th>Chr</th>
-                        <th>Dec</th><th>Hex</th><th>Chr</th>
-                        <th>Dec</th><th>Hex</th><th>Chr</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>32</td><td class="hex">20</td><td>␣</td>
-                        <td>56</td><td class="hex">38</td><td>8</td>
-                        <td>80</td><td class="hex">50</td><td>P</td>
-                        <td>104</td><td class="hex">68</td><td>h</td>
-                    </tr>
-                    <tr>
-                        <td>33</td><td class="hex">21</td><td>!</td>
-                        <td>57</td><td class="hex">39</td><td>9</td>
-                        <td>81</td><td class="hex">51</td><td>Q</td>
-                        <td>105</td><td class="hex">69</td><td>i</td>
-                    </tr>
-                    <tr>
-                        <td>34</td><td class="hex">22</td><td>"</td>
-                        <td>58</td><td class="hex">3A</td><td>:</td>
-                        <td>82</td><td class="hex">52</td><td>R</td>
-                        <td>106</td><td class="hex">6A</td><td>j</td>
-                    </tr>
-                    <tr>
-                        <td>35</td><td class="hex">23</td><td>#</td>
-                        <td>59</td><td class="hex">3B</td><td>;</td>
-                        <td>83</td><td class="hex">53</td><td>S</td>
-                        <td>107</td><td class="hex">6B</td><td>k</td>
-                    </tr>
-                    <tr>
-                        <td>36</td><td class="hex">24</td><td>$</td>
-                        <td>60</td><td class="hex">3C</td><td>&lt;</td>
-                        <td>84</td><td class="hex">54</td><td>T</td>
-                        <td>108</td><td class="hex">6C</td><td>l</td>
-                    </tr>
-                    <tr>
-                        <td>37</td><td class="hex">25</td><td>%</td>
-                        <td>61</td><td class="hex">3D</td><td>=</td>
-                        <td>85</td><td class="hex">55</td><td>U</td>
-                        <td>109</td><td class="hex">6D</td><td>m</td>
-                    </tr>
-                    <tr>
-                        <td>38</td><td class="hex">26</td><td>&amp;</td>
-                        <td>62</td><td class="hex">3E</td><td>&gt;</td>
-                        <td>86</td><td class="hex">56</td><td>V</td>
-                        <td>110</td><td class="hex">6E</td><td>n</td>
-                    </tr>
-                    <tr>
-                        <td>39</td><td class="hex">27</td><td>'</td>
-                        <td>63</td><td class="hex">3F</td><td>?</td>
-                        <td>87</td><td class="hex">57</td><td>W</td>
-                        <td>111</td><td class="hex">6F</td><td>o</td>
-                    </tr>
-                    <tr>
-                        <td>40</td><td class="hex">28</td><td>(</td>
-                        <td>64</td><td class="hex">40</td><td>@</td>
-                        <td>88</td><td class="hex">58</td><td>X</td>
-                        <td>112</td><td class="hex">70</td><td>p</td>
-                    </tr>
-                    <tr>
-                        <td>41</td><td class="hex">29</td><td>)</td>
-                        <td>65</td><td class="hex">41</td><td>A</td>
-                        <td>89</td><td class="hex">59</td><td>Y</td>
-                        <td>113</td><td class="hex">71</td><td>q</td>
-                    </tr>
-                    <tr>
-                        <td>42</td><td class="hex">2A</td><td>*</td>
-                        <td>66</td><td class="hex">42</td><td>B</td>
-                        <td>90</td><td class="hex">5A</td><td>Z</td>
-                        <td>114</td><td class="hex">72</td><td>r</td>
-                    </tr>
-                    <tr>
-                        <td>43</td><td class="hex">2B</td><td>+</td>
-                        <td>67</td><td class="hex">43</td><td>C</td>
-                        <td>91</td><td class="hex">5B</td><td>[</td>
-                        <td>115</td><td class="hex">73</td><td>s</td>
-                    </tr>
-                    <tr>
-                        <td>44</td><td class="hex">2C</td><td>,</td>
-                        <td>68</td><td class="hex">44</td><td>D</td>
-                        <td>92</td><td class="hex">5C</td><td>\</td>
-                        <td>116</td><td class="hex">74</td><td>t</td>
-                    </tr>
-                    <tr>
-                        <td>45</td><td class="hex">2D</td><td>-</td>
-                        <td>69</td><td class="hex">45</td><td>E</td>
-                        <td>93</td><td class="hex">5D</td><td>]</td>
-                        <td>117</td><td class="hex">75</td><td>u</td>
-                    </tr>
-                    <tr>
-                        <td>46</td><td class="hex">2E</td><td>.</td>
-                        <td>70</td><td class="hex">46</td><td>F</td>
-                        <td>94</td><td class="hex">5E</td><td>^</td>
-                        <td>118</td><td class="hex">76</td><td>v</td>
-                    </tr>
-                    <tr>
-                        <td>47</td><td class="hex">2F</td><td>/</td>
-                        <td>71</td><td class="hex">47</td><td>G</td>
-                        <td>95</td><td class="hex">5F</td><td>_</td>
-                        <td>119</td><td class="hex">77</td><td>w</td>
-                    </tr>
-                    <tr>
-                        <td>48</td><td class="hex">30</td><td>0</td>
-                        <td>72</td><td class="hex">48</td><td>H</td>
-                        <td>96</td><td class="hex">60</td><td>`</td>
-                        <td>120</td><td class="hex">78</td><td>x</td>
-                    </tr>
-                    <tr>
-                        <td>49</td><td class="hex">31</td><td>1</td>
-                        <td>73</td><td class="hex">49</td><td>I</td>
-                        <td>97</td><td class="hex">61</td><td>a</td>
-                        <td>121</td><td class="hex">79</td><td>y</td>
-                    </tr>
-                    <tr>
-                        <td>50</td><td class="hex">32</td><td>2</td>
-                        <td>74</td><td class="hex">4A</td><td>J</td>
-                        <td>98</td><td class="hex">62</td><td>b</td>
-                        <td>122</td><td class="hex">7A</td><td>z</td>
-                    </tr>
-                    <tr>
-                        <td>51</td><td class="hex">33</td><td>3</td>
-                        <td>75</td><td class="hex">4B</td><td>K</td>
-                        <td>99</td><td class="hex">63</td><td>c</td>
-                        <td>123</td><td class="hex">7B</td><td>{</td>
-                    </tr>
-                    <tr>
-                        <td>52</td><td class="hex">34</td><td>4</td>
-                        <td>76</td><td class="hex">4C</td><td>L</td>
-                        <td>100</td><td class="hex">64</td><td>d</td>
-                        <td>124</td><td class="hex">7C</td><td>|</td>
-                    </tr>
-                    <tr>
-                        <td>53</td><td class="hex">35</td><td>5</td>
-                        <td>77</td><td class="hex">4D</td><td>M</td>
-                        <td>101</td><td class="hex">65</td><td>e</td>
-                        <td>125</td><td class="hex">7D</td><td>}</td>
-                    </tr>
-                    <tr>
-                        <td>54</td><td class="hex">36</td><td>6</td>
-                        <td>78</td><td class="hex">4E</td><td>N</td>
-                        <td>102</td><td class="hex">66</td><td>f</td>
-                        <td>126</td><td class="hex">7E</td><td>~</td>
-                    </tr>
-                    <tr>
-                        <td>55</td><td class="hex">37</td><td>7</td>
-                        <td>79</td><td class="hex">4F</td><td>O</td>
-                        <td>103</td><td class="hex">67</td><td>g</td>
-                        <td>127</td><td class="hex">7F</td><td>DEL</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-box formula">
-            <strong>ASCII İpuçları</strong><br>
-            • <strong>'A'-'Z':</strong> 65-90 (0x41-0x5A)<br>
-            • <strong>'a'-'z':</strong> 97-122 (0x61-0x7A)<br>
-            • <strong>'0'-'9':</strong> 48-57 (0x30-0x39)<br>
-            • <strong>Küçük harf = Büyük harf + 32</strong> (0x20) → 'A' + 32 = 'a'<br>
-            • <strong>Rakam karakteri → değer:</strong> '5' - '0' = 5 (53 - 48 = 5)
-        </div>
-
-        <h3>Unicode: ASCII'nin Ötesi</h3>
-
-        <p>
-            ASCII sadece 128 karakter destekler - İngilizce için yeterli ama Türkçe'deki ş, ğ, ü 
-            veya Çince, Arapça karakterler için <strong>Unicode</strong> gerekir.
-        </p>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Kodlama</th>
-                        <th>Boyut</th>
-                        <th>Açıklama</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>ASCII</strong></td>
-                        <td>7 bit (1 byte)</td>
-                        <td>128 karakter (İngilizce + semboller)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>UTF-8</strong></td>
-                        <td>1-4 byte (değişken)</td>
-                        <td>En yaygın. ASCII ile uyumlu. Web standardı.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>UTF-16</strong></td>
-                        <td>2 veya 4 byte</td>
-                        <td>JavaScript ve Windows içinde kullanılır</td>
-                    </tr>
-                    <tr>
-                        <td><strong>UTF-32</strong></td>
-                        <td>4 byte (sabit)</td>
-                        <td>Her karakter 4 byte, basit ama verimsiz</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">UTF-8 Örneği: Türkçe Karakterler</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment"># UTF-8'de Türkçe karakterlerin byte sayısı</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>'A'  →  <span class="hex">41</span>           <span class="comment"># 1 byte (ASCII ile aynı)</span>
-<span class="line-num">4</span>'ş'  →  <span class="hex">C5 9F</span>        <span class="comment"># 2 byte</span>
-<span class="line-num">5</span>'ğ'  →  <span class="hex">C4 9F</span>        <span class="comment"># 2 byte</span>
-<span class="line-num">6</span>'ü'  →  <span class="hex">C3 BC</span>        <span class="comment"># 2 byte</span>
-<span class="line-num">7</span>'€'  →  <span class="hex">E2 82 AC</span>     <span class="comment"># 3 byte (Euro işareti)</span>
-<span class="line-num">8</span>'😀' →  <span class="hex">F0 9F 98 80</span>  <span class="comment"># 4 byte (emoji)</span>
-<span class="line-num">9</span>
-<span class="line-num">10</span><span class="comment"># Python'da kontrol et:</span>
-<span class="line-num">11</span><span class="function">len</span>(<span class="string">"Aş"</span>)                    <span class="comment"># 2 (karakter sayısı)</span>
-<span class="line-num">12</span><span class="function">len</span>(<span class="string">"Aş"</span>.<span class="function">encode</span>(<span class="string">'utf-8'</span>))    <span class="comment"># 3 (byte sayısı: 1 + 2)</span></pre>
-            </div>
-        </div>
-
-        <div class="info-box example">
-            <strong>Neden UTF-8 Tercih Edilir?</strong><br>
-            • ASCII metinleri aynen kalır (uyumluluk)<br>
-            • İngilizce metin küçük kalır (1 byte/karakter)<br>
-            • Tüm dünya dilleri desteklenir<br>
-            • HTML, JSON, ve modern sistemlerin standardı
-        </div>
-
-        <h3>Escape Karakterleri Kodda Kullanımı</h3>
-
-        <div class="code-block">
-            <div class="code-header">Python & JavaScript - Escape Sequences</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment"># Yaygın escape karakterleri</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span><span class="function">print</span>(<span class="string">"Satır 1\nSatır 2"</span>)      <span class="comment"># \n = yeni satır</span>
-<span class="line-num">4</span><span class="comment"># Çıktı:</span>
-<span class="line-num">5</span><span class="comment"># Satır 1</span>
-<span class="line-num">6</span><span class="comment"># Satır 2</span>
-<span class="line-num">7</span>
-<span class="line-num">8</span><span class="function">print</span>(<span class="string">"Ad:\tAli"</span>)               <span class="comment"># \t = tab (sekme)</span>
-<span class="line-num">9</span><span class="comment"># Çıktı: Ad:     Ali</span>
-<span class="line-num">10</span>
-<span class="line-num">11</span><span class="function">print</span>(<span class="string">"O dedi: \"Merhaba\""</span>)    <span class="comment"># \" = çift tırnak içinde çift tırnak</span>
-<span class="line-num">12</span><span class="comment"># Çıktı: O dedi: "Merhaba"</span>
-<span class="line-num">13</span>
-<span class="line-num">14</span><span class="function">print</span>(<span class="string">'C:\\Users\\Ali'</span>)          <span class="comment"># \\ = tek backslash</span>
-<span class="line-num">15</span><span class="comment"># Çıktı: C:\Users\Ali</span>
-<span class="line-num">16</span>
-<span class="line-num">17</span><span class="function">print</span>(<span class="string">"Bip!\a"</span>)                 <span class="comment"># \a = bell (bip sesi - bazı terminallerde)</span></pre>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Hex ve Unicode Escape</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment"># Hex escape: \xNN (NN = hex değer)</span>
-<span class="line-num">2</span><span class="function">print</span>(<span class="string">"\x48\x65\x6C\x6C\x6F"</span>)   <span class="comment"># "Hello"</span>
-<span class="line-num">3</span>
-<span class="line-num">4</span><span class="comment"># Unicode escape: \uNNNN (4 hex)</span>
-<span class="line-num">5</span><span class="function">print</span>(<span class="string">"\u0041"</span>)               <span class="comment"># "A"</span>
-<span class="line-num">6</span><span class="function">print</span>(<span class="string">"\u00C7"</span>)               <span class="comment"># "Ç" (Türkçe Ç)</span>
-<span class="line-num">7</span><span class="function">print</span>(<span class="string">"\u015E"</span>)               <span class="comment"># "Ş" (Türkçe Ş)</span>
-<span class="line-num">8</span>
-<span class="line-num">9</span><span class="comment"># Octal escape (Python): \NNN</span>
-<span class="line-num">10</span><span class="function">print</span>(<span class="string">"\110\145\154\154\157"</span>)  <span class="comment"># "Hello" (octal)</span></pre>
-            </div>
-        </div>
-
-        <h3>Null Terminator (\0) Neden Önemli?</h3>
-
-        <p>C dilinde string'ler <code>\0</code> (null) karakteriyle biter. Bu karakter string'in nerede bittiğini belirtir.</p>
-
-        <div class="info-box concept">
-            <strong>C Syntax Açıklaması</strong><br>
-            • <code>char str[]</code> → karakter dizisi (string) tanımla<br>
-            • <code>strlen(str)</code> → string'in uzunluğunu döndürür (Python'daki len() gibi)<br>
-            • <code>sizeof(str)</code> → değişkenin bellekte kapladığı byte sayısı
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">C'de Null Terminator (Açıklamalı)</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="keyword">char</span> <span class="variable">str</span>[] <span class="operator">=</span> <span class="string">"Hi"</span>;    <span class="comment">// "Hi" string'i tanımla</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span><span class="comment">// Bellekte aslında 3 byte:</span>
-<span class="line-num">4</span><span class="comment">// 'H' (0x48) | 'i' (0x69) | '\0' (0x00)</span>
-<span class="line-num">5</span><span class="comment">//                           ↑ otomatik eklenir!</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span><span class="function">strlen</span>(<span class="variable">str</span>);   <span class="comment">// 2 → görünen karakter sayısı</span>
-<span class="line-num">8</span><span class="keyword">sizeof</span>(<span class="variable">str</span>);   <span class="comment">// 3 → bellekteki gerçek boyut (null dahil)</span></pre>
-            </div>
-        </div>
-
-        <div class="info-box warning">
-            <strong>Tehlike: Null Olmadan Ne Olur?</strong><br>
-            Eğer string'in sonunda <code>\0</code> yoksa, program string'in nerede bittiğini bilemez. 
-            Bellekte rastgele veri okumaya devam eder (<strong>buffer overflow</strong>). 
-            Bu, güvenlik açıklarına ve program çökmelerine yol açar.
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">"Hello" string'i bellekte</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Her karakter 1 byte</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>'H' = <span class="hex">48</span>  (72)
-<span class="line-num">4</span>'e' = <span class="hex">65</span>  (101)
-<span class="line-num">5</span>'l' = <span class="hex">6C</span>  (108)
-<span class="line-num">6</span>'l' = <span class="hex">6C</span>  (108)
-<span class="line-num">7</span>'o' = <span class="hex">6F</span>  (111)
-<span class="line-num">8</span>'\0'= <span class="hex">00</span>  (null terminator - string sonu)
-<span class="line-num">9</span>
-<span class="line-num">10</span><span class="comment">// Bellekte: 48 65 6C 6C 6F 00</span></pre>
-            </div>
-        </div>
-
-        <h3>İnteraktif: String'i Bellekte Gör</h3>
-
-        <div class="interactive-section">
-            <div class="input-row">
-                <div class="input-group" style="flex: 2;">
-                    <label>Metin (ASCII)</label>
-                    <input type="text" class="input-field" id="stringInput" value="Hello" maxlength="16">
-                </div>
-                <button class="btn btn-primary" onclick="showStringMemory()">Göster</button>
-            </div>
-            <div id="stringMemoryResult"></div>
-        </div>
-
-        <h2>Ondalıklı Sayılar: IEEE 754</h2>
-
-        <p>
-            Ondalıklı sayılar (float, double) tamamen farklı bir formatta saklanır: <strong>IEEE 754</strong>.
-            Bu format sayıyı üç parçaya ayırır. Önce elle bir örnek yapalım:
-        </p>
-
-        <h3>Örnek: 6.75 Sayısını IEEE 754'e Çevirelim</h3>
-
-        <div class="content-box" style="background: var(--bg-code);">
-            <h4 style="margin-top: 0; color: var(--cyan);">Adım 1: Tam ve Kesir Kısmı Ayır</h4>
-            <p><code>6.75</code> → Tam kısım: <strong>6</strong>, Kesir kısım: <strong>0.75</strong></p>
-            
-            <h4 style="color: var(--cyan);">Adım 2: Tam Kısmı Binary'ye Çevir</h4>
-            <p>
-                6 ÷ 2 = 3 kalan <strong>0</strong><br>
-                3 ÷ 2 = 1 kalan <strong>1</strong><br>
-                1 ÷ 2 = 0 kalan <strong>1</strong><br>
-                Aşağıdan yukarı oku: <span class="bin">110</span>
-            </p>
-            
-            <h4 style="color: var(--cyan);">Adım 3: Kesir Kısmı Binary'ye Çevir</h4>
-            <p>
-                Kesri 2 ile çarp, tam kısmı al:<br>
-                0.75 × 2 = <strong>1</strong>.50 → <strong>1</strong><br>
-                0.50 × 2 = <strong>1</strong>.00 → <strong>1</strong><br>
-                0.00 → dur<br>
-                Yukarıdan aşağı oku: <span class="bin">.11</span>
-            </p>
-            
-            <h4 style="color: var(--cyan);">Adım 4: Binary Sayıyı Birleştir</h4>
-            <p>6.75 = <span class="bin">110.11</span> (binary)</p>
-            
-            <h4 style="color: var(--cyan);">Adım 5: Normalize Et (Bilimsel Gösterim)</h4>
-            <p>
-                <span class="bin">110.11</span> = <span class="bin">1.1011</span> × 2<sup>2</sup><br>
-                <small>(Noktayı sola kaydır, her kaydırmada üs +1)</small>
-            </p>
-            
-            <h4 style="color: var(--cyan);">Adım 6: IEEE 754 Parçalarını Çıkar</h4>
-            <div class="table-wrap" style="margin: 1rem 0;">
-                <table>
-                    <tr>
-                        <td><strong>Sign (İşaret)</strong></td>
-                        <td>Pozitif → <span style="color:#ff4444"><strong>0</strong></span></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Exponent (Üs)</strong></td>
-                        <td>Üs = 2, Bias = 127 → 2 + 127 = 129 → <span style="color:#44ff44"><strong>10000001</strong></span></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Mantissa (Kesir)</strong></td>
-                        <td>1.<u>1011</u> → baştaki 1 atılır → <span style="color:#4488ff"><strong>10110000000000000000000</strong></span></td>
-                    </tr>
-                </table>
-            </div>
-            
-            <h4 style="color: var(--cyan);">Sonuç</h4>
-            <p style="font-family: var(--font-mono); font-size: 1.1rem;">
-                <span style="color:#ff4444">0</span> <span style="color:#44ff44">10000001</span> <span style="color:#4488ff">10110000000000000000000</span>
-            </p>
-        </div>
-
-        <div class="info-box formula">
-            <strong>Mantissa Neden "Baştaki 1" Atılır?</strong><br>
-            Normalize edilmiş her binary sayı <code>1.xxxx</code> formatındadır (sıfır hariç). 
-            Baştaki 1 her zaman var olduğu için saklamaya gerek yok! Bu şekilde 1 bit tasarruf edilir 
-            ve mantissa'da daha fazla hassasiyet sağlanır. Buna <strong>"implicit 1"</strong> denir.
-        </div>
-
-        <h3>32-bit Float Yapısı</h3>
-
-        <div style="overflow-x: auto;">
-            <div class="ieee-visual">
-                <div>
-                    <div style="display: flex;">
-                        <div class="ieee-bit sign">0</div>
-                        <div class="ieee-bit exp">1</div>
-                        <div class="ieee-bit exp">0</div>
-                        <div class="ieee-bit exp">0</div>
-                        <div class="ieee-bit exp">0</div>
-                        <div class="ieee-bit exp">0</div>
-                        <div class="ieee-bit exp">0</div>
-                        <div class="ieee-bit exp">0</div>
-                        <div class="ieee-bit exp">1</div>
-                        <div class="ieee-bit mant">1</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">1</div>
-                        <div class="ieee-bit mant">1</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                        <div class="ieee-bit mant">0</div>
-                    </div>
-                    <div style="display: flex; margin-top: 0.5rem;">
-                        <div style="width: 22px; text-align: center;"><span class="ieee-label">S<br>1 bit</span></div>
-                        <div style="width: 176px; text-align: center;"><span class="ieee-label">Exponent (Üs)<br>8 bit</span></div>
-                        <div style="width: 506px; text-align: center;"><span class="ieee-label">Mantissa (Kesir)<br>23 bit</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
-            Yukarıdaki gösterim: 6.75 sayısı (az önce hesapladığımız)
-        </p>
-
-        <div class="content-box highlight">
-            <p style="margin: 0; text-align: center;">
-                <strong>Değer = (-1)<sup>sign</sup> × (1 + mantissa) × 2<sup>(exponent - 127)</sup></strong>
-            </p>
-            <p style="margin: 0.5rem 0 0 0; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
-                6.75 = (-1)⁰ × (1 + 0.6875) × 2<sup>(129-127)</sup> = 1 × 1.6875 × 4 = 6.75 ✓
-            </p>
-        </div>
-
-        <h3>Kesir Kısmını Binary'ye Çevirme Detayı</h3>
-
-        <p>Kesir kısmını binary'ye çevirmek biraz farklı. Sürekli 2 ile çarpıp tam kısmı alırız:</p>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: 0.625'i Binary'ye Çevir</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span>0.625 × 2 = <span class="dec">1</span>.250  → <span class="bin">1</span>  (tam kısmı al)
-<span class="line-num">2</span>0.250 × 2 = <span class="dec">0</span>.500  → <span class="bin">0</span>
-<span class="line-num">3</span>0.500 × 2 = <span class="dec">1</span>.000  → <span class="bin">1</span>
-<span class="line-num">4</span>0.000 → bitti!
-<span class="line-num">5</span>
-<span class="line-num">6</span>Sonuç: 0.625 = <span class="bin">0.101</span> (binary)
-<span class="line-num">7</span>
-<span class="line-num">8</span><span class="comment">// Doğrulama: 1×2⁻¹ + 0×2⁻² + 1×2⁻³</span>
-<span class="line-num">9</span><span class="comment">//          = 0.5   + 0     + 0.125 = 0.625 ✓</span></pre>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: 0.1 Neden Tam Temsil Edilemez?</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span>0.1 × 2 = <span class="dec">0</span>.2  → <span class="bin">0</span>
-<span class="line-num">2</span>0.2 × 2 = <span class="dec">0</span>.4  → <span class="bin">0</span>
-<span class="line-num">3</span>0.4 × 2 = <span class="dec">0</span>.8  → <span class="bin">0</span>
-<span class="line-num">4</span>0.8 × 2 = <span class="dec">1</span>.6  → <span class="bin">1</span>
-<span class="line-num">5</span>0.6 × 2 = <span class="dec">1</span>.2  → <span class="bin">1</span>
-<span class="line-num">6</span>0.2 × 2 = <span class="dec">0</span>.4  → <span class="bin">0</span>  ← tekrar başa döndü!
-<span class="line-num">7</span>0.4 × 2 = <span class="dec">0</span>.8  → <span class="bin">0</span>
-<span class="line-num">8</span>...sonsuz döngü...
-<span class="line-num">9</span>
-<span class="line-num">10</span>0.1 = <span class="bin">0.0001100110011001100...</span> (sonsuz tekrar!)
-<span class="line-num">11</span>
-<span class="line-num">12</span><span class="comment">// Bu yüzden: 0.1 + 0.2 ≠ 0.3 (bilgisayarda)</span></pre>
-            </div>
-        </div>
-
-        <div class="info-box warning">
-            <strong>Float Hassasiyet Sorunu</strong><br>
-            <code>0.1 + 0.2 = 0.30000000000000004</code> (JavaScript'te dene!)<br>
-            Çünkü 0.1 ve 0.2 binary'de tam olarak temsil edilemez.
-        </div>
-
-        <h3>İnteraktif: Decimal → IEEE 754 Dönüşümü</h3>
-
-        <div class="interactive-section">
-            <div class="input-row">
-                <div class="input-group" style="flex: 2;">
-                    <label>Ondalıklı Sayı</label>
-                    <input type="number" class="input-field" id="ieeeInput" value="3.14" step="any">
-                </div>
-                <button class="btn btn-primary" onclick="convertToIEEE()">IEEE 754'e Dönüştür</button>
-            </div>
-            <div id="ieeeResult"></div>
-        </div>
-
-        <h2>Pointer (İşaretçi): Adres Tutan Değişken</h2>
-
-        <p>
-            <strong>Pointer</strong>, başka bir değişkenin bellek adresini saklayan değişkendir.
-            Pointer değeri de hex olarak gösterilir. C ve C++ dillerinde yaygın kullanılır.
-        </p>
-
-        <div class="info-box concept">
-            <strong>C Dilini Bilmeyenler İçin</strong><br>
-            • <code>int x</code> → x adında bir tam sayı değişkeni tanımla<br>
-            • <code>int *ptr</code> → ptr adında, int'e işaret eden bir pointer tanımla<br>
-            • <code>&x</code> → x'in bellek adresini al (& = "adresi")<br>
-            • <code>*ptr</code> → ptr'nin gösterdiği adresteki değeri al (* = "değeri")<br>
-            • <code>printf()</code> → ekrana yazdır (Python'daki print gibi)
-        </div>
-
-        <div class="pointer-visual">
-            <div class="var-box">
-                <div class="var-name">int x</div>
-                <div class="var-value">42</div>
-                <div class="var-addr">@ 0x7FFE0008</div>
-            </div>
-            <div class="arrow">←</div>
-            <div class="var-box" style="border-color: var(--accent);">
-                <div class="var-name">int *ptr</div>
-                <div class="var-value hex">0x7FFE0008</div>
-                <div class="var-addr">@ 0x7FFE0010</div>
-            </div>
-        </div>
-
-        <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">
-            <code>ptr</code> değişkeni, <code>x</code>'in adresini tutuyor. Bu adres üzerinden <code>x</code>'e erişebiliriz.
-        </p>
-
-        <div class="code-block">
-            <div class="code-header">C'de Pointer Kullanımı (Açıklamalı)</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="keyword">int</span> <span class="variable">x</span> <span class="operator">=</span> <span class="number">42</span>;           <span class="comment">// x adında değişken, değeri 42</span>
-<span class="line-num">2</span><span class="keyword">int</span> <span class="operator">*</span><span class="variable">ptr</span> <span class="operator">=</span> <span class="operator">&</span><span class="variable">x</span>;        <span class="comment">// ptr = x'in adresi (&x)</span>
-<span class="line-num">3</span>
-<span class="line-num">4</span><span class="function">printf</span>(<span class="string">"%d\n"</span>, <span class="variable">x</span>);      <span class="comment">// x'in değeri: 42</span>
-<span class="line-num">5</span><span class="function">printf</span>(<span class="string">"%p\n"</span>, <span class="operator">&</span><span class="variable">x</span>);    <span class="comment">// x'in adresi: 0x7ffe0008</span>
-<span class="line-num">6</span><span class="function">printf</span>(<span class="string">"%p\n"</span>, <span class="variable">ptr</span>);   <span class="comment">// ptr'nin tuttuğu adres: 0x7ffe0008</span>
-<span class="line-num">7</span><span class="function">printf</span>(<span class="string">"%d\n"</span>, <span class="operator">*</span><span class="variable">ptr</span>);  <span class="comment">// ptr'nin gösterdiği değer: 42</span></pre>
-            </div>
-        </div>
-
-        <div class="info-box example">
-            <strong>Python/JS Karşılığı</strong><br>
-            Python ve JavaScript'te pointer yoktur, ama referanslar benzer çalışır:<br>
-            <code>liste1 = [1, 2, 3]</code><br>
-            <code>liste2 = liste1</code> → liste2, liste1 ile aynı bellek adresine "işaret eder"
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Pointer'ın Bellekteki Görünümü</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// 64-bit sistemde pointer = 8 byte</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>Adres        Değer         Açıklama
-<span class="line-num">4</span>──────────────────────────────────────────
-<span class="line-num">5</span><span class="hex">0x7FFE0008</span>   <span class="hex">2A 00 00 00</span>   int x = 42
-<span class="line-num">6</span><span class="hex">0x7FFE0010</span>   <span class="hex">08 00 FE 7F   int *ptr = &x
-<span class="line-num">7</span>             00 00 00 00</span>   (8 byte adres, little-endian)</pre>
-            </div>
-        </div>
-
-        <h3>Referans vs Pointer (C++ için - Bilgi Amaçlı)</h3>
-
-        <p>C++ dilinde hem pointer hem de referans kavramı vardır. İkisi de dolaylı erişim sağlar ama farklı davranırlar:</p>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Özellik</th>
-                        <th>Pointer (*)</th>
-                        <th>Referans (&)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Null olabilir mi?</td>
-                        <td>Evet (hiçbir şeye işaret etmeyebilir)</td>
-                        <td>Hayır (her zaman bir şeye bağlı)</td>
-                    </tr>
-                    <tr>
-                        <td>Başka şeye atanabilir mi?</td>
-                        <td>Evet (farklı adresi gösterebilir)</td>
-                        <td>Hayır (ilk atamadan sonra sabit)</td>
-                    </tr>
-                    <tr>
-                        <td>Aritmetik yapılabilir mi?</td>
-                        <td>Evet (ptr++, ptr+5)</td>
-                        <td>Hayır</td>
-                    </tr>
-                    <tr>
-                        <td>Kullanım</td>
-                        <td><code>*ptr</code> ile değere eriş</td>
-                        <td>Doğrudan kullan (r gibi)</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-box example">
-            <strong>Python/JS ile Karşılaştırma</strong><br>
-            Python ve JavaScript'teki değişkenler <strong>referans</strong> gibi davranır - 
-            hepsi arka planda bir adrese işaret eder. Ama C++'taki pointer gibi doğrudan 
-            adres manipülasyonu yapamazsınız - bu daha güvenli ama daha az kontrol sağlar.
-        </div>
-
-        <h2>Python ve JavaScript'te Referanslar</h2>
-
-        <p>
-            Hem Python hem JavaScript'te değişkenler aslında değerlere birer <strong>referans</strong> (adres) tutar.
-            Ama bazı türler <strong>değiştirilebilir (mutable)</strong>, bazıları <strong>değiştirilemez (immutable/primitive)</strong>.
-        </p>
-
-        <h3>Python'da Mutable vs Immutable</h3>
-
-        <div class="cards-grid">
-            <div class="card" style="border-color: #44ff44;">
-                <h4>✅ Immutable (Değiştirilemez)</h4>
-                <p>
-                    • <code>int</code>, <code>float</code><br>
-                    • <code>str</code> (string)<br>
-                    • <code>tuple</code> - değiştirilemez liste<br>
-                    • <code>frozenset</code><br>
-                    • <code>bool</code>
-                </p>
-            </div>
-            <div class="card" style="border-color: #ff4444;">
-                <h4>⚠️ Mutable (Değiştirilebilir)</h4>
-                <p>
-                    • <code>list</code> - değiştirilebilir dizi<br>
-                    • <code>dict</code> - sözlük<br>
-                    • <code>set</code> - küme<br>
-                    • <code>class</code> nesneleri<br>
-                    • <code>bytearray</code>
-                </p>
-            </div>
-        </div>
-
-        <h3>Immutable: Sayılar ve String'ler</h3>
-
-        <div class="code-block">
-            <div class="code-header">Python - Immutable Davranışı</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="variable">a</span> <span class="operator">=</span> <span class="number">10</span>
-<span class="line-num">2</span><span class="variable">b</span> <span class="operator">=</span> <span class="variable">a</span>          <span class="comment"># b, a ile aynı nesneye referans</span>
-<span class="line-num">3</span>
-<span class="line-num">4</span><span class="function">print</span>(<span class="function">id</span>(<span class="variable">a</span>))    <span class="comment"># 140234567891024 (bellek adresi)</span>
-<span class="line-num">5</span><span class="function">print</span>(<span class="function">id</span>(<span class="variable">b</span>))    <span class="comment"># 140234567891024 (aynı adres!)</span>
-<span class="line-num">6</span><span class="function">print</span>(<span class="variable">a</span> <span class="keyword">is</span> <span class="variable">b</span>)   <span class="comment"># True (aynı nesne)</span>
-<span class="line-num">7</span>
-<span class="line-num">8</span><span class="variable">a</span> <span class="operator">=</span> <span class="number">20</span>          <span class="comment"># a'ya yeni değer atandı</span>
-<span class="line-num">9</span><span class="function">print</span>(<span class="variable">a</span>)        <span class="comment"># 20</span>
-<span class="line-num">10</span><span class="function">print</span>(<span class="variable">b</span>)        <span class="comment"># 10 (b değişmedi!)</span>
-<span class="line-num">11</span><span class="function">print</span>(<span class="function">id</span>(<span class="variable">a</span>))    <span class="comment"># 140234567891344 (farklı adres)</span></pre>
-            </div>
-        </div>
-
-        <div class="content-box" style="background: var(--bg-code); padding: 1.5rem;">
-            <div style="display: flex; flex-wrap: wrap; gap: 3rem; justify-content: center;">
-                <!-- Başlangıç durumu -->
-                <div style="text-align: center;">
-                    <div style="color: var(--cyan); font-weight: 600; margin-bottom: 1rem;">1. Başlangıç: a = 10, b = a</div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center;">
-                        <div class="var-box" style="min-width: 60px;">
-                            <div class="var-name">a</div>
-                        </div>
-                        <div style="color: var(--accent);">→</div>
-                        <div class="var-box" style="background: rgba(68,255,68,0.15); border-color: #44ff44;">
-                            <div class="var-value">10</div>
-                            <div class="var-addr">@ ...1024</div>
-                        </div>
-                        <div style="color: var(--accent);">←</div>
-                        <div class="var-box" style="min-width: 60px;">
-                            <div class="var-name">b</div>
-                        </div>
-                    </div>
-                    <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.75rem;">
-                        a ve b <strong>aynı nesneye</strong> işaret ediyor
-                    </div>
-                </div>
-                
-                <!-- Sonra durumu -->
-                <div style="text-align: center;">
-                    <div style="color: var(--cyan); font-weight: 600; margin-bottom: 1rem;">2. Sonra: a = 20</div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center;">
-                        <div class="var-box" style="min-width: 60px;">
-                            <div class="var-name">a</div>
-                        </div>
-                        <div style="color: var(--accent);">→</div>
-                        <div class="var-box" style="background: rgba(255,68,68,0.15); border-color: #ff6666;">
-                            <div class="var-value">20</div>
-                            <div class="var-addr">@ ...1344</div>
-                        </div>
-                    </div>
-                    <div style="height: 0.5rem;"></div>
-                    <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center;">
-                        <div class="var-box" style="min-width: 60px;">
-                            <div class="var-name">b</div>
-                        </div>
-                        <div style="color: var(--accent);">→</div>
-                        <div class="var-box" style="background: rgba(68,255,68,0.15); border-color: #44ff44;">
-                            <div class="var-value">10</div>
-                            <div class="var-addr">@ ...1024</div>
-                        </div>
-                    </div>
-                    <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.75rem;">
-                        a <strong>yeni nesneye</strong> işaret ediyor, b hâlâ eskisine
-                    </div>
-                </div>
-            </div>
-            
-            <div class="info-box formula" style="margin-top: 1.5rem; margin-bottom: 0;">
-                <strong>Immutable Neden Böyle?</strong><br>
-                <code>a = 20</code> dediğimizde 10 değeri 20'ye <em>dönüşmüyor</em>. 
-                Bunun yerine bellekte <strong>yeni bir 20 nesnesi</strong> oluşturuluyor ve 
-                <code>a</code> artık ona işaret ediyor. Eski 10 nesnesi yerinde duruyor, 
-                <code>b</code> hâlâ ona işaret ediyor.
-            </div>
-        </div>
-
-        <h3>Mutable: Listeler ve Dict'ler</h3>
-
-        <div class="code-block">
-            <div class="code-header">Python - Mutable Davranışı (DİKKAT!)</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="variable">liste1</span> <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
-<span class="line-num">2</span><span class="variable">liste2</span> <span class="operator">=</span> <span class="variable">liste1</span>       <span class="comment"># KOPYALAMAZ! Aynı listeye referans</span>
-<span class="line-num">3</span>
-<span class="line-num">4</span><span class="function">print</span>(<span class="variable">liste1</span> <span class="keyword">is</span> <span class="variable">liste2</span>)  <span class="comment"># True (aynı nesne)</span>
-<span class="line-num">5</span>
-<span class="line-num">6</span><span class="variable">liste1</span>.<span class="function">append</span>(<span class="number">4</span>)       <span class="comment"># liste1'e eleman ekle</span>
-<span class="line-num">7</span>
-<span class="line-num">8</span><span class="function">print</span>(<span class="variable">liste1</span>)          <span class="comment"># [1, 2, 3, 4]</span>
-<span class="line-num">9</span><span class="function">print</span>(<span class="variable">liste2</span>)          <span class="comment"># [1, 2, 3, 4] (liste2 de değişti!)</span>
-<span class="line-num">10</span>
-<span class="line-num">11</span><span class="comment"># Gerçek kopya yapmak için:</span>
-<span class="line-num">12</span><span class="variable">liste3</span> <span class="operator">=</span> <span class="variable">liste1</span>.<span class="function">copy</span>()   <span class="comment"># veya liste1[:]</span>
-<span class="line-num">13</span><span class="variable">liste3</span>.<span class="function">append</span>(<span class="number">5</span>)
-<span class="line-num">14</span><span class="function">print</span>(<span class="variable">liste1</span>)          <span class="comment"># [1, 2, 3, 4] (etkilenmedi)</span>
-<span class="line-num">15</span><span class="function">print</span>(<span class="variable">liste3</span>)          <span class="comment"># [1, 2, 3, 4, 5]</span></pre>
-            </div>
-        </div>
-
-        <div class="info-box warning">
-            <strong>Tehlikeli Durum: Fonksiyon Parametreleri</strong><br>
-            Mutable nesneler fonksiyona gönderildiğinde, fonksiyon içinde yapılan değişiklikler orijinal nesneyi etkiler!
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Python - Fonksiyona Mutable Geçirme</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="keyword">def</span> <span class="function">ekle</span>(<span class="variable">lst</span>):
-<span class="line-num">2</span>    <span class="variable">lst</span>.<span class="function">append</span>(<span class="number">99</span>)       <span class="comment"># Orijinal listeyi değiştirir!</span>
-<span class="line-num">3</span>
-<span class="line-num">4</span><span class="variable">orijinal</span> <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
-<span class="line-num">5</span><span class="function">ekle</span>(<span class="variable">orijinal</span>)
-<span class="line-num">6</span><span class="function">print</span>(<span class="variable">orijinal</span>)        <span class="comment"># [1, 2, 3, 99] - DEĞİŞTİ!</span>
-<span class="line-num">7</span>
-<span class="line-num">8</span><span class="comment"># Güvenli versiyon:</span>
-<span class="line-num">9</span><span class="keyword">def</span> <span class="function">ekle_guvenli</span>(<span class="variable">lst</span>):
-<span class="line-num">10</span>    <span class="variable">yeni</span> <span class="operator">=</span> <span class="variable">lst</span>.<span class="function">copy</span>()
-<span class="line-num">11</span>    <span class="variable">yeni</span>.<span class="function">append</span>(<span class="number">99</span>)
-<span class="line-num">12</span>    <span class="keyword">return</span> <span class="variable">yeni</span></pre>
-            </div>
-        </div>
-
-        <h3>id() ve is Operatörü</h3>
-
-        <div class="code-block">
-            <div class="code-header">Python - Bellek Adresini Görme</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="variable">x</span> <span class="operator">=</span> <span class="string">"merhaba"</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span><span class="comment"># id() = nesnenin bellek adresi</span>
-<span class="line-num">4</span><span class="function">print</span>(<span class="function">id</span>(<span class="variable">x</span>))              <span class="comment"># 140234567123456</span>
-<span class="line-num">5</span><span class="function">print</span>(<span class="function">hex</span>(<span class="function">id</span>(<span class="variable">x</span>)))         <span class="comment"># 0x7f8a4c3d5e80 (hex olarak)</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span><span class="comment"># == değer karşılaştırması, is adres karşılaştırması</span>
-<span class="line-num">8</span><span class="variable">a</span> <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>]
-<span class="line-num">9</span><span class="variable">b</span> <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>]
-<span class="line-num">10</span><span class="function">print</span>(<span class="variable">a</span> <span class="operator">==</span> <span class="variable">b</span>)             <span class="comment"># True (değerler aynı)</span>
-<span class="line-num">11</span><span class="function">print</span>(<span class="variable">a</span> <span class="keyword">is</span> <span class="variable">b</span>)             <span class="comment"># False (farklı nesneler)</span>
-<span class="line-num">12</span>
-<span class="line-num">13</span><span class="comment"># None kontrolü her zaman 'is' ile yapılır</span>
-<span class="line-num">14</span><span class="keyword">if</span> <span class="variable">x</span> <span class="keyword">is</span> <span class="keyword">None</span>:
-<span class="line-num">15</span>    <span class="function">print</span>(<span class="string">"x tanımsız"</span>)</pre>
-            </div>
-        </div>
-
-        <div class="info-box concept">
-            <strong>Python Küçük Integer Cache</strong><br>
-            Python, -5 ile 256 arasındaki integer'ları önceden oluşturur ve cache'ler. 
-            Bu yüzden bu aralıktaki aynı değerler aynı nesneye işaret eder:<br>
-            <code>a = 100; b = 100; print(a is b)</code> → <strong>True</strong><br>
-            <code>a = 1000; b = 1000; print(a is b)</code> → <strong>False</strong>
-        </div>
-
-        <h3>JavaScript'te Primitive vs Reference Türler</h3>
-
-        <p>JavaScript'te kavramlar biraz farklı: <strong>primitive</strong> (ilkel) ve <strong>reference</strong> (referans) türler.</p>
-
-        <div class="info-box concept">
-            <strong>Python vs JavaScript Farkı</strong><br>
-            • Python'da <code>tuple</code> var (immutable liste), JavaScript'te yok<br>
-            • JavaScript'te <code>undefined</code> var, Python'da yok (<code>None</code> farklı)<br>
-            • Python'da her şey nesne, JS'de primitive'ler nesne değil
-        </div>
-
-        <div class="cards-grid">
-            <div class="card" style="border-color: #44ff44;">
-                <h4>✅ Primitive (İlkel Türler)</h4>
-                <p>
-                    • <code>number</code> (42, 3.14)<br>
-                    • <code>string</code> ("merhaba")<br>
-                    • <code>boolean</code> (true/false)<br>
-                    • <code>undefined</code> (tanımsız)<br>
-                    • <code>null</code> (boş)<br>
-                    • <code>symbol</code>, <code>bigint</code>
-                </p>
-            </div>
-            <div class="card" style="border-color: #ff4444;">
-                <h4>⚠️ Reference (Referans Türleri)</h4>
-                <p>
-                    • <code>Object</code> ({key: value})<br>
-                    • <code>Array</code> ([1, 2, 3])<br>
-                    • <code>Function</code><br>
-                    • <code>Date</code>, <code>Map</code>, <code>Set</code><br>
-                    • Tüm class instance'ları
-                </p>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">JavaScript - Primitive vs Reference</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// PRIMITIVE: Değer kopyalanır</span>
-<span class="line-num">2</span><span class="keyword">let</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">10</span>;
-<span class="line-num">3</span><span class="keyword">let</span> <span class="variable">b</span> <span class="operator">=</span> <span class="variable">a</span>;           <span class="comment">// b'ye 10 değeri kopyalandı</span>
-<span class="line-num">4</span><span class="variable">a</span> <span class="operator">=</span> <span class="number">20</span>;
-<span class="line-num">5</span><span class="function">console.log</span>(<span class="variable">b</span>);      <span class="comment">// 10 (etkilenmedi)</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span><span class="comment">// REFERENCE: Adres kopyalanır (aynı nesne!)</span>
-<span class="line-num">8</span><span class="keyword">let</span> <span class="variable">arr1</span> <span class="operator">=</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
-<span class="line-num">9</span><span class="keyword">let</span> <span class="variable">arr2</span> <span class="operator">=</span> <span class="variable">arr1</span>;      <span class="comment">// arr2, arr1 ile AYNI diziye işaret eder</span>
-<span class="line-num">10</span><span class="variable">arr1</span>.<span class="function">push</span>(<span class="number">4</span>);
-<span class="line-num">11</span><span class="function">console.log</span>(<span class="variable">arr2</span>);   <span class="comment">// [1, 2, 3, 4] - arr2 de değişti!</span>
-<span class="line-num">12</span>
-<span class="line-num">13</span><span class="comment">// Gerçek kopya yapmak için:</span>
-<span class="line-num">14</span><span class="keyword">let</span> <span class="variable">arr3</span> <span class="operator">=</span> [...<span class="variable">arr1</span>];         <span class="comment">// spread operator</span>
-<span class="line-num">15</span><span class="keyword">let</span> <span class="variable">arr4</span> <span class="operator">=</span> <span class="variable">arr1</span>.<span class="function">slice</span>();     <span class="comment">// slice metodu</span>
-<span class="line-num">16</span><span class="keyword">let</span> <span class="variable">obj2</span> <span class="operator">=</span> {...<span class="variable">obj1</span>};         <span class="comment">// object için spread</span>
-<span class="line-num">17</span><span class="keyword">let</span> <span class="variable">deep</span> <span class="operator">=</span> <span class="variable">JSON</span>.<span class="function">parse</span>(<span class="variable">JSON</span>.<span class="function">stringify</span>(<span class="variable">obj</span>)); <span class="comment">// derin kopya</span></pre>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">JavaScript - Karşılaştırma Tuzağı</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Primitive karşılaştırma: DEĞER karşılaştırılır</span>
-<span class="line-num">2</span><span class="function">console.log</span>(<span class="number">5</span> <span class="operator">===</span> <span class="number">5</span>);           <span class="comment">// true</span>
-<span class="line-num">3</span><span class="function">console.log</span>(<span class="string">"ab"</span> <span class="operator">===</span> <span class="string">"ab"</span>);     <span class="comment">// true</span>
-<span class="line-num">4</span>
-<span class="line-num">5</span><span class="comment">// Reference karşılaştırma: ADRES karşılaştırılır</span>
-<span class="line-num">6</span><span class="function">console.log</span>([<span class="number">1</span>,<span class="number">2</span>] <span class="operator">===</span> [<span class="number">1</span>,<span class="number">2</span>]);   <span class="comment">// false! (farklı diziler)</span>
-<span class="line-num">7</span><span class="function">console.log</span>({} <span class="operator">===</span> {});         <span class="comment">// false! (farklı objeler)</span>
-<span class="line-num">8</span>
-<span class="line-num">9</span><span class="comment">// İçerik karşılaştırmak için:</span>
-<span class="line-num">10</span><span class="variable">JSON</span>.<span class="function">stringify</span>([<span class="number">1</span>,<span class="number">2</span>]) <span class="operator">===</span> <span class="variable">JSON</span>.<span class="function">stringify</span>([<span class="number">1</span>,<span class="number">2</span>])  <span class="comment">// true</span></pre>
-            </div>
-        </div>
-
-        <div class="info-box warning">
-            <strong>Sık Yapılan Hata: const ile Dizi/Obje</strong><br>
-            <code>const arr = [1, 2];</code> → <code>arr.push(3)</code> çalışır!<br>
-            <code>const</code> sadece değişkenin kendisinin yeniden atanamayacağı anlamına gelir, 
-            içeriğinin değiştirilemeyeceği değil.
-        </div>
-
-        <h2>Özet: Veri Türleri ve Bellek</h2>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Veri Türü</th>
-                        <th>Boyut</th>
-                        <th>Örnek Değer</th>
-                        <th>Bellekte (Hex)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>char</td>
-                        <td>1 byte</td>
-                        <td>'A'</td>
-                        <td><span class="hex">41</span></td>
-                    </tr>
-                    <tr>
-                        <td>short</td>
-                        <td>2 byte</td>
-                        <td>1000</td>
-                        <td><span class="hex">E8 03</span></td>
-                    </tr>
-                    <tr>
-                        <td>int</td>
-                        <td>4 byte</td>
-                        <td>100000</td>
-                        <td><span class="hex">A0 86 01 00</span></td>
-                    </tr>
-                    <tr>
-                        <td>float</td>
-                        <td>4 byte</td>
-                        <td>3.14</td>
-                        <td><span class="hex">C3 F5 48 40</span></td>
-                    </tr>
-                    <tr>
-                        <td>double</td>
-                        <td>8 byte</td>
-                        <td>3.14</td>
-                        <td><span class="hex">1F 85 EB 51 B8 1E 09 40</span></td>
-                    </tr>
-                    <tr>
-                        <td>pointer (64-bit)</td>
-                        <td>8 byte</td>
-                        <td>0x7FFE0008</td>
-                        <td><span class="hex">08 00 FE 7F 00 00 00 00</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="nav-buttons">
-            <a href="bit-byte.html" class="btn btn-secondary">← Bit & Byte</a>
-            <a href="programlama.html" class="btn btn-primary">Programlama →</a>
+        <div>
+            <h4>Heap (öbek)</h4>
+            <p style="margin:0">Çalışma sırasında boyutu belli olan ya da uzun yaşayan veriler (listeler, nesneler) burada tutulur. C’de <code>malloc</code>/<code>free</code> ile elle, Python ve JS’de otomatik (çöp toplayıcı) yönetilir.</p>
         </div>
     </div>
 
-    <footer class="footer">
-        Sayı Sistemleri Eğitimi • Bilgisayarda Sayılar Nasıl Saklanır?
-        <br><br>
-        Bu kitaba katkıda bulunmak ister misin? 🚀<br>
-        <a href="https://github.com/gusanmaz/number-storage-tutorial" target="_blank" rel="noopener noreferrer">github.com/gusanmaz/number-storage-tutorial</a> adresine pull request gönderebilirsin!
-    </footer>
+    <div id="practice"></div>
 
-    <script>
-        function showIntMemory() {
-            const num = parseInt(document.getElementById('intInput').value) || 0;
-            const size = parseInt(document.getElementById('intSize').value);
-            const resultDiv = document.getElementById('intMemoryResult');
-            
-            // Clamp to size
-            const max = Math.pow(256, size) - 1;
-            const clampedNum = Math.min(Math.max(0, num), max);
-            
-            // Get bytes (little-endian)
-            let bytes = [];
-            let n = clampedNum;
-            for (let i = 0; i < size; i++) {
-                bytes.push((n & 0xFF).toString(16).toUpperCase().padStart(2, '0'));
-                n = Math.floor(n / 256);
-            }
-            
-            let html = `<div class="byte-breakdown">`;
-            bytes.forEach((b, i) => {
-                html += `<div class="byte-box ${i === 0 ? 'active' : ''}">
-                    <div class="byte-label">Byte ${i}</div>
-                    <div class="byte-hex hex">${b}</div>
-                    <div class="byte-dec">${parseInt(b, 16)}</div>
-                </div>`;
-            });
-            html += `</div>`;
-            
-            html += `<div class="code-block"><div class="code-header">Detay</div><div class="code-content"><pre>`;
-            html += `Decimal: <span class="dec">${clampedNum}</span>\n`;
-            html += `Hex:     <span class="hex">0x${clampedNum.toString(16).toUpperCase().padStart(size*2, '0')}</span>\n`;
-            html += `Binary:  <span class="bin">${clampedNum.toString(2).padStart(size*8, '0')}</span>\n`;
-            html += `\nBellekte (little-endian): <span class="hex">${bytes.join(' ')}</span>`;
-            html += `</pre></div></div>`;
-            
-            resultDiv.innerHTML = html;
-        }
-        
-        function showStringMemory() {
-            const str = document.getElementById('stringInput').value;
-            const resultDiv = document.getElementById('stringMemoryResult');
-            
-            let html = `<div class="byte-breakdown">`;
-            for (let i = 0; i < str.length; i++) {
-                const code = str.charCodeAt(i);
-                const hex = code.toString(16).toUpperCase().padStart(2, '0');
-                html += `<div class="byte-box">
-                    <div class="byte-label">'${str[i]}'</div>
-                    <div class="byte-hex hex">${hex}</div>
-                    <div class="byte-dec">${code}</div>
-                </div>`;
-            }
-            // Null terminator
-            html += `<div class="byte-box">
-                <div class="byte-label">\\0</div>
-                <div class="byte-hex hex">00</div>
-                <div class="byte-dec">0</div>
-            </div>`;
-            html += `</div>`;
-            
-            // Memory dump style
-            const bytes = [...str].map(c => c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0'));
-            bytes.push('00');
-            
-            html += `<div class="code-block"><div class="code-header">Bellekte</div><div class="code-content"><pre>`;
-            html += `Adres        Değer\n`;
-            html += `<span class="hex">0x7FFE0000</span>   <span class="hex">${bytes.join(' ')}</span>`;
-            html += `</pre></div></div>`;
-            
-            resultDiv.innerHTML = html;
-        }
-        
-        function convertToIEEE() {
-            const num = parseFloat(document.getElementById('ieeeInput').value);
-            const resultDiv = document.getElementById('ieeeResult');
-            
-            if (isNaN(num) || num === 0) {
-                resultDiv.innerHTML = '<div class="info-box warning">Sıfırdan farklı geçerli bir sayı girin!</div>';
-                return;
-            }
-            
-            const absNum = Math.abs(num);
-            
-            // Get IEEE 754 binary representation
-            const buffer = new ArrayBuffer(4);
-            const view = new DataView(buffer);
-            view.setFloat32(0, num, false);
-            const bits = view.getUint32(0).toString(2).padStart(32, '0');
-            
-            const sign = bits[0];
-            const exponent = bits.substring(1, 9);
-            const mantissa = bits.substring(9, 32);
-            
-            const expValue = parseInt(exponent, 2);
-            const actualExp = expValue - 127;
-            
-            // Calculate integer and fractional parts
-            const intPart = Math.floor(absNum);
-            const fracPart = absNum - intPart;
-            
-            // Convert integer part to binary
-            let intBinary = intPart > 0 ? intPart.toString(2) : '0';
-            
-            // Convert fractional part to binary (show steps)
-            let fracBinary = '';
-            let fracSteps = [];
-            let tempFrac = fracPart;
-            for (let i = 0; i < 10 && tempFrac > 0; i++) {
-                tempFrac *= 2;
-                const bit = Math.floor(tempFrac);
-                fracBinary += bit;
-                fracSteps.push({
-                    before: (tempFrac / 2).toFixed(6),
-                    after: tempFrac.toFixed(6),
-                    bit: bit
-                });
-                tempFrac -= bit;
-            }
-            if (tempFrac > 0) fracBinary += '...';
-            
-            // Full binary
-            const fullBinary = intBinary + (fracBinary ? '.' + fracBinary : '');
-            
-            // Normalized form
-            let normalizedMantissa = '';
-            if (intPart >= 1) {
-                normalizedMantissa = intBinary.substring(1) + fracBinary;
-            } else {
-                // Find first 1 in fraction
-                const firstOne = fracBinary.indexOf('1');
-                normalizedMantissa = fracBinary.substring(firstOne + 1);
-            }
-            
-            let html = `
-            <div class="content-box" style="margin-top: 1rem; background: var(--bg-code);">
-                <h4 style="margin-top: 0; color: var(--accent);">📝 ${num} Sayısının IEEE 754 Dönüşümü</h4>
-                
-                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <strong style="color: var(--cyan);">Adım 1: İşaret Bitini Belirle</strong><br>
-                    <p style="margin: 0.5rem 0;">
-                        ${num} ${num >= 0 ? '≥ 0 (pozitif)' : '< 0 (negatif)'}<br>
-                        Sign = <span class="bin" style="background: rgba(255,68,68,0.4); padding: 2px 8px; border-radius: 4px; font-weight: bold;">${sign}</span>
-                        <span style="color: var(--text-muted);">(${sign === '0' ? 'pozitif' : 'negatif'})</span>
-                    </p>
-                </div>
-                
-                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <strong style="color: var(--cyan);">Adım 2: Tam Kısmı Binary'ye Çevir</strong><br>
-                    <p style="margin: 0.5rem 0;">
-                        Tam kısım: ${intPart}<br>
-                        ${intPart} → <span class="bin">${intBinary}</span>
-                    </p>
-                </div>
-                
-                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <strong style="color: var(--cyan);">Adım 3: Kesir Kısmı Binary'ye Çevir</strong><br>
-                    <p style="margin: 0.5rem 0;">Kesir kısım: ${fracPart.toFixed(10).replace(/0+$/, '')}</p>
-                    ${fracSteps.length > 0 ? `
-                    <div style="font-family: var(--font-mono); font-size: 0.85rem; margin: 0.5rem 0;">
-                        ${fracSteps.map(s => `${s.before} × 2 = ${s.after} → <span class="bin">${s.bit}</span>`).join('<br>')}
-                        ${tempFrac > 0 ? '<br>... (devam eder)' : ''}
-                    </div>
-                    ` : '<p style="color: var(--text-muted);">Kesir yok</p>'}
-                    <p style="margin: 0.5rem 0;">
-                        Kesir binary: <span class="bin">.${fracBinary || '0'}</span>
-                    </p>
-                </div>
-                
-                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <strong style="color: var(--cyan);">Adım 4: Birleştir</strong><br>
-                    <p style="margin: 0.5rem 0;">
-                        ${absNum} = <span class="bin" style="font-size: 1.1rem;">${fullBinary}</span> (binary)
-                    </p>
-                </div>
-                
-                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <strong style="color: var(--cyan);">Adım 5: Normalize Et (1.xxxx × 2ⁿ formatına getir)</strong><br>
-                    <p style="margin: 0.5rem 0;">
-                        <span class="bin">${fullBinary}</span> = <span class="bin">1.${normalizedMantissa.substring(0, 10)}${normalizedMantissa.length > 10 ? '...' : ''}</span> × 2<sup>${actualExp}</sup>
-                    </p>
-                    <p style="margin: 0.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
-                        (Noktayı ${actualExp >= 0 ? 'sola ' + actualExp + ' kez' : 'sağa ' + Math.abs(actualExp) + ' kez'} kaydırdık)
-                    </p>
-                </div>
-                
-                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <strong style="color: var(--cyan);">Adım 6: Exponent Hesapla (Bias Ekle)</strong><br>
-                    <p style="margin: 0.5rem 0;">
-                        Gerçek üs: ${actualExp}<br>
-                        Bias (32-bit için): 127<br>
-                        Exponent = ${actualExp} + 127 = <strong>${expValue}</strong><br>
-                        ${expValue} → <span class="bin" style="background: rgba(68,200,68,0.4); padding: 2px 8px; border-radius: 4px; font-weight: bold;">${exponent}</span>
-                    </p>
-                </div>
-                
-                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <strong style="color: var(--cyan);">Adım 7: Mantissa'yı Al (Baştaki 1'i At)</strong><br>
-                    <p style="margin: 0.5rem 0;">
-                        1.<u>${normalizedMantissa.substring(0, 6)}...</u> → baştaki 1 atılır (implicit 1)<br>
-                        Mantissa: <span class="bin" style="background: rgba(68,136,255,0.4); padding: 2px 8px; border-radius: 4px; font-weight: bold;">${mantissa}</span>
-                    </p>
-                    <p style="margin: 0.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
-                        (23 bite tamamlanır, sağ taraf 0'larla doldurulur)
-                    </p>
-                </div>
-            </div>
-            
-            <div style="margin: 1.5rem 0;">
-                <strong>Sonuç: 32-bit IEEE 754 Gösterimi</strong>
-            </div>
-            
-            <div class="ieee-visual" style="flex-wrap: wrap; gap: 0;">
-                <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-                    <div class="ieee-bit sign" title="Sign">${sign}</div>`;
-            
-            for (let i = 0; i < 8; i++) {
-                html += `<div class="ieee-bit exp" title="Exponent bit ${i}">${exponent[i]}</div>`;
-            }
-            for (let i = 0; i < 23; i++) {
-                html += `<div class="ieee-bit mant" title="Mantissa bit ${i}">${mantissa[i]}</div>`;
-            }
-            
-            html += `
-                </div>
-            </div>
-            <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
-                <span style="color: rgba(255,68,68,0.8);">Sign (1 bit)</span>
-                <span style="color: rgba(68,200,68,0.8);">Exponent (8 bit)</span>
-                <span style="color: rgba(68,136,255,0.8);">Mantissa (23 bit)</span>
-            </div>`;
-            
-            // Hex representation
-            const hexBytes = [];
-            for (let i = 0; i < 4; i++) {
-                hexBytes.push(view.getUint8(i).toString(16).toUpperCase().padStart(2, '0'));
-            }
-            
-            // Calculate mantissa decimal value for verification
-            let mantissaDecimal = 0;
-            for (let i = 0; i < mantissa.length; i++) {
-                if (mantissa[i] === '1') {
-                    mantissaDecimal += Math.pow(2, -(i + 1));
-                }
-            }
-            
-            html += `
-            <div class="code-block" style="margin-top: 1.5rem;">
-                <div class="code-header">Özet ve Doğrulama</div>
-                <div class="code-content">
-<pre>IEEE 754 Binary:
-<span style="color:#ff4444">${sign}</span> <span style="color:#44ff44">${exponent}</span> <span style="color:#4488ff">${mantissa}</span>
+    <section class="summary">
+        <h2>Özet</h2>
+        <ul>
+            <li>Bellek, her biri 1 byte olan ve numaralı (adresli) kutulardan oluşur. Adresler genellikle hex yazılır.</li>
+            <li>Çok byte’lı değerler little-endian (x86, ARM) ya da big-endian (ağ) sırayla yazılır.</li>
+            <li>Her türün boyutu vardır; değişkenler hizalanır ve aralarında boşluk (padding) kalabilir.</li>
+            <li>Dizi elemanı adresi = başlangıç + i × boyut. Bu yüzden indisler 0’dan başlar.</li>
+            <li>Pointer, değeri bir adres olan değişkendir: <code>&amp;x</code> adresi verir, <code>*p</code> o adresteki değeri.</li>
+        </ul>
+    </section>
 
-Hex: <span class="hex">0x${hexBytes.join('')}</span>
-Bellekte (little-endian): <span class="hex">${hexBytes.slice().reverse().join(' ')}</span>
+    <div class="quiz">
+        <div class="quiz-q" data-correct="3">
+            <p><code>0xAABBCCDD</code> değeri little-endian bir makinede bellekte hangi sırayla durur?</p>
+            <ul><li>AA BB CC DD</li><li>DD CC AA BB</li><li>BB AA DD CC</li><li>DD CC BB AA</li></ul>
+            <div class="quiz-explain">Little-endian: en az anlamlı byte (DD) en küçük adreste.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p><code>int dizi[10]</code> (int = 4 byte) <span class="hex">0x2000</span> adresinden başlıyorsa <code>dizi[5]</code> hangi adrestedir?</p>
+            <ul><li>0x2005</li><li>0x2014</li><li>0x2020</li><li>0x2050</li></ul>
+            <div class="quiz-explain">0x2000 + 5 × 4 = 0x2000 + 20 = 0x2000 + 0x14 = 0x2014.</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>64 bitlik bir sistemde <code>char*</code> ve <code>double*</code> pointer’ları kaç byte’tır?</p>
+            <ul><li>İkisi de 8</li><li>1 ve 8</li><li>İkisi de 4</li><li>1 ve 4</li></ul>
+            <div class="quiz-explain">Pointer neyi gösterirse göstersin bir adres tutar; 64 bitlik sistemde adres 8 byte’tır.</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p><code>int x = 5; int *p = &amp;x; *p = 9;</code> çalıştıktan sonra <code>x</code> kaçtır?</p>
+            <ul><li>5</li><li>x’in adresi</li><li>9</li><li>Tanımsız</li></ul>
+            <div class="quiz-explain"><code>*p = 9</code>, p’nin gösterdiği yere (yani x’e) 9 yazar.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>Bir <code>char</code> (1 B) ve ardından bir <code>int</code> (4 B) tanımlandı; char 0x1000’de. int büyük ihtimalle nereye yerleşir?</p>
+            <ul><li>0x1001</li><li>0x1004</li><li>0x1008</li><li>0x1002</li></ul>
+            <div class="quiz-explain">int’ler 4’ün katı adreslere hizalanır; 0x1001–0x1003 boşluk (padding) kalır.</div>
+        </div>
+    </div>
 
-<span class="comment">// Doğrulama: Geri hesapla</span>
-(-1)^<span style="color:#ff4444">${sign}</span> × (1 + ${mantissaDecimal.toFixed(6)}) × 2^(<span style="color:#44ff44">${expValue}</span> - 127)
-= ${num >= 0 ? '+' : '-'}1 × ${(1 + mantissaDecimal).toFixed(6)} × 2^${actualExp}
-= ${num >= 0 ? '' : '-'}${(1 + mantissaDecimal).toFixed(6)} × ${Math.pow(2, actualExp)}
-≈ <span class="dec">${view.getFloat32(0, false)}</span></pre>
-                </div>
-            </div>`;
-            
-            resultDiv.innerHTML = html;
-        }
-        
-        // Initialize
-        showIntMemory();
-        showStringMemory();
-        convertToIEEE();
-    </script>
+</main>
 </body>
 </html>
-

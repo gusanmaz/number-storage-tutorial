@@ -2,361 +2,172 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hexadecimal (16'lık) Sistem | Sayı Sistemleri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Onaltılık Sistem (Hex) · Sayı Sistemleri</title>
+    <meta name="description" content="Hexadecimal neden var, 4 bit = 1 hex rakamı ilişkisi, hex ↔ binary ↔ onlu dönüşümleri ve gerçek hayatta hex.">
+    <link rel="alternate" hreflang="en" href="en/hexadecimal.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
     <link rel="stylesheet" href="styles.css">
+    <script src="js/common.js" defer></script>
+    <script src="js/generators.js" defer></script>
+    <script src="js/pages/hex.js" defer></script>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
-            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
-            <ul class="nav-links" id="nav">
-                <li><a href="index.html">Giriş</a></li>
-                <li><a href="taban-kavrami.html">Taban Kavramı</a></li>
-                <li><a href="binary.html">Binary</a></li>
-                <li><a href="hexadecimal.html" class="active">Hexadecimal</a></li>
-                <li><a href="bit-byte.html">Bit & Byte</a></li>
-                <li><a href="memory.html">Memory</a></li>
-                <li><a href="programlama.html">Programlama</a></li>
-                <li><a href="renkler.html">Renkler</a></li>
-            </ul>
-        </div>
-    </nav>
+<body data-chapter="hex">
+<main class="content">
 
-    <div class="container">
-        <section class="hero">
-            <h1>Hexadecimal Sistem</h1>
-            <p>Programcıların favorisi: 0-9 ve A-F ile 16 rakam</p>
-        </section>
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Onaltılık Sistem (Hexadecimal)</h1>
+        <p class="lead">Hex, binary’nin insanlar için okunabilir kısaltmasıdır. Her hex rakamı tam olarak 4 bit taşır;
+            bu yüzden programcılar bellek adreslerini, renkleri ve ham verileri hep hex ile yazar.</p>
+        <div class="meta"><span>⏱ ~25 dk</span><span>Ön koşul: İkili Sistem</span></div>
+    </header>
 
-        <h2>Neden Hexadecimal?</h2>
+    <section class="objectives">
+        <div class="obj-title">Bu bölümün sonunda</div>
+        <ul>
+            <li>0–F arası hex rakamlarını ve 4 bitlik karşılıklarını tanıyacaksın.</li>
+            <li>Binary ↔ hex dönüşümünü hiç hesap yapmadan, gruplayarak yapabileceksin.</li>
+            <li>Hex sayıları onluya, onlu sayıları hex’e çevirebileceksin.</li>
+            <li>Renk kodu, MAC adresi, bellek adresi gibi gerçek hex değerlerini okuyabileceksin.</li>
+        </ul>
+    </section>
 
-        <p>
-            Binary sayılar çok uzun. 8 bitlik bir değeri yazmak için 8 karakter gerekiyor: 
-            <code class="bin">11111111</code>. Ama aynı değer hex'te sadece 2 karakter: <code class="hex">FF</code>.
-        </p>
+    <h2>Neden hex?</h2>
+    <p>Aynı 32 bitlik değeri üç farklı şekilde yazalım:</p>
+    <div class="table-wrap">
+        <table class="compact">
+            <tbody>
+                <tr><th>Binary</th><td class="m bin" style="overflow-wrap:anywhere">1101 1110 1010 1101 1011 1110 1110 1111</td><td>32 karakter, okumak zor</td></tr>
+                <tr><th>Onlu</th><td class="m dec">3735928559</td><td>Kısa ama bitlerle ilişkisi görünmüyor</td></tr>
+                <tr><th>Hex</th><td class="m hex">DEAD BEEF</td><td>8 karakter, her rakam = 4 bit</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>
+        Hex’in sihri şudur: <strong>16 = 2⁴</strong>. Bu yüzden her hex rakamı tam olarak <strong>4 bite</strong> karşılık gelir.
+        4 bitlik gruba <strong>nibble</strong> denir. İki nibble bir byte eder; yani <strong>1 byte = 2 hex rakamı</strong>.
+        Onlu sistemde böyle temiz bir ilişki yoktur: 255 üç rakam, 256 da üç rakam ama biri 8 bite sığar diğeri sığmaz.
+    </p>
+    <div class="big-formula">1 hex rakamı = 4 bit &nbsp;&nbsp;·&nbsp;&nbsp; 2 hex rakamı = 8 bit = 1 byte</div>
 
-        <div class="content-box highlight">
-            <p style="text-align: center; margin: 0; font-size: 1.1rem;">
-                <strong>Anahtar İlişki:</strong> 16 = 2⁴ olduğu için <br>
-                <span class="hex">1 hex rakamı</span> = <span class="bin">4 bit</span>
-            </p>
-        </div>
+    <h2>On altı rakam</h2>
+    <p>On altı farklı rakama ihtiyacımız var ama elimizde sadece 0–9 var. Eksik altı rakam için harfler kullanılır:</p>
+    <div class="hex-table" id="hex-table" aria-label="Hex rakamları tablosu"></div>
+    <div class="callout tip">
+        <span class="callout-title">Ezber kısayolu</span>
+        <p><b>A</b> = 10 (alfabenin ilk harfi = ilk iki basamaklı sayı), <b>F</b> = 15 (en büyük, tüm bitler 1: <span class="bin">1111</span>).
+        Ortadakiler sırayla gelir. 4 biti okurken ağırlıkları hatırla: <span class="mono">8 4 2 1</span>.
+        Örneğin <span class="bin">1011</span> = 8 + 2 + 1 = 11 = <span class="hex">B</span>.</p>
+    </div>
 
-        <h2>Hex Rakamları</h2>
-
-        <p>10'dan büyük değerler için harfler kullanılır:</p>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Decimal</th>
-                        <th>Hex</th>
-                        <th>Binary</th>
-                        <th></th>
-                        <th>Decimal</th>
-                        <th>Hex</th>
-                        <th>Binary</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>0</td><td><span class="hex">0</span></td><td><span class="bin">0000</span></td>
-                        <td></td>
-                        <td>8</td><td><span class="hex">8</span></td><td><span class="bin">1000</span></td>
-                    </tr>
-                    <tr>
-                        <td>1</td><td><span class="hex">1</span></td><td><span class="bin">0001</span></td>
-                        <td></td>
-                        <td>9</td><td><span class="hex">9</span></td><td><span class="bin">1001</span></td>
-                    </tr>
-                    <tr>
-                        <td>2</td><td><span class="hex">2</span></td><td><span class="bin">0010</span></td>
-                        <td></td>
-                        <td>10</td><td><span class="hex">A</span></td><td><span class="bin">1010</span></td>
-                    </tr>
-                    <tr>
-                        <td>3</td><td><span class="hex">3</span></td><td><span class="bin">0011</span></td>
-                        <td></td>
-                        <td>11</td><td><span class="hex">B</span></td><td><span class="bin">1011</span></td>
-                    </tr>
-                    <tr>
-                        <td>4</td><td><span class="hex">4</span></td><td><span class="bin">0100</span></td>
-                        <td></td>
-                        <td>12</td><td><span class="hex">C</span></td><td><span class="bin">1100</span></td>
-                    </tr>
-                    <tr>
-                        <td>5</td><td><span class="hex">5</span></td><td><span class="bin">0101</span></td>
-                        <td></td>
-                        <td>13</td><td><span class="hex">D</span></td><td><span class="bin">1101</span></td>
-                    </tr>
-                    <tr>
-                        <td>6</td><td><span class="hex">6</span></td><td><span class="bin">0110</span></td>
-                        <td></td>
-                        <td>14</td><td><span class="hex">E</span></td><td><span class="bin">1110</span></td>
-                    </tr>
-                    <tr>
-                        <td>7</td><td><span class="hex">7</span></td><td><span class="bin">0111</span></td>
-                        <td></td>
-                        <td>15</td><td><span class="hex">F</span></td><td><span class="bin">1111</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-box concept">
-            <strong>Ezberle!</strong><br>
-            A=10, B=11, C=12, D=13, E=14, F=15
-        </div>
-
-        <h2>İnteraktif: Hex Dönüştürücü</h2>
-
-        <div class="interactive-section">
-            <h3>🔄 Hex ↔ Decimal</h3>
-            
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Hex (0x olmadan)</label>
-                    <input type="text" class="input-field" id="hexInput" value="FF" placeholder="FF">
-                </div>
-                <button class="btn btn-primary" onclick="convertHex()">Dönüştür</button>
-            </div>
-
-            <div id="hexResult"></div>
-        </div>
-
-        <h2>Hex → Decimal Dönüşümü</h2>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: 2A₁₆ → ?</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Her basamak 16'nın kuvvetiyle çarpılır</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>     <span class="hex">2</span>      <span class="hex">A</span>
-<span class="line-num">4</span>     ↓      ↓
-<span class="line-num">5</span>   16¹    16⁰
-<span class="line-num">6</span>     ↓      ↓
-<span class="line-num">7</span>    16      1
-<span class="line-num">8</span>
-<span class="line-num">9</span><span class="comment">// A = 10 olduğunu hatırla</span>
-<span class="line-num">10</span>   <span class="hex">2</span> × 16 + <span class="hex">A</span> × 1
-<span class="line-num">11</span>   = 2 × 16 + 10 × 1
-<span class="line-num">12</span>   = 32 + 10
-<span class="line-num">13</span>   = <span class="dec">42</span></pre>
+    <h2>Binary ↔ hex: sadece grupla</h2>
+    <p>
+        Binary’den hex’e geçmek için bitleri <strong>sağdan başlayarak</strong> 4’erli grupla. En soldaki grup eksik kalırsa
+        başına 0 ekle (baştaki sıfırlar değeri değiştirmez). Sonra her grubu tek bir hex rakamına çevir.
+        Hex’ten binary’ye geçmek tam tersi: her hex rakamını 4 bite aç.
+    </p>
+    <section class="widget" id="nib">
+        <h3 class="widget-title">Nibble gruplayıcı</h3>
+        <p class="widget-desc">Bir binary ya da hex değer yaz. Soluk sıfırlar, gruplamayı tamamlamak için eklenen sıfırlardır.</p>
+        <div class="controls">
+            <div class="seg" id="nib-mode" role="group" aria-label="Yön">
+                <button type="button" aria-pressed="true" data-mode="bin">Binary → Hex</button>
+                <button type="button" aria-pressed="false" data-mode="hex">Hex → Binary</button>
             </div>
         </div>
-
-        <h2>Hex ↔ Binary Dönüşümü</h2>
-
-        <p>Her hex rakamı tam olarak 4 bit'e karşılık gelir. Bu dönüşüm çok kolay!</p>
-
-        <div class="code-block">
-            <div class="code-header">Hex → Binary: Her rakamı 4 bit yap</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// 5A₁₆ → Binary</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>   <span class="hex">5</span>  →  <span class="bin">0101</span>
-<span class="line-num">4</span>   <span class="hex">A</span>  →  <span class="bin">1010</span>
-<span class="line-num">5</span>
-<span class="line-num">6</span>   Sonuç: <span class="bin">01011010</span>₂</pre>
-            </div>
+        <div class="field-row">
+            <label class="field grow"><span id="nib-label">Binary</span><input id="nib-in" class="input mono" value="1011010111" spellcheck="false" autocomplete="off"></label>
         </div>
+        <div class="nib-groups" id="nib-groups"></div>
+        <div class="expr" id="nib-out"></div>
+    </section>
 
-        <div class="code-block">
-            <div class="code-header">Binary → Hex: Sağdan 4'lü grupla</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// 11110011₂ → Hex</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>   <span class="bin">1111</span>  <span class="bin">0011</span>
-<span class="line-num">4</span>     ↓      ↓
-<span class="line-num">5</span>     <span class="hex">F</span>      <span class="hex">3</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span>   Sonuç: <span class="hex">F3</span>₁₆</pre>
-            </div>
+    <h2>Hex → onlu</h2>
+    <p>Basamak değeri formülü aynen geçerli; sadece taban 16. Sağdan sola ağırlıklar: 1, 16, 256, 4096…</p>
+    <div class="compare">
+        <div>
+            <h4><span class="num"><span class="hex">2A</span><sub>16</sub></span></h4>
+            <p class="mono" style="margin:0">2 × 16 + A × 1<br>= 2 × 16 + 10 × 1<br>= 32 + 10 = <b class="dec">42</b></p>
         </div>
-
-        <h2>Hex Kullanım Alanları</h2>
-
-        <div class="cards-grid">
-            <div class="card">
-                <h4>🎨 Renk Kodları</h4>
-                <p>
-                    Web'de renkler hex ile yazılır:<br>
-                    <code class="hex">#FF5733</code> (turuncu)
-                </p>
-            </div>
-            <div class="card">
-                <h4>🧠 Memory Adresleri</h4>
-                <p>
-                    RAM adresleri hex gösterilir:<br>
-                    <code class="hex">0x7FFE42A0</code>
-                </p>
-            </div>
-            <div class="card">
-                <h4>📱 MAC Adresleri</h4>
-                <p>
-                    Ağ kartı kimlikleri:<br>
-                    <code class="hex">00:1A:2B:3C:4D:5E</code>
-                </p>
-            </div>
+        <div>
+            <h4><span class="num"><span class="hex">1F4</span><sub>16</sub></span></h4>
+            <p class="mono" style="margin:0">1 × 256 + F × 16 + 4 × 1<br>= 256 + 240 + 4<br>= <b class="dec">500</b></p>
         </div>
+    </div>
+    <section class="widget" id="pv">
+        <h3 class="widget-title">Hex basamak değeri</h3>
+        <p class="widget-desc">Bir hex sayı yaz (0–9, A–F). Harflerin sayısal değeri kutuların altında görünür.</p>
+        <div id="pv-box"></div>
+    </section>
 
-        <h2>2 Hex Rakamı = 1 Byte</h2>
+    <h2>Onlu → hex</h2>
+    <p>İki yol var:</p>
+    <ol>
+        <li><strong>16’ya tekrar tekrar böl</strong> (Bölüm 1’deki algoritma). Kalanlar 10–15 çıkarsa harfe çevir.</li>
+        <li><strong>Önce binary’ye, sonra hex’e:</strong> küçük sayılarda genellikle daha hızlıdır.</li>
+    </ol>
+<pre class="plain"><code>500 ÷ 16 = 31   kalan  <b class="hex">4</b>
+ 31 ÷ 16 =  1   kalan <b class="hex">15 → F</b>
+  1 ÷ 16 =  0   kalan  <b class="hex">1</b>
+                       ↑ aşağıdan yukarı oku → <b class="hex">1F4</b>₁₆</code></pre>
 
-        <p>Bu ilişki çok önemli! 1 byte = 8 bit = 2 hex rakamı.</p>
+    <h2>Hex nerede karşına çıkar?</h2>
+    <p>Aşağıdaki örneklerden birine tıkla ve parçalarına ayrıldığını gör.</p>
+    <section class="widget" id="wild">
+        <h3 class="widget-title">Gerçek hayattan hex</h3>
+        <div class="chips" id="wild-chips"></div>
+        <div id="wild-out"></div>
+    </section>
 
-        <div class="code-block">
-            <div class="code-header">1 Byte'ın Aralığı</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Minimum değer</span>
-<span class="line-num">2</span>   Binary:  <span class="bin">00000000</span>
-<span class="line-num">3</span>   Hex:     <span class="hex">00</span>
-<span class="line-num">4</span>   Decimal: <span class="dec">0</span>
-<span class="line-num">5</span>
-<span class="line-num">6</span><span class="comment">// Maksimum değer</span>
-<span class="line-num">7</span>   Binary:  <span class="bin">11111111</span>
-<span class="line-num">8</span>   Hex:     <span class="hex">FF</span>
-<span class="line-num">9</span>   Decimal: <span class="dec">255</span>
-<span class="line-num">10</span>
-<span class="line-num">11</span><span class="comment">// Toplam: 256 farklı değer (0-255)</span></pre>
-            </div>
+    <div class="callout mistake">
+        <span class="callout-title">Sık yapılan hata</span>
+        <p><code>0x10</code> on değil <strong>on altıdır</strong>. Hex sayıları onlu gibi okumamak için başlarına mutlaka <code>0x</code> (kodda) ya da <code>#</code> (renklerde)
+        konur ya da alt simge <sub>16</sub> kullanılır. “Bir-sıfır hex” diye okumak, “on” demekten daha güvenlidir.</p>
+    </div>
+
+    <div id="practice"></div>
+    <div id="drill"></div>
+
+    <section class="summary">
+        <h2>Özet</h2>
+        <ul>
+            <li>Hex’te 16 rakam var: 0–9 ve A(10)–F(15).</li>
+            <li>16 = 2⁴ → 1 hex rakamı = 4 bit (nibble), 2 hex rakamı = 1 byte.</li>
+            <li>Binary → hex: sağdan 4’erli grupla. Hex → binary: her rakamı 4 bite aç.</li>
+            <li>Hex → onlu: basamak değerleri 1, 16, 256, 4096… Onlu → hex: 16’ya böl.</li>
+            <li>Kodda <code>0x</code>, renklerde <code>#</code> ön eki kullanılır.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="0">
+            <p><span class="num hex">3C</span>₁₆ onlu olarak kaçtır?</p>
+            <ul><li>60</li><li>48</li><li>36</li><li>312</li></ul>
+            <div class="quiz-explain">3 × 16 + C(12) = 48 + 12 = 60.</div>
         </div>
-
-        <div class="info-box formula">
-            <strong>Önemli Eşitlik</strong><br>
-            <span class="hex">FF</span>₁₆ = <span class="bin">11111111</span>₂ = <span class="dec">255</span>₁₀<br>
-            Bu değeri aklında tut!
+        <div class="quiz-q" data-correct="2">
+            <p><span class="num bin">1111 0011</span>₂ hex olarak nasıl yazılır?</p>
+            <ul><li>F11</li><li>E3</li><li>F3</li><li>FC</li></ul>
+            <div class="quiz-explain">1111 = F, 0011 = 3 → F3.</div>
         </div>
-
-        <h2>16'nın Kuvvetleri</h2>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Üs</th>
-                        <th>Değer</th>
-                        <th>Hex'te Kullanım</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>16⁰</td><td>1</td><td>Son rakam (birler)</td></tr>
-                    <tr><td>16¹</td><td>16</td><td>İkinci rakam</td></tr>
-                    <tr><td>16²</td><td>256</td><td>1 byte'dan büyük</td></tr>
-                    <tr><td>16⁴</td><td>65,536</td><td>2 byte = 4 hex</td></tr>
-                    <tr><td>16⁶</td><td>16,777,216</td><td>RGB renk sayısı</td></tr>
-                    <tr><td>16⁸</td><td>4,294,967,296</td><td>4 byte = 8 hex</td></tr>
-                </tbody>
-            </table>
+        <div class="quiz-q" data-correct="1">
+            <p>6 hex rakamlık bir değer (ör. <code>#FF8800</code>) kaç bit taşır?</p>
+            <ul><li>6</li><li>24</li><li>48</li><li>12</li></ul>
+            <div class="quiz-explain">6 × 4 = 24 bit = 3 byte. Renk kodları bu yüzden 24 bitliktir.</div>
         </div>
-
-        <h2>Alıştırma</h2>
-
-        <div class="quiz-container">
-            <div class="quiz-question">
-                <strong>Soru:</strong> <span class="hex">3C</span>₁₆ decimal olarak kaçtır?
-            </div>
-            <div class="quiz-options" id="quizOpts">
-                <div class="quiz-option" onclick="checkQuiz(this, 60)">60</div>
-                <div class="quiz-option" onclick="checkQuiz(this, 48)">48</div>
-                <div class="quiz-option" onclick="checkQuiz(this, 56)">56</div>
-                <div class="quiz-option" onclick="checkQuiz(this, 52)">52</div>
-            </div>
-            <div id="quizFeedback" style="margin-top: 1rem;"></div>
+        <div class="quiz-q" data-correct="3">
+            <p>Hex’te <code>FF</code>’den sonra hangi sayı gelir?</p>
+            <ul><li>FG</li><li>G0</li><li>FF1</li><li>100</li></ul>
+            <div class="quiz-explain">Her iki basamak da en büyük rakamda (F) olduğu için ikisi de taşar: FF + 1 = 100₁₆ = 256.</div>
         </div>
-
-        <div class="nav-buttons">
-            <a href="binary.html" class="btn btn-secondary">← Binary</a>
-            <a href="bit-byte.html" class="btn btn-primary">Bit & Byte →</a>
+        <div class="quiz-q" data-correct="1">
+            <p>Bir MAC adresi <code>00:1A:2B:3C:4D:5E</code> kaç byte’tır?</p>
+            <ul><li>12</li><li>6</li><li>3</li><li>48</li></ul>
+            <div class="quiz-explain">İki nokta arasındaki her iki hex rakamı bir byte: 6 grup = 6 byte = 48 bit.</div>
         </div>
     </div>
 
-    <footer class="footer">
-        Sayı Sistemleri Eğitimi • Bilgisayarda Sayılar Nasıl Saklanır?
-        <br><br>
-        Bu kitaba katkıda bulunmak ister misin? 🚀<br>
-        <a href="https://github.com/gusanmaz/number-storage-tutorial" target="_blank" rel="noopener noreferrer">github.com/gusanmaz/number-storage-tutorial</a> adresine pull request gönderebilirsin!
-    </footer>
-
-    <script>
-        function convertHex() {
-            const input = document.getElementById('hexInput').value.trim().toUpperCase();
-            const resultDiv = document.getElementById('hexResult');
-            
-            if (!/^[0-9A-F]+$/.test(input)) {
-                resultDiv.innerHTML = '<div class="result-box" style="border-color: var(--red);">Geçersiz hex! Sadece 0-9 ve A-F kullan.</div>';
-                return;
-            }
-            
-            const decimal = parseInt(input, 16);
-            const binary = decimal.toString(2);
-            
-            // Step by step calculation
-            let html = '<div class="code-block"><div class="code-header">Hesaplama</div><div class="code-content"><pre>';
-            
-            let steps = [];
-            for (let i = 0; i < input.length; i++) {
-                const digit = input[i];
-                const digitVal = parseInt(digit, 16);
-                const power = input.length - 1 - i;
-                const posVal = Math.pow(16, power);
-                steps.push(`<span class="hex">${digit}</span> (${digitVal}) × 16<sup>${power}</sup> = ${digitVal * posVal}`);
-            }
-            
-            html += steps.join('\n');
-            html += `\n\nToplam = <span class="dec">${decimal}</span></pre></div></div>`;
-            
-            // Binary breakdown
-            html += '<div class="code-block"><div class="code-header">Binary Dönüşümü</div><div class="code-content"><pre>';
-            let binParts = [];
-            for (let i = 0; i < input.length; i++) {
-                const digit = input[i];
-                const digitVal = parseInt(digit, 16);
-                binParts.push(`<span class="hex">${digit}</span> → <span class="bin">${digitVal.toString(2).padStart(4, '0')}</span>`);
-            }
-            html += binParts.join('\n');
-            html += `\n\nSonuç: <span class="bin">${binary}</span>₂</pre></div></div>`;
-            
-            html += `<div class="result-box success">
-                <div class="result-row">
-                    <div class="result-item">
-                        <div class="result-label">Hex</div>
-                        <div class="result-value hex">${input}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Decimal</div>
-                        <div class="result-value dec">${decimal}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Binary</div>
-                        <div class="result-value bin">${binary}</div>
-                    </div>
-                </div>
-            </div>`;
-            
-            resultDiv.innerHTML = html;
-        }
-        
-        function checkQuiz(element, value) {
-            const correct = 60; // 3×16 + 12 = 48 + 12 = 60
-            const options = document.querySelectorAll('.quiz-option');
-            options.forEach(o => o.style.pointerEvents = 'none');
-            
-            if (value === correct) {
-                element.classList.add('correct');
-                document.getElementById('quizFeedback').innerHTML = 
-                    '<div class="result-box success">✓ Doğru! 3×16 + C(12)×1 = 48 + 12 = 60</div>';
-            } else {
-                element.classList.add('wrong');
-                document.getElementById('quizFeedback').innerHTML = 
-                    '<div class="result-box" style="border-color: var(--red);">✗ Yanlış. 3×16 + 12 = 60</div>';
-            }
-        }
-        
-        // Initial conversion
-        convertHex();
-    </script>
+</main>
 </body>
 </html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mixed Practice · Number Systems</title>
+    <meta name="description" content="Unlimited mixed practice questions from every topic and a one-page cheat sheet.">
+    <link rel="alternate" hreflang="tr" href="../pratik.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../js/common.js" defer></script>
+    <script src="../js/generators.js" defer></script>
+    <script src="../js/pages/practice.js" defer></script>
+</head>
+<body data-chapter="practice">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Mixed Practice</h1>
+        <p class="lead">Random questions from every chapter. Switch topics on and off with the buttons at the top. Preparing for an exam or just want to
+            consolidate what you’ve learned? See how long you can keep your streak (🔥) going!</p>
+    </header>
+
+    <div id="practice"></div>
+
+    <h2>Cheat sheet</h2>
+    <p>Everything you need to know in one place. Print it and keep it next to you.</p>
+    <div class="cheat">
+        <div class="cheat-card">
+            <h4>Powers of two</h4>
+            <table class="compact"><tbody>
+                <tr><td class="m">2⁰ = 1</td><td class="m">2⁶ = 64</td></tr>
+                <tr><td class="m">2¹ = 2</td><td class="m">2⁷ = 128</td></tr>
+                <tr><td class="m">2² = 4</td><td class="m">2⁸ = 256</td></tr>
+                <tr><td class="m">2³ = 8</td><td class="m">2¹⁰ = 1,024</td></tr>
+                <tr><td class="m">2⁴ = 16</td><td class="m">2¹⁶ = 65,536</td></tr>
+                <tr><td class="m">2⁵ = 32</td><td class="m">2³² ≈ 4.29 × 10⁹</td></tr>
+            </tbody></table>
+        </div>
+        <div class="cheat-card">
+            <h4>Hex ↔ binary</h4>
+            <div class="cheat-hex" id="cheat-hex"></div>
+        </div>
+        <div class="cheat-card">
+            <h4>Conversions</h4>
+            <ul>
+                <li><b>b → 10:</b> sum digit × b<sup>position</sup></li>
+                <li><b>10 → b:</b> divide by b, reverse the remainders</li>
+                <li><b>2 ↔ 16:</b> group in 4s</li>
+                <li><b>2 ↔ 8:</b> group in 3s</li>
+                <li><b>Fraction → 2:</b> multiply by 2, take the integer part</li>
+            </ul>
+        </div>
+        <div class="cheat-card">
+            <h4>Sizes</h4>
+            <ul>
+                <li>n bits → 2ⁿ values, 0 … 2ⁿ−1</li>
+                <li>Signed n bits: −2ⁿ⁻¹ … 2ⁿ⁻¹−1</li>
+                <li>N values need ⌈log₂ N⌉ bits</li>
+                <li>1 byte = 8 bits = 2 hex</li>
+                <li>KiB = 1024 B, kB = 1000 B</li>
+            </ul>
+        </div>
+        <div class="cheat-card">
+            <h4>Two’s complement</h4>
+            <ul>
+                <li>Leftmost bit = −2ⁿ⁻¹ (−128 in 8 bits)</li>
+                <li>Negate: flip + 1</li>
+                <li><span class="mono">11111111</span> = −1</li>
+                <li><span class="mono">10000000</span> = −128</li>
+            </ul>
+        </div>
+        <div class="cheat-card">
+            <h4>IEEE 754 float</h4>
+            <ul>
+                <li>1 sign · 8 exponent · 23 mantissa</li>
+                <li>(−1)ˢ × 1.m × 2^(e−127)</li>
+                <li>double: 1 · 11 · 52, bias 1023</li>
+                <li>0.1 isn’t exact → compare with a tolerance</li>
+            </ul>
+        </div>
+        <div class="cheat-card">
+            <h4>Text</h4>
+            <ul>
+                <li>'0' = 48 = 0x30</li>
+                <li>'A' = 65 = 0x41</li>
+                <li>'a' = 97 = 0x61 (A + 32)</li>
+                <li>UTF-8: 1–4 bytes, ASCII-compatible</li>
+                <li>é ü ñ ç → 2 bytes, € → 3, 😀 → 4</li>
+            </ul>
+        </div>
+        <div class="cheat-card">
+            <h4>Media &amp; memory</h4>
+            <ul>
+                <li>#RRGGBB = 3 bytes</li>
+                <li>Image = w × h × bytes/pixel</li>
+                <li>Audio = rate × bits/8 × channels × s</li>
+                <li>Nyquist: rate &gt; 2 × frequency</li>
+                <li>address(a[i]) = start + i × size</li>
+                <li>x86/ARM: little-endian</li>
+            </ul>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

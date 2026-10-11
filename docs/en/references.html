@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Variables &amp; References · Number Systems</title>
+    <meta name="description" content="What do Python and JavaScript variables point to in memory? Mutable vs immutable objects, references, == vs is, shallow and deep copies — step-by-step visualization.">
+    <link rel="alternate" hreflang="tr" href="../referanslar.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../js/common.js" defer></script>
+    <script src="../js/pages/refs.js" defer></script>
+</head>
+<body data-chapter="refs">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Variables &amp; References</h1>
+        <p class="lead">In C, a variable is a box at a fixed address. In Python and JavaScript, a variable is a
+            <strong>name tag</strong> tied to an object somewhere in memory. This difference is behind some of the most common beginner bugs.</p>
+        <div class="meta"><span>⏱ ~30 min</span><span>Prerequisite: Memory</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">By the end of this chapter you will</div>
+        <ul>
+            <li>be able to explain that in Python/JS an assignment (<code>b = a</code>) copies the reference, not the data;</li>
+            <li>tell mutable and immutable types apart;</li>
+            <li>understand why passing a list to a function can change the original;</li>
+            <li>know the difference between <code>==</code> and <code>is</code> / <code>===</code>, and between shallow and deep copies.</li>
+        </ul>
+    </section>
+
+    <h2>Box or name tag?</h2>
+    <div class="compare">
+        <div>
+            <h4>C: variable = box</h4>
+            <p style="margin:0"><code>int a = 10; int b = a;</code> → two separate boxes, each containing 10. Changing <code>b</code> doesn’t affect <code>a</code>.
+            As you saw in the previous chapter, every variable has a fixed address.</p>
+        </div>
+        <div>
+            <h4>Python / JS: variable = name tag</h4>
+            <p style="margin:0">Values (objects) live somewhere in memory. A variable is just a name bound to that object; it holds the object’s <strong>address (reference)</strong>.
+            <code>b = a</code> → no new object; just a second tag on the same object.</p>
+        </div>
+    </div>
+    <p>This isn’t always a problem. Trouble starts when the object can be <strong>changed in place</strong>. Step through each scenario in the visualizer below.
+        At some steps you’ll be asked to predict the result before seeing it.</p>
+
+    <section class="widget" id="viz">
+        <h3 class="widget-title">Reference visualizer</h3>
+        <div class="chips" id="viz-chips"></div>
+        <div id="viz-box"></div>
+        <div class="viz-legend"><span><i class="lg-name"></i> name (variable)</span><span><i class="lg-obj"></i> object (in memory)</span><span><i class="lg-dead"></i> nothing points here → garbage collector frees it</span></div>
+    </section>
+
+    <h2>Mutable and immutable types</h2>
+    <div class="compare">
+        <div>
+            <h4>Immutable</h4>
+            <p style="margin:.2rem 0">Python: <code>int</code>, <code>float</code>, <code>bool</code>, <code>str</code>, <code>tuple</code>, <code>None</code><br>JS: <code>number</code>, <code>string</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>, <code>bigint</code></p>
+            <p style="margin:0">Once created, the object never changes. <code>a = a + 1</code> creates a new object and moves the <code>a</code> tag there. That makes sharing safe.</p>
+        </div>
+        <div>
+            <h4>Mutable</h4>
+            <p style="margin:.2rem 0">Python: <code>list</code>, <code>dict</code>, <code>set</code>, your own classes<br>JS: <code>Array</code>, <code>Object</code>, <code>Map</code>, <code>Set</code></p>
+            <p style="margin:0">Operations like <code>append</code>, <code>push</code> and <code>x[0] = …</code> change the object <strong>in place</strong>. Every name bound to it sees the change.</p>
+        </div>
+    </div>
+    <div class="callout mistake">
+        <span class="callout-title">Common mistake: thinking you made a copy</span>
+        <p><code>backup = items</code> does not make a backup! Both names point to the same list. For a real copy use <code>items.copy()</code>, <code>list(items)</code> or <code>items[:]</code> in Python;
+        <code>[...arr]</code> or <code>structuredClone(obj)</code> in JavaScript.</p>
+    </div>
+
+    <h2>== vs is (and ===)</h2>
+    <p><strong>Equality</strong> (<code>==</code>) asks whether two objects have the same <em>contents</em>. <strong>Identity</strong> (<code>is</code> in Python) asks whether two names point to <em>the same object</em>, i.e. have the same address.</p>
+    <div class="tabs" data-sync="lang">
+        <div class="tab-panel" data-label="Python">
+<pre class="code" data-lang="py">
+a = [1, 2]
+b = [1, 2]
+c = a
+print(a == b)      # True   same contents
+print(a is b)      # False  different objects
+print(a is c)      # True   same object
+print(id(a), id(c))  # same number: the object's identity (its memory address in CPython)
+
+if x is None:      # always check for None with "is"
+    ...
+</pre>
+        </div>
+        <div class="tab-panel" data-label="JavaScript">
+<pre class="code" data-lang="js">
+const a = [1, 2];
+const b = [1, 2];
+const c = a;
+console.log(a === b);   // false  for objects, === compares identity!
+console.log(a === c);   // true
+console.log(5 === 5);   // true   primitives compare by value
+
+// To compare contents (simple cases):
+JSON.stringify(a) === JSON.stringify(b);   // true
+</pre>
+        </div>
+    </div>
+    <div class="callout warn">
+        <span class="callout-title">Don’t compare numbers with is</span>
+        <p>CPython pre-creates and shares small integers from −5 to 256. So <code>a = 100; b = 100; a is b</code> is usually <code>True</code>,
+        but for larger numbers the result depends on how the code is run. It’s an implementation detail: <strong>always compare values with <code>==</code>.</strong></p>
+    </div>
+
+    <h2>const doesn’t mean unchangeable</h2>
+    <p>In JavaScript, <code>const</code> means <strong>the name cannot be bound to another object</strong>; the object itself can still change.</p>
+<pre class="code" data-lang="js">
+const basket = ["apple"];
+basket.push("pear");     // ✓ works: same array, changed in place
+basket = ["banana"];     // ✗ TypeError: the name cannot be rebound
+Object.freeze(basket);   // to make it truly unchangeable (shallowly)
+</pre>
+
+    <section class="summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>In Python/JS variables are names bound to objects; assignment copies the reference, not the object.</li>
+            <li>When an immutable object (number, string) “changes”, a new object is actually created.</li>
+            <li>Mutable objects (lists, dicts, arrays, objects) change in place; every name pointing to them sees the change.</li>
+            <li>A list passed to a function is not copied; the function can modify it.</li>
+            <li><code>==</code> compares contents, <code>is</code> / <code>===</code> on objects compares identity. A shallow copy still shares nested objects.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="1">
+            <p>What does <code>x = [1, 2]; y = x; y.append(3); print(x)</code> print?</p>
+            <ul><li>[1, 2]</li><li>[1, 2, 3]</li><li>[3]</li><li>An error</li></ul>
+            <div class="quiz-explain">x and y point to the same list; append changes it in place.</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p>What does <code>s = "cat"; t = s; s = s + "s"; print(t)</code> print?</p>
+            <ul><li>cat</li><li>cats</li><li>s</li><li>An error</li></ul>
+            <div class="quiz-explain">Strings are immutable. <code>s + "s"</code> creates a new object; t keeps pointing to the old one.</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p>In JavaScript, what is <code>[1] === [1]</code>?</p>
+            <ul><li>true</li><li>An error</li><li>false</li><li>undefined</li></ul>
+            <div class="quiz-explain">Two separate array objects were created; === on objects checks identity.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>After <code>a = [[0], [0]]; b = a.copy(); b[0].append(1)</code>, what is <code>a</code>?</p>
+            <ul><li>[[0], [0]]</li><li>[[0, 1], [0, 1]]</li><li>[[0], [0], 1]</li><li>[[0, 1], [0]]</li></ul>
+            <div class="quiz-explain"><code>copy()</code> is shallow: the outer list is new, but the inner lists are shared.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p>What’s the best way for a function to return a new list without modifying the one it was given?</p>
+            <ul><li>Assign a new value to the parameter</li><li>Work on a copy of the list and return it</li><li>Use <code>global</code></li><li>Use <code>is</code></li></ul>
+            <div class="quiz-explain">For example <code>new = lst.copy(); new.append(x); return new</code>. The caller’s list stays intact.</div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

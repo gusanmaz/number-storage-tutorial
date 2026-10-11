@@ -2,489 +2,253 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taban Kavramı | Sayı Sistemleri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taban Kavramı · Sayı Sistemleri</title>
+    <meta name="description" content="Taban nedir, basamak değeri nasıl çalışır, herhangi bir tabandan diğerine nasıl dönüştürülür? Etkileşimli sayaç ve adım adım bölme animasyonu.">
+    <link rel="alternate" hreflang="en" href="en/number-bases.html">
+    <script>try{var s=localStorage.getItem('ss-theme');if(s)document.documentElement.dataset.theme=JSON.parse(s)}catch(e){}</script>
     <link rel="stylesheet" href="styles.css">
+    <script src="js/common.js" defer></script>
+    <script src="js/generators.js" defer></script>
+    <script src="js/pages/bases.js" defer></script>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">// sayıSistemleri</a>
-            <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')">☰</button>
-            <ul class="nav-links" id="nav">
-                <li><a href="index.html">Giriş</a></li>
-                <li><a href="taban-kavrami.html" class="active">Taban Kavramı</a></li>
-                <li><a href="binary.html">Binary</a></li>
-                <li><a href="hexadecimal.html">Hexadecimal</a></li>
-                <li><a href="bit-byte.html">Bit & Byte</a></li>
-                <li><a href="memory.html">Memory</a></li>
-                <li><a href="programlama.html">Programlama</a></li>
-                <li><a href="renkler.html">Renkler</a></li>
-            </ul>
+<body data-chapter="bases">
+<main class="content">
+
+    <header class="chapter-hero">
+        <div class="eyebrow"></div>
+        <h1>Taban Kavramı</h1>
+        <p class="lead">Tüm sayı sistemleri aynı fikir üzerine kuruludur: <strong>sınırlı sayıda rakam</strong> ve
+            <strong>konuma göre değişen değer</strong>. Bu fikri bir kez kavrarsan binary, octal ve hex sadece birer ayrıntı olur.</p>
+        <div class="meta"><span>⏱ ~25 dk</span><span>Ön koşul: yok</span></div>
+    </header>
+
+    <section class="objectives">
+        <div class="obj-title">Bu bölümün sonunda</div>
+        <ul>
+            <li>“Taban” kavramını ve bir tabanda hangi rakamların kullanıldığını açıklayabileceksin.</li>
+            <li>Her tabanda saymanın neden “taşma” ile ilerlediğini göreceksin.</li>
+            <li>Herhangi bir tabandaki sayıyı <strong>basamak değerleriyle</strong> onluya çevirebileceksin.</li>
+            <li>Onlu bir sayıyı <strong>tekrarlı bölme</strong> ile istediğin tabana çevirebileceksin.</li>
+        </ul>
+    </section>
+
+    <h2>Taban (radix) nedir?</h2>
+    <p>
+        Bir sayı sisteminin <strong>tabanı</strong>, o sistemde kullanılan <strong>farklı rakam sayısıdır</strong>.
+        Günlük hayatta kullandığımız sistemde on rakam vardır (0, 1, 2, …, 9); bu yüzden tabanı <strong>10</strong>’dur.
+    </p>
+    <div class="callout formula">
+        <span class="callout-title">Temel kural</span>
+        <p>Tabanı <em>b</em> olan bir sistemde <strong>0’dan b − 1’e kadar</strong> rakamlar kullanılır. <em>b</em> rakamının kendisi yoktur!</p>
+        <p class="mono" style="margin:0">taban 2 → 0 1 &nbsp;·&nbsp; taban 8 → 0 … 7 &nbsp;·&nbsp; taban 10 → 0 … 9 &nbsp;·&nbsp; taban 16 → 0 … 9, A … F</p>
+    </div>
+    <p>Taban 10’dan büyükse yeni rakam sembolleri gerekir. Hex’te bunun için harfler kullanılır: A = 10, B = 11, C = 12, D = 13, E = 14, F = 15.</p>
+
+    <div class="callout think">
+        <span class="callout-title">Önce bir düşün</span>
+        <p>Taban 5’te hangi rakamlar kullanılır? <span class="num">5</span> rakamı bu sistemde var mı?</p>
+        <details class="reveal"><summary>Cevabı göster</summary>
+            <p>0, 1, 2, 3 ve 4. Beş rakamı yoktur; “beş” sayısı taban 5’te <span class="num">10<sub>5</sub></span> diye yazılır (bir tane beşlik, sıfır tane birlik).</p>
+        </details>
+    </div>
+
+    <h2>Saymak, aslında taşmaktır</h2>
+    <p>
+        Arabadaki eski kilometre sayaçlarını düşün: en sağdaki çark 9’dan sonra 0’a döner ve solundaki çarkı bir ilerletir.
+        Buna <strong>taşma</strong> (elde, <em>carry</em>) denir. Her tabanda sayma aynı şekilde işler; tek fark, çarkın
+        <em>kaçta</em> başa döndüğüdür. Taban 2’de çark yalnızca 0 ve 1 arasında gidip gelir, bu yüzden taşma çok sık olur.
+    </p>
+
+    <section class="widget" id="odo">
+        <h3 class="widget-title">Her tabanda çalışan sayaç</h3>
+        <p class="widget-desc">Tabanı seç ve <kbd>+1</kbd>’e bas ya da otomatik saymayı başlat. Hangi çarkın ne zaman başa döndüğüne dikkat et.</p>
+        <div class="controls">
+            <div class="seg" id="odo-base" role="group" aria-label="Taban"></div>
         </div>
-    </nav>
-
-    <div class="container">
-        <section class="hero">
-            <h1>Taban Kavramı</h1>
-            <p>Sayı sistemlerinin matematiksel temeli</p>
-        </section>
-
-        <h2>Taban (Radix) Nedir?</h2>
-        
-        <p>
-            <strong>Taban</strong>, bir sayı sisteminde kullanılan <strong>benzersiz rakam sayısıdır</strong>. 
-            Günlük hayatta kullandığımız onluk sistemde 10 farklı rakam vardır (0-9), 
-            bu yüzden tabanı 10'dur.
-        </p>
-
-        <div class="info-box formula">
-            <strong>Temel Kural</strong><br>
-            Taban <em>n</em> olan bir sistemde <strong>0'dan (n-1)'e kadar</strong> rakamlar kullanılır.<br>
-            Örnek: Taban 2 → 0, 1 &nbsp;|&nbsp; Taban 10 → 0-9 &nbsp;|&nbsp; Taban 16 → 0-9, A-F
+        <div class="odo-wheels" id="odo-wheels"></div>
+        <div class="controls" style="justify-content:center">
+            <button class="btn" id="odo-dec" type="button">−1</button>
+            <button class="btn primary" id="odo-inc" type="button">+1</button>
+            <button class="btn" id="odo-play" type="button">▶ Otomatik say</button>
+            <button class="btn" id="odo-jump" type="button">Sonraki taşmaya atla</button>
+            <button class="btn ghost" id="odo-reset" type="button">Sıfırla</button>
         </div>
+        <div class="step-note" id="odo-note" aria-live="polite"></div>
+    </section>
 
-        <h2>Basamak Değeri (Positional Notation)</h2>
+    <div class="callout mistake">
+        <span class="callout-title">Sık yapılan hata: “10” her zaman on değildir</span>
+        <p><span class="num">10<sub>2</sub></span> = iki, <span class="num">10<sub>8</sub></span> = sekiz, <span class="num">10<sub>16</sub></span> = on altı.
+        Herhangi bir tabanda <code>10</code>, “bir tane taban, sıfır tane birlik” demektir; yani tabanın kendisidir.</p>
+    </div>
 
-        <p>
-            Modern sayı sistemlerinde bir rakamın değeri, <strong>bulunduğu konuma (basamağa)</strong> göre değişir.
-            Her basamak, <strong>tabanın kuvveti</strong> ile çarpılır.
-        </p>
-
-        <h3>Onluk Sistemde Örnek</h3>
-        
-        <p>Bildiğimiz <code>2024</code> sayısını düşünelim:</p>
-
-        <div class="code-block">
-            <div class="code-header">Basamak Analizi</div>
-            <div class="code-content">
-<pre>    <span class="dec">2</span>    <span class="dec">0</span>    <span class="dec">2</span>    <span class="dec">4</span>
-    ↓    ↓    ↓    ↓
-   10³  10²  10¹  10⁰
-    ↓    ↓    ↓    ↓
-  1000  100   10    1</pre>
-            </div>
+    <h2>Basamak değeri (positional notation)</h2>
+    <p>
+        Bir rakamın değeri, <strong>bulunduğu konuma</strong> göre değişir. <span class="num dec">2024</span> sayısındaki iki tane
+        <span class="dec">2</span>’den biri “iki bin”, diğeri “yirmi” anlamına gelir. Her konum, tabanın bir kuvvetidir:
+    </p>
+    <figure class="figure">
+        <div class="digit-tiles">
+            <div class="tile dec">2<small>× 10³ = 1000</small></div>
+            <div class="tile dec">0<small>× 10² = 100</small></div>
+            <div class="tile dec">2<small>× 10¹ = 10</small></div>
+            <div class="tile dec">4<small>× 10⁰ = 1</small></div>
         </div>
+        <figcaption>2024 = 2×1000 + 0×100 + 2×10 + 4×1</figcaption>
+    </figure>
+    <div class="big-formula">
+        değer = d<sub>k</sub>×b<sup>k</sup> + … + d<sub>2</sub>×b<sup>2</sup> + d<sub>1</sub>×b<sup>1</sup> + d<sub>0</sub>×b<sup>0</sup>
+        <small>d = rakam, b = taban. En sağdaki konum 0’dır ve sola gittikçe bir artar. Unutma: b⁰ = 1.</small>
+    </div>
+    <p>Aynı formül <strong>her tabanda</strong> geçerlidir. Tek yapman gereken 10 yerine kendi tabanını koymak.</p>
 
-        <div class="info-box formula">
-            <strong>Hesaplama</strong><br>
-            2024 = <span class="dec">2</span>×1000 + <span class="dec">0</span>×100 + <span class="dec">2</span>×10 + <span class="dec">4</span>×1<br>
-            2024 = 2000 + 0 + 20 + 4 = <strong>2024</strong>
+    <section class="widget" id="pv">
+        <h3 class="widget-title">Basamak değeri gezgini</h3>
+        <p class="widget-desc">Bir sayı yaz, tabanını seç. Her rakamın hangi kuvvetle çarpıldığını ve toplama ne kattığını gör. Sıfır olan basamaklar soluk görünür, çünkü toplama katkıları yoktur.</p>
+        <div id="pv-box"></div>
+    </section>
+
+    <h2>Herhangi bir tabandan onluya</h2>
+    <p>Yöntem tam olarak yukarıdaki formül: <strong>her rakamı konumunun değeriyle çarp ve topla.</strong> İki örnek:</p>
+    <div class="compare">
+        <div>
+            <h4><span class="num"><span class="bin">1011</span><sub>2</sub></span> → onlu</h4>
+<pre class="plain"><code>  1    0    1    1
+ 2³   2²   2¹   2⁰
+  8    4    2    1
+
+1×8 + 0×4 + 1×2 + 1×1
+= 8 + 2 + 1 = <b class="dec">11</b></code></pre>
         </div>
+        <div>
+            <h4><span class="num"><span class="hex">2F</span><sub>16</sub></span> → onlu</h4>
+<pre class="plain"><code>  2     F
+16¹   16⁰
+ 16     1
 
-        <h3>Genel Formül</h3>
-
-        <div class="content-box highlight">
-            <p style="font-size: 1.1rem; text-align: center; margin: 0;">
-                Herhangi bir tabandaki sayının değeri:
-            </p>
-            <div class="code-block">
-                <div class="code-content" style="text-align: center; font-size: 1.1rem;">
-<pre>değer = (rakam × taban<sup>konum</sup>) toplamı
-
-En sağdaki rakamın konumu = 0
-Sola gittikçe konum artar</pre>
-                </div>
-            </div>
-        </div>
-
-        <h2>Farklı Tabanlarda Sayma</h2>
-
-        <p>Her sistemde "taşma" farklı noktada gerçekleşir:</p>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Decimal (10)</th>
-                        <th>Binary (2)</th>
-                        <th>Octal (8)</th>
-                        <th>Hexadecimal (16)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td><span class="dec">0</span></td><td><span class="bin">0</span></td><td><span class="oct">0</span></td><td><span class="hex">0</span></td></tr>
-                    <tr><td><span class="dec">1</span></td><td><span class="bin">1</span></td><td><span class="oct">1</span></td><td><span class="hex">1</span></td></tr>
-                    <tr><td><span class="dec">2</span></td><td><span class="bin">10</span> ← taşma!</td><td><span class="oct">2</span></td><td><span class="hex">2</span></td></tr>
-                    <tr><td><span class="dec">3</span></td><td><span class="bin">11</span></td><td><span class="oct">3</span></td><td><span class="hex">3</span></td></tr>
-                    <tr><td><span class="dec">7</span></td><td><span class="bin">111</span></td><td><span class="oct">7</span></td><td><span class="hex">7</span></td></tr>
-                    <tr><td><span class="dec">8</span></td><td><span class="bin">1000</span></td><td><span class="oct">10</span> ← taşma!</td><td><span class="hex">8</span></td></tr>
-                    <tr><td><span class="dec">9</span></td><td><span class="bin">1001</span></td><td><span class="oct">11</span></td><td><span class="hex">9</span></td></tr>
-                    <tr><td><span class="dec">10</span> ← taşma!</td><td><span class="bin">1010</span></td><td><span class="oct">12</span></td><td><span class="hex">A</span></td></tr>
-                    <tr><td><span class="dec">15</span></td><td><span class="bin">1111</span></td><td><span class="oct">17</span></td><td><span class="hex">F</span></td></tr>
-                    <tr><td><span class="dec">16</span></td><td><span class="bin">10000</span></td><td><span class="oct">20</span></td><td><span class="hex">10</span> ← taşma!</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-box concept">
-            <strong>Dikkat!</strong><br>
-            Binary'de <code>10</code> yazdığında bu "on" değil, <strong>"iki"</strong> demek!<br>
-            Octal'de <code>10</code> yazdığında bu <strong>"sekiz"</strong> demek!<br>
-            Hex'te <code>10</code> yazdığında bu <strong>"on altı"</strong> demek!
-        </div>
-
-        <h2>Dönüşümün Matematiği</h2>
-
-        <h3>Herhangi Bir Tabandan → Decimal'e</h3>
-
-        <p>Her rakamı, bulunduğu basamağın değeriyle çarp ve topla.</p>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: Binary 1011₂ → Decimal</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Basamak değerleri (sağdan sola: 2⁰, 2¹, 2², 2³)</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>    <span class="bin">1</span>    <span class="bin">0</span>    <span class="bin">1</span>    <span class="bin">1</span>
-<span class="line-num">4</span>    ↓    ↓    ↓    ↓
-<span class="line-num">5</span>   2³   2²   2¹   2⁰
-<span class="line-num">6</span>    ↓    ↓    ↓    ↓
-<span class="line-num">7</span>    8    4    2    1
-<span class="line-num">8</span>
-<span class="line-num">9</span><span class="comment">// Hesaplama:</span>
-<span class="line-num">10</span>   <span class="bin">1</span>×8 + <span class="bin">0</span>×4 + <span class="bin">1</span>×2 + <span class="bin">1</span>×1
-<span class="line-num">11</span>   = 8 + 0 + 2 + 1
-<span class="line-num">12</span>   = <span class="dec">11</span></pre>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: Hex 2F₁₆ → Decimal</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Hex'te A=10, B=11, C=12, D=13, E=14, F=15</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>    <span class="hex">2</span>    <span class="hex">F</span>
-<span class="line-num">4</span>    ↓    ↓
-<span class="line-num">5</span>  16¹  16⁰
-<span class="line-num">6</span>    ↓    ↓
-<span class="line-num">7</span>   16    1
-<span class="line-num">8</span>
-<span class="line-num">9</span><span class="comment">// Hesaplama:</span>
-<span class="line-num">10</span>   <span class="hex">2</span>×16 + <span class="hex">F</span>×1
-<span class="line-num">11</span>   = 2×16 + 15×1
-<span class="line-num">12</span>   = 32 + 15
-<span class="line-num">13</span>   = <span class="dec">47</span></pre>
-            </div>
-        </div>
-
-        <h3>Decimal → Herhangi Bir Tabana</h3>
-
-        <p>Bu dönüşüm için <strong>"Tekrarlı Bölme Algoritması"</strong> kullanılır.</p>
-
-        <div class="content-box" style="background: var(--bg-code);">
-            <h4 style="margin-top: 0; color: var(--cyan);">📋 Algoritma</h4>
-            <div class="code-block" style="margin: 1rem 0;">
-                <div class="code-content">
-<pre><span class="line-num">1</span><span class="keyword">function</span> <span class="function">decimalToBase</span>(<span class="variable">sayi</span>, <span class="variable">taban</span>):
-<span class="line-num">2</span>    <span class="variable">sonuc</span> = <span class="string">""</span>                  <span class="comment">// boş string</span>
-<span class="line-num">3</span>    
-<span class="line-num">4</span>    <span class="keyword">while</span> <span class="variable">sayi</span> > <span class="number">0</span>:             <span class="comment">// sayı 0 olana kadar</span>
-<span class="line-num">5</span>        <span class="variable">kalan</span> = <span class="variable">sayi</span> % <span class="variable">taban</span>    <span class="comment">// mod işlemi (kalan)</span>
-<span class="line-num">6</span>        <span class="variable">sonuc</span> = <span class="variable">kalan</span> + <span class="variable">sonuc</span>   <span class="comment">// kalanı BAŞA ekle</span>
-<span class="line-num">7</span>        <span class="variable">sayi</span> = <span class="variable">sayi</span> // <span class="variable">taban</span>    <span class="comment">// tam bölme (floor)</span>
-<span class="line-num">8</span>    
-<span class="line-num">9</span>    <span class="keyword">return</span> <span class="variable">sonuc</span></pre>
-                </div>
-            </div>
-            
-            <p style="margin-bottom: 0;"><strong>Neden çalışıyor?</strong></p>
-            <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
-                <li><code>sayı % taban</code> → en sağdaki (birler) basamağı verir</li>
-                <li><code>sayı // taban</code> → sayıyı bir basamak sağa kaydırır</li>
-                <li>Her adımda bir basamak çıkarıyoruz, en sağdan başlayarak</li>
-                <li>Bu yüzden kalanları ters sırada (başa ekleyerek) birleştiriyoruz</li>
-            </ul>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: 25₁₀ → Binary (taban 2)</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Başlangıç: sayı = 25, sonuç = ""</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span><span class="comment">// Adım 1:</span>
-<span class="line-num">4</span>   25 % 2 = <span class="bin">1</span>     <span class="comment">// kalan → sonuç = "1"</span>
-<span class="line-num">5</span>   25 // 2 = 12    <span class="comment">// yeni sayı</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span><span class="comment">// Adım 2:</span>
-<span class="line-num">8</span>   12 % 2 = <span class="bin">0</span>     <span class="comment">// kalan → sonuç = "01"</span>
-<span class="line-num">9</span>   12 // 2 = 6     <span class="comment">// yeni sayı</span>
-<span class="line-num">10</span>
-<span class="line-num">11</span><span class="comment">// Adım 3:</span>
-<span class="line-num">12</span>   6 % 2 = <span class="bin">0</span>      <span class="comment">// kalan → sonuç = "001"</span>
-<span class="line-num">13</span>   6 // 2 = 3      <span class="comment">// yeni sayı</span>
-<span class="line-num">14</span>
-<span class="line-num">15</span><span class="comment">// Adım 4:</span>
-<span class="line-num">16</span>   3 % 2 = <span class="bin">1</span>      <span class="comment">// kalan → sonuç = "1001"</span>
-<span class="line-num">17</span>   3 // 2 = 1      <span class="comment">// yeni sayı</span>
-<span class="line-num">18</span>
-<span class="line-num">19</span><span class="comment">// Adım 5:</span>
-<span class="line-num">20</span>   1 % 2 = <span class="bin">1</span>      <span class="comment">// kalan → sonuç = "11001"</span>
-<span class="line-num">21</span>   1 // 2 = 0      <span class="comment">// sayı = 0, DUR!</span>
-<span class="line-num">22</span>
-<span class="line-num">23</span><span class="comment">// Sonuç: 25₁₀ = 11001₂</span></pre>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: 255₁₀ → Hex (taban 16)</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Hex'te 10=A, 11=B, 12=C, 13=D, 14=E, 15=F</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span><span class="comment">// Adım 1:</span>
-<span class="line-num">4</span>   255 % 16 = <span class="hex">15</span>  → <span class="hex">F</span>    <span class="comment">// sonuç = "F"</span>
-<span class="line-num">5</span>   255 // 16 = 15
-<span class="line-num">6</span>
-<span class="line-num">7</span><span class="comment">// Adım 2:</span>
-<span class="line-num">8</span>   15 % 16 = <span class="hex">15</span>   → <span class="hex">F</span>    <span class="comment">// sonuç = "FF"</span>
-<span class="line-num">9</span>   15 // 16 = 0           <span class="comment">// DUR!</span>
-<span class="line-num">10</span>
-<span class="line-num">11</span><span class="comment">// Sonuç: 255₁₀ = FF₁₆</span></pre>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Python'da Gerçek Kod</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="keyword">def</span> <span class="function">decimal_to_base</span>(<span class="variable">sayi</span>, <span class="variable">taban</span>):
-<span class="line-num">2</span>    <span class="keyword">if</span> <span class="variable">sayi</span> == <span class="number">0</span>:
-<span class="line-num">3</span>        <span class="keyword">return</span> <span class="string">"0"</span>
-<span class="line-num">4</span>    
-<span class="line-num">5</span>    <span class="variable">rakamlar</span> = <span class="string">"0123456789ABCDEF"</span>
-<span class="line-num">6</span>    <span class="variable">sonuc</span> = <span class="string">""</span>
-<span class="line-num">7</span>    
-<span class="line-num">8</span>    <span class="keyword">while</span> <span class="variable">sayi</span> > <span class="number">0</span>:
-<span class="line-num">9</span>        <span class="variable">kalan</span> = <span class="variable">sayi</span> % <span class="variable">taban</span>
-<span class="line-num">10</span>        <span class="variable">sonuc</span> = <span class="variable">rakamlar</span>[<span class="variable">kalan</span>] + <span class="variable">sonuc</span>
-<span class="line-num">11</span>        <span class="variable">sayi</span> = <span class="variable">sayi</span> // <span class="variable">taban</span>
-<span class="line-num">12</span>    
-<span class="line-num">13</span>    <span class="keyword">return</span> <span class="variable">sonuc</span>
-<span class="line-num">14</span>
-<span class="line-num">15</span><span class="comment"># Test</span>
-<span class="line-num">16</span><span class="function">print</span>(<span class="function">decimal_to_base</span>(<span class="number">25</span>, <span class="number">2</span>))   <span class="comment"># "11001"</span>
-<span class="line-num">17</span><span class="function">print</span>(<span class="function">decimal_to_base</span>(<span class="number">255</span>, <span class="number">16</span>)) <span class="comment"># "FF"</span>
-<span class="line-num">18</span><span class="function">print</span>(<span class="function">decimal_to_base</span>(<span class="number">100</span>, <span class="number">8</span>))  <span class="comment"># "144"</span></pre>
-            </div>
-        </div>
-
-        <div class="info-box concept">
-            <strong>Görselleştirme: Neden Ters Sırada?</strong><br>
-            <code>sayı % taban</code> her zaman <strong>en sağdaki basamağı</strong> verir.<br>
-            İlk bulduğumuz kalan → birler basamağı (en sağ)<br>
-            İkinci kalan → onlar basamağı<br>
-            Son kalan → en soldaki basamak<br>
-            Bu yüzden kalanları <strong>ters çeviriyoruz</strong> (veya başa ekliyoruz).
-        </div>
-
-        <h2>Octal (8'lik) Sistem</h2>
-
-        <p>
-            Octal, <strong>8 tabanlı</strong> bir sayı sistemidir. 0-7 arası 8 rakam kullanır. 
-            Bilgisayar tarihinde önemli bir yeri vardır.
-        </p>
-
-        <h3>Neden Octal?</h3>
-
-        <div class="cards-grid">
-            <div class="card">
-                <h4>🔗 Binary ile İlişki</h4>
-                <p>8 = 2³<br>
-                Her octal rakamı tam olarak <strong>3 bit</strong>'e karşılık gelir</p>
-            </div>
-            <div class="card">
-                <h4>📜 Tarihsel</h4>
-                <p>Eski bilgisayarlar 12, 24, 36-bit kelime boyutu kullanırdı (3'e tam bölünür)</p>
-            </div>
-            <div class="card">
-                <h4>🐧 Unix/Linux</h4>
-                <p>Dosya izinleri octal ile gösterilir<br>
-                (chmod 755 gibi)</p>
-            </div>
-        </div>
-
-        <h3>Octal ↔ Binary Dönüşümü</h3>
-
-        <p>Her octal rakamı 3 bit'e karşılık gelir:</p>
-
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Octal</th>
-                        <th>Binary (3 bit)</th>
-                        <th>Decimal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td><span class="oct">0</span></td><td><span class="bin">000</span></td><td>0</td></tr>
-                    <tr><td><span class="oct">1</span></td><td><span class="bin">001</span></td><td>1</td></tr>
-                    <tr><td><span class="oct">2</span></td><td><span class="bin">010</span></td><td>2</td></tr>
-                    <tr><td><span class="oct">3</span></td><td><span class="bin">011</span></td><td>3</td></tr>
-                    <tr><td><span class="oct">4</span></td><td><span class="bin">100</span></td><td>4</td></tr>
-                    <tr><td><span class="oct">5</span></td><td><span class="bin">101</span></td><td>5</td></tr>
-                    <tr><td><span class="oct">6</span></td><td><span class="bin">110</span></td><td>6</td></tr>
-                    <tr><td><span class="oct">7</span></td><td><span class="bin">111</span></td><td>7</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: Octal 752₈ → Binary → Decimal</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Her octal rakamı 3 bit'e çevir</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span>    <span class="oct">7</span>     <span class="oct">5</span>     <span class="oct">2</span>
-<span class="line-num">4</span>    ↓     ↓     ↓
-<span class="line-num">5</span>  <span class="bin">111</span>   <span class="bin">101</span>   <span class="bin">010</span>
-<span class="line-num">6</span>
-<span class="line-num">7</span><span class="comment">// Birleştir:</span>
-<span class="line-num">8</span>752₈ = <span class="bin">111101010</span>₂
-<span class="line-num">9</span>
-<span class="line-num">10</span><span class="comment">// Decimal'e:</span>
-<span class="line-num">11</span>= 7×64 + 5×8 + 2×1
-<span class="line-num">12</span>= 448 + 40 + 2
-<span class="line-num">13</span>= <span class="dec">490</span>₁₀</pre>
-            </div>
-        </div>
-
-        <div class="code-block">
-            <div class="code-header">Örnek: Binary → Octal (3'lü grupla)</div>
-            <div class="code-content">
-<pre><span class="line-num">1</span><span class="comment">// Binary sayıyı sağdan 3'erli grupla</span>
-<span class="line-num">2</span>
-<span class="line-num">3</span><span class="bin">11010110</span>₂
-<span class="line-num">4</span>
-<span class="line-num">5</span><span class="comment">// 3'lü gruplar (soldan eksikse 0 ekle):</span>
-<span class="line-num">6</span>  <span class="bin">011</span>   <span class="bin">010</span>   <span class="bin">110</span>
-<span class="line-num">7</span>    ↓     ↓     ↓
-<span class="line-num">8</span>   <span class="oct">3</span>     <span class="oct">2</span>     <span class="oct">6</span>
-<span class="line-num">9</span>
-<span class="line-num">10</span><span class="comment">// Sonuç:</span>
-<span class="line-num">11</span>11010110₂ = <span class="oct">326</span>₈</pre>
-            </div>
-        </div>
-
-        <div class="info-box example">
-            <strong>Hex vs Octal</strong><br>
-            Günümüzde <strong>hexadecimal</strong> daha yaygın çünkü:<br>
-            • Modern bilgisayarlar 8, 16, 32, 64-bit (hepsi 4'e bölünür, 3'e değil)<br>
-            • 1 byte = 2 hex rakamı (temiz), ama 1 byte = 2.67 octal rakamı (karışık)<br>
-            • Yine de Unix izinleri ve bazı eski sistemler octal kullanır
-        </div>
-
-        <h2>İnteraktif: Basamak Değeri Hesaplayıcı</h2>
-
-        <div class="interactive-section">
-            <h3>🧮 Dönüşüm Dene</h3>
-            
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Sayı</label>
-                    <input type="text" class="input-field" id="inputNum" value="1010" placeholder="Sayı girin">
-                </div>
-                <div class="input-group">
-                    <label>Kaynak Taban</label>
-                    <select class="input-field" id="fromBase">
-                        <option value="2">Binary (2)</option>
-                        <option value="8">Octal (8)</option>
-                        <option value="10">Decimal (10)</option>
-                        <option value="16">Hex (16)</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" onclick="convertNumber()">Hesapla</button>
-            </div>
-
-            <div id="conversionResult"></div>
-        </div>
-
-        <h2>Özet</h2>
-
-        <div class="info-box formula">
-            <strong>Anahtar Noktalar</strong><br>
-            • Taban = kullanılan benzersiz rakam sayısı<br>
-            • Her basamak = rakam × taban<sup>konum</sup><br>
-            • Diğer sistem → Decimal: basamak değerlerini topla<br>
-            • Decimal → Diğer sistem: tabana böl, kalanları ters yaz<br>
-            • 2'nin katı tabanlar arası kolay dönüşüm: Hex ↔ 4 bit, Octal ↔ 3 bit
-        </div>
-
-        <div class="nav-buttons">
-            <a href="index.html" class="btn btn-secondary">← Giriş</a>
-            <a href="binary.html" class="btn btn-primary">Binary Sistem →</a>
+2×16 + 15×1     (F = 15)
+= 32 + 15 = <b class="dec">47</b></code></pre>
         </div>
     </div>
 
-    <footer class="footer">
-        Sayı Sistemleri Eğitimi • Bilgisayarda Sayılar Nasıl Saklanır?
-        <br><br>
-        Bu kitaba katkıda bulunmak ister misin? 🚀<br>
-        <a href="https://github.com/gusanmaz/number-storage-tutorial" target="_blank" rel="noopener noreferrer">github.com/gusanmaz/number-storage-tutorial</a> adresine pull request gönderebilirsin!
-    </footer>
+    <h2>Onludan herhangi bir tabana: tekrarlı bölme</h2>
+    <p>
+        Ters yönde gitmek için sayıyı <strong>hedef tabana tekrar tekrar böleriz</strong> ve her adımdaki <strong>kalanı</strong> not ederiz.
+        Bölüm 0 olunca dururuz. Kalanları <strong>sondan başa</strong> okuyunca sonuç ortaya çıkar.
+    </p>
+    <div class="callout tip">
+        <span class="callout-title">Neden çalışıyor? Önce onlu sistemde dene</span>
+        <p><span class="num dec">2024</span> sayısını 10’a bölelim: kalan <b>4</b> (birler basamağı), bölüm 202. Tekrar 10’a böl: kalan <b>2</b> (onlar), bölüm 20.
+        Sonra kalan <b>0</b>, bölüm 2; sonra kalan <b>2</b>, bölüm 0.
+        Kalanlar sırayla 4, 2, 0, 2 — yani basamakları <em>sağdan sola</em> veriyor! <code>sayı % taban</code> her zaman en sağdaki basamağı,
+        <code>sayı // taban</code> ise o basamağı silinmiş sayıyı verir. Bu yüzden kalanları ters sırada yazarız.</p>
+    </div>
 
-    <script>
-        function convertNumber() {
-            const input = document.getElementById('inputNum').value.trim().toUpperCase();
-            const fromBase = parseInt(document.getElementById('fromBase').value);
-            const resultDiv = document.getElementById('conversionResult');
-            
-            // Validate
-            const validChars = '0123456789ABCDEF'.slice(0, fromBase);
-            for (let c of input) {
-                if (!validChars.includes(c)) {
-                    resultDiv.innerHTML = `<div class="result-box" style="border-color: var(--red);">
-                        Geçersiz karakter: "${c}" (Taban ${fromBase} için)
-                    </div>`;
-                    return;
-                }
-            }
-            
-            // Calculate step by step
-            const decimal = parseInt(input, fromBase);
-            
-            let html = '<div class="code-block"><div class="code-header">Hesaplama Adımları</div><div class="code-content"><pre>';
-            
-            let steps = [];
-            for (let i = 0; i < input.length; i++) {
-                const digit = input[i];
-                const digitVal = parseInt(digit, 16);
-                const power = input.length - 1 - i;
-                const posVal = Math.pow(fromBase, power);
-                const contribution = digitVal * posVal;
-                steps.push(`<span class="${fromBase === 2 ? 'bin' : fromBase === 16 ? 'hex' : 'dec'}">${digit}</span> × ${fromBase}<sup>${power}</sup> = ${digitVal} × ${posVal} = ${contribution}`);
-            }
-            
-            html += steps.join('\n');
-            html += `\n\n<span class="comment">// Toplam:</span>\n`;
-            html += `= <span class="dec">${decimal}</span>₁₀`;
-            html += '</pre></div></div>';
-            
-            // Show in all bases
-            html += `<div class="result-box success">
-                <div class="result-row">
-                    <div class="result-item">
-                        <div class="result-label">Binary</div>
-                        <div class="result-value bin">${decimal.toString(2)}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Octal</div>
-                        <div class="result-value oct">${decimal.toString(8)}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Decimal</div>
-                        <div class="result-value dec">${decimal}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">Hex</div>
-                        <div class="result-value hex">${decimal.toString(16).toUpperCase()}</div>
-                    </div>
-                </div>
-            </div>`;
-            
-            resultDiv.innerHTML = html;
-        }
-        
-        // Initial calculation
-        convertNumber();
-    </script>
+    <section class="widget" id="div">
+        <h3 class="widget-title">Tekrarlı bölme, adım adım</h3>
+        <p class="widget-desc">Sayıyı ve hedef tabanı seç, sonra ▶ ile adım adım ilerle. Her kalanın sonuçta hangi basamağa yerleştiğini izle.</p>
+        <div class="field-row">
+            <label class="field grow"><span>Onlu sayı</span><input id="div-n" class="input mono" type="number" min="0" max="99999" value="25"></label>
+            <label class="field"><span>Hedef taban</span>
+                <select id="div-b" class="input"><option value="2" selected>2 (ikili)</option><option value="3">3</option><option value="5">5</option><option value="8">8 (sekizli)</option><option value="16">16 (onaltılı)</option></select>
+            </label>
+        </div>
+        <div class="div-layout">
+            <div class="table-wrap div-table"><table class="compact"><thead><tr><th>Bölünen</th><th>÷</th><th>Bölüm</th><th>Kalan</th></tr></thead><tbody id="div-rows"></tbody></table></div>
+            <div class="div-result">
+                <div class="stat-label">Sonuç</div>
+                <div class="digit-tiles" id="div-tiles"></div>
+            </div>
+        </div>
+        <div class="step-note" id="div-note"></div>
+        <div id="div-stepper"></div>
+    </section>
+
+    <p>Aynı algoritma Python’da birkaç satırdır. <code>%</code> kalanı, <code>//</code> tam bölmeyi verir:</p>
+<pre class="code" data-lang="py">
+def onludan_tabana(sayi, taban):
+    if sayi == 0:
+        return "0"
+    rakamlar = "0123456789ABCDEF"
+    sonuc = ""
+    while sayi > 0:
+        kalan = sayi % taban            # en sağdaki basamak
+        sonuc = rakamlar[kalan] + sonuc  # başa ekle
+        sayi = sayi // taban            # o basamağı sil
+    return sonuc
+
+print(onludan_tabana(25, 2))    # 11001
+print(onludan_tabana(255, 16))  # FF
+print(onludan_tabana(100, 8))   # 144
+</pre>
+
+    <h2>Sekizli (octal) sistem ve 3 bit</h2>
+    <p>
+        Sekizli sistemde 0–7 rakamları kullanılır. Özel olmasının sebebi <strong>8 = 2³</strong> olmasıdır:
+        her octal rakamı tam olarak <strong>3 bite</strong> karşılık gelir. Bu yüzden binary ↔ octal dönüşümü için hiç hesap
+        yapmana gerek yoktur; bitleri sağdan üçerli gruplaman yeterli.
+    </p>
+<pre class="plain"><code><span class="bin">011</span> <span class="bin">010</span> <span class="bin">110</span>    ← 11010110₂ (soldan eksik bit 0 ile tamamlandı)
+ <span class="oct">3</span>   <span class="oct">2</span>   <span class="oct">6</span>     → <span class="oct">326</span>₈</code></pre>
+    <div class="callout real">
+        <span class="callout-title">Gerçek hayatta: Linux dosya izinleri</span>
+        <p><code>chmod 755 dosya.sh</code> komutundaki her rakam, 3 bitlik bir izin grubudur: <b>r</b>ead (4), <b>w</b>rite (2), e<b>x</b>ecute (1).</p>
+        <div class="table-wrap" style="margin:.6rem 0 0">
+            <table class="compact center-cells">
+                <thead><tr><th></th><th>Sahip</th><th>Grup</th><th>Diğerleri</th></tr></thead>
+                <tbody>
+                    <tr><td>Octal</td><td class="m oct">7</td><td class="m oct">5</td><td class="m oct">5</td></tr>
+                    <tr><td>Binary</td><td class="m bin">111</td><td class="m bin">101</td><td class="m bin">101</td></tr>
+                    <tr><td>İzin</td><td class="m">rwx</td><td class="m">r-x</td><td class="m">r-x</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p>Günümüzde octal yerine çoğunlukla hex kullanılır, çünkü modern bilgisayarlar 8, 16, 32, 64 bitlik birimlerle çalışır.
+        Bunlar 4’e tam bölünür ama 3’e bölünmez: 1 byte = 2 hex rakamı (temiz), ama 1 byte = 2,67 octal rakamı.</p>
+
+    <div id="practice"></div>
+
+    <section class="summary">
+        <h2>Özet</h2>
+        <ul>
+            <li>Taban = kullanılan farklı rakam sayısı. Taban <em>b</em>’de rakamlar 0 … b−1’dir.</li>
+            <li>Bir rakamın değeri = rakam × b<sup>konum</sup>; konumlar sağdan 0’dan başlar.</li>
+            <li><strong>Başka taban → onlu:</strong> basamak değerlerini topla.</li>
+            <li><strong>Onlu → başka taban:</strong> tekrar tekrar böl, kalanları sondan başa yaz.</li>
+            <li>Tabanları 2’nin kuvveti olan sistemler arasında kısayol var: octal rakamı = 3 bit, hex rakamı = 4 bit.</li>
+        </ul>
+    </section>
+
+    <div class="quiz">
+        <div class="quiz-q" data-correct="2">
+            <p>Taban 7’de aşağıdakilerden hangisi <strong>geçerli bir sayı değildir</strong>?</p>
+            <ul><li><code>660</code></li><li><code>1234</code></li><li><code>1780</code></li><li><code>0</code></li></ul>
+            <div class="quiz-explain">Taban 7’de rakamlar 0–6’dır. <code>1780</code> içindeki 7 ve 8 geçersizdir.</div>
+        </div>
+        <div class="quiz-q" data-correct="1">
+            <p><span class="num">100<sub>2</sub></span> onlu olarak kaçtır?</p>
+            <ul><li>100</li><li>4</li><li>2</li><li>8</li></ul>
+            <div class="quiz-explain">1×2² + 0×2¹ + 0×2⁰ = 4. Binary’de bir 1’in arkasına her 0 eklemek değeri 2 ile çarpar.</div>
+        </div>
+        <div class="quiz-q" data-correct="3">
+            <p>Tekrarlı bölme yönteminde kalanları neden <strong>ters sırada</strong> yazarız?</p>
+            <ul><li>Bu sadece bir gelenektir</li><li>Bölüm her adımda büyüdüğü için</li><li>Son kalan her zaman 1 olduğu için</li><li>İlk kalan en sağdaki (birler) basamağı verdiği için</li></ul>
+            <div class="quiz-explain"><code>sayı % taban</code> her zaman en sağdaki basamağı verir. Basamakları sağdan sola bulduğumuz için okurken ters çeviririz.</div>
+        </div>
+        <div class="quiz-q" data-correct="0">
+            <p><span class="num">10<sub>16</sub></span> ile <span class="num">16<sub>10</sub></span> için hangisi doğru?</p>
+            <ul><li>İkisi aynı sayıdır</li><li><span class="num">10<sub>16</sub></span> daha büyüktür</li><li><span class="num">16<sub>10</sub></span> daha büyüktür</li><li>Karşılaştırılamaz</li></ul>
+            <div class="quiz-explain"><span class="num">10<sub>16</sub></span> = 1×16 + 0 = 16. Yani ikisi de on altıdır.</div>
+        </div>
+        <div class="quiz-q" data-correct="2">
+            <p><code>chmod 640</code> komutunda “diğerleri” (others) için izinler nelerdir?</p>
+            <ul><li>rw-</li><li>r--</li><li>--- (hiçbiri)</li><li>rwx</li></ul>
+            <div class="quiz-explain">Son rakam 0 = <span class="bin">000</span> → hiçbir izin yok. (6 = 110 = rw-, 4 = 100 = r--)</div>
+        </div>
+    </div>
+
+</main>
 </body>
 </html>
-
