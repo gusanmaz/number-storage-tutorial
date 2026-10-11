@@ -186,7 +186,7 @@
       if (Array.isArray(val)) {
         const w = 34 * val.length + 12;
         h += '<g class="fadein"><rect x="250" y="' + y + '" width="' + w + '" height="44" rx="8" fill="var(--card)" stroke="var(--rule-2)"/>';
-        val.forEach((x, i) => { const nw = String(x).startsWith('+'); h += '<rect x="' + (256 + i * 34) + '" y="' + (y + 6) + '" width="30" height="24" rx="5" fill="' + (nw ? 'var(--on)' : 'var(--paper-2)') + '"/><text x="' + (271 + i * 34) + '" y="' + (y + 22) + '" text-anchor="middle" font-family="var(--mono)" font-size="14" font-weight="600" fill="' + (nw ? '#3a1600' : 'var(--ink)') + '">' + String(x).replace('+', '') + '</text>'; });
+        val.forEach((x, i) => { const nw = String(x).startsWith('+'); h += '<rect x="' + (256 + i * 34) + '" y="' + (y + 6) + '" width="30" height="24" rx="5" fill="' + (nw ? 'var(--on)' : 'var(--paper-2)') + '"/><text x="' + (271 + i * 34) + '" y="' + (y + 22) + '" text-anchor="middle" font-family="var(--mono)" font-size="14" font-weight="600" fill="' + (nw ? '#ffffff' : 'var(--ink)') + '">' + String(x).replace('+', '') + '</text>'; });
         h += '<text x="252" y="' + (y + 56) + '" font-family="var(--mono)" font-size="10" fill="var(--ink-3)">' + (rl === 'py' ? 'list' : 'Array') + ' @ ' + ADDR[id] + '</text></g>';
       } else {
         const nw = k > 0 && !(id in P2.states[k - 1][1]);
@@ -196,7 +196,7 @@
     Object.entries(names).forEach(([n, ref]) => {
       const y = NROW[n], prim = typeof ref === 'number' || String(ref).startsWith('+');
       h += '<g><rect x="20" y="' + y + '" width="' + (prim ? 110 : 64) + '" height="34" rx="8" fill="var(--ink)"/><text x="40" y="' + (y + 22) + '" text-anchor="middle" font-family="var(--mono)" font-size="16" font-weight="700" fill="var(--paper)">' + n + '</text>';
-      if (prim) { const nw = String(ref).startsWith('+'); h += '<rect x="62" y="' + (y + 5) + '" width="62" height="24" rx="5" fill="' + (nw ? 'var(--on)' : 'var(--card)') + '"/><text x="93" y="' + (y + 22) + '" text-anchor="middle" font-family="var(--mono)" font-size="15" font-weight="700" fill="' + (nw ? '#3a1600' : 'var(--ink)') + '">' + String(ref).replace('+', '') + '</text>'; }
+      if (prim) { const nw = String(ref).startsWith('+'); h += '<rect x="62" y="' + (y + 5) + '" width="62" height="24" rx="5" fill="' + (nw ? 'var(--on)' : 'var(--card)') + '"/><text x="93" y="' + (y + 22) + '" text-anchor="middle" font-family="var(--mono)" font-size="15" font-weight="700" fill="' + (nw ? '#ffffff' : 'var(--ink)') + '">' + String(ref).replace('+', '') + '</text>'; }
       else { const ty = OROW[ref] + (Array.isArray(objs[ref]) ? 22 : 17), x1 = 84, y1 = y + 17; h += '<circle cx="74" cy="' + y1 + '" r="4" fill="var(--on)"/><path d="M' + x1 + ' ' + y1 + ' C ' + (x1 + 90) + ' ' + y1 + ', ' + (250 - 90) + ' ' + ty + ', 247 ' + ty + '" fill="none" stroke="var(--ink-2)" stroke-width="2" marker-end="url(#ah)"/>'; }
       h += '</g>';
     });

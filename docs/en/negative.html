@@ -166,7 +166,7 @@
     <div class="negrows sx" id="sx-out"></div>
     <div class="tell" id="sx-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 8</span><b>From 8 to 16 bits.</b> Cells with an orange frame are the added bits. Sign extension keeps the −2<sup>n−1</sup> value of the leftmost bit at the new width: 1111 1111 1111 1011 = −32768 + 32767 − 4 = −5.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 8</span><b>From 8 to 16 bits.</b> Cells with a blue frame are the added bits. Sign extension keeps the −2<sup>n−1</sup> value of the leftmost bit at the new width: 1111 1111 1111 1011 = −32768 + 32767 − 4 = −5.</figcaption>
 </figure>
 
 <p>Processors have separate instructions for this (<code>MOVSX</code> and <code>MOVZX</code> on x86). The compiler picks one based on the type; if the type is wrong, the bug is sneaky. A classic example: a <span class="h">0xFF</span> byte read from a file becomes <strong>−1</strong> in Java because <code>byte</code> is signed, and turns into <span class="h">0xFFFFFFFF</span> when converted to <code>int</code>. In C, whether plain <code>char</code> is signed or unsigned even depends on the platform.</p>
@@ -209,7 +209,7 @@ print(int.from_bytes(b"\xfb", "big"))                # 251
 
 <h2><span class="sec">§ 5.11</span>The silent disaster: overflow</h2>
 
-<p>Two’s complement has a price. Because the wheel wraps around, an operation whose result does not fit in the box <strong>raises no error</strong>; it quietly produces a wrong number. The rule for signed overflow is simple: <strong>if two numbers of the same sign add up to a result of the opposite sign</strong>, it overflowed. Two numbers of different signs never overflow. At circuit level, this means the carry <em>into</em> the sign column differs from the carry <em>out of</em> it: V = c<sub>7</sub> ⊕ c<sub>8</sub>. Try 100 + 50 and 100 − (−50):</p>
+<p>Two’s complement has a price. Because the wheel wraps around, an operation whose result does not fit in the box <strong>raises no error</strong>; it quietly produces a wrong number. The rule for signed overflow is simple: <strong>if two numbers of the same sign add up to a result of the opposite sign</strong>, it overflowed. Two numbers of different signs never overflow. When the result falls off the bottom of the range (like −128 − 1 = 127) it is often called <em>underflow</em>; to the processor both are the same V flag. At circuit level, this means the carry <em>into</em> the sign column differs from the carry <em>out of</em> it: V = c<sub>7</sub> ⊕ c<sub>8</sub>. Try 100 + 50 and 100 − (−50):</p>
 
 <figure class="fig narrow" id="f-ovf">
   <div class="fig-in">

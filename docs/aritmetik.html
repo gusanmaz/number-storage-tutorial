@@ -61,7 +61,7 @@
     <div class="tell" id="add-tell"></div>
     <div id="add-steps"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>8 bitlik işaretsiz toplama.</b> Üst satırdaki küçük turuncu rakamlar elde bitleri. Her sütun tam toplayıcıdan geçer. Sonuç 255’i aşarsa dokuzuncu bir bit doğar; 8 bitlik kutuda ona yer yoktur.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>8 bitlik işaretsiz toplama.</b> Üst satırdaki küçük mavi rakamlar elde bitleri. Her sütun tam toplayıcıdan geçer. Sonuç 255’i aşarsa dokuzuncu bir bit doğar; 8 bitlik kutuda ona yer yoktur.</figcaption>
 </figure>
 
 <p>Bu devre tasarımına <strong>dalgalı elde toplayıcı</strong> (ripple-carry adder) denir, çünkü elde bir sütundan diğerine dalga gibi yayılır. 64 bitlik bir toplamada en soldaki sütun, eldenin 63 sütun boyunca gelmesini beklemek zorundadır. Gerçek işlemciler bunun yerine eldeleri önceden hesaplayan daha karmaşık devreler (carry-lookahead) kullanır; sonuç aynıdır, sadece daha hızlıdır.</p>
@@ -95,6 +95,8 @@
   </div>
   <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>8 bitlik işaretsiz çıkarma.</b> Kırmızı rakamlar ödünç bitleri. Küçük sayıdan büyük sayı çıkarılırsa en soldan bir ödünç “dışarı” çıkar ve sonuç başa sarar: 3 − 5 = 254. İkinci sekmede aynı işlemi işlemcinin gerçekte yaptığı gibi izle: B’nin bitlerini ters çevir ve elde = 1 ile topla.</figcaption>
 </figure>
+
+<p>Küçük sayıdan büyük sayı çıkarıp alt sınırın (0) altına inmeye günlük dilde <strong>alttan taşma</strong> (underflow) da denir; sonuç yine 2<sup>n</sup>’e göre kalandır: 3 − 5 = 256 − 2 = 254. Kayan noktadaki “gerçek” alttan taşmayı Bölüm 6’da göreceğiz.</p>
 
 <p>İkinci sekme, bir sonraki bölümün büyük fikrini önceden gösteriyor: <strong>a − b = a + (ters b) + 1</strong>. İşlemcinin ayrı bir çıkarma devresine ihtiyacı yoktur; toplayıcının bir girişinin önüne NOT kapıları koyup ilk eldeyi 1 yapmak yeter. Bölüm 5’te bunun neden doğru olduğunu ve eksi sayıların bu fikirden nasıl doğduğunu göreceğiz.</p>
 

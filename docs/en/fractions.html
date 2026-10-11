@@ -180,7 +180,40 @@ console.log(price * 3 / 100);          // 59.97
   <li><strong>Subnormal numbers</strong>: When the exponent bits are zero the hidden bit is taken as 0; this is how numbers very close to zero are written.</li>
 </ul>
 
-<h2><span class="sec">§ 6.8</span>Try it yourself</h2>
+<h2><span class="sec">§ 6.8</span>Overflow and underflow</h2>
+
+<p>A number can fail to fit in two directions. <strong>Overflow</strong> means the result is <em>bigger</em> than the largest representable value. <strong>Underflow</strong>, for floating-point numbers, means the result is not zero but <em>smaller</em> than the smallest positive representable value. Integers wrap around; floats behave differently: an overflowing number becomes <strong>±∞</strong>, and an underflowing number first loses precision gradually and finally becomes <strong>0</strong>.</p>
+
+<p>In a 32-bit float the smallest <em>normal</em> number is 2<sup>−126</sup> ≈ 1.18 × 10<sup>−38</sup>. Below that the exponent bits are all zero and the hidden bit counts as 0: these are the <strong>subnormal</strong> numbers. Every halving loses one significant bit of the mantissa, until the number drops below half of the smallest subnormal, 2<sup>−149</sup> ≈ 1.4 × 10<sup>−45</sup>, and rounds to zero. This is called <strong>gradual underflow</strong>. Try it below:</p>
+
+<figure class="fig" id="f-uf">
+  <div class="fig-in">
+    <div class="uf-bits" id="uf-bits"></div>
+    <div class="readout" id="uf-out"></div>
+    <div id="uf-line"></div>
+    <div class="ctl" id="uf-ctl"></div>
+    <div class="tell" id="uf-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 7</span><b>The two ends of float32.</b> The number line is logarithmic: every step is a power of two. Start at 1 and press ÷ 2: for 126 steps only the exponent shrinks. Then you enter the subnormal region; the mantissa bits slide right and the number of “significant bits” drops from 24 to 1. At the 150th halving the number becomes zero. In the other direction, reaching 2¹²⁸ gives ∞.</figcaption>
+</figure>
+
+<div class="tbl ovtbl"><table>
+  <thead><tr><th>What happened</th><th>Example (8 bit / float32)</th><th>Result</th></tr></thead>
+  <tbody>
+    <tr><td>Unsigned overflow</td><td class="m">255 + 1</td><td>wraps to 0, C flag = 1</td></tr>
+    <tr><td>Unsigned “underflow”</td><td class="m">0 − 1</td><td>wraps to 255 (a borrow leaves)</td></tr>
+    <tr><td>Signed overflow</td><td class="m">127 + 1</td><td>wraps to −128, V flag = 1</td></tr>
+    <tr><td>Signed “underflow”</td><td class="m">−128 − 1</td><td>wraps to 127, V flag = 1</td></tr>
+    <tr><td>Float overflow</td><td class="m">3.4 × 10³⁸ × 10</td><td>+∞ (no way back)</td></tr>
+    <tr><td>Float underflow</td><td class="m">10⁻⁴⁵ ÷ 10</td><td>first subnormal, then 0</td></tr>
+  </tbody>
+</table></div>
+
+<p>“Underflow” for integers is everyday usage: really it is the number going below the lower limit and wrapping around, and standards call that overflow (wraparound) too. Floating-point underflow, however, is a real limit and comes up often in practice. For example, multiplying hundreds of small probabilities easily drops below 10<sup>−400</sup>, and even a double turns it into 0. The fix is to add the logarithms of the probabilities instead of multiplying them; that is why machine learning works with “log-probabilities”.</p>
+
+<aside class="aside"><span class="t">Why do subnormal numbers exist?</span>Without them there would be a gap between 2<sup>−126</sup> and 0, and the difference of two different but very close numbers could come out as 0: <code>x != y</code> but <code>x − y == 0</code>. Gradual underflow prevents that. The price is speed: some processors run 10–100 times slower on subnormals. That is why games and audio processing often turn on a “flush-to-zero” mode.</aside>
+
+<h2><span class="sec">§ 6.9</span>Try it yourself</h2>
 
 <div id="try"></div>
 

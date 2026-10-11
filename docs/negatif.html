@@ -166,7 +166,7 @@
     <div class="negrows sx" id="sx-out"></div>
     <div class="tell" id="sx-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 8</span><b>8 bitten 16 bite.</b> Turuncu çerçeveli hücreler eklenen bitler. İşaret genişletme, sayının en soldaki bitinin −2<sup>n−1</sup> değerini yeni genişlikte de korur: 1111 1111 1111 1011 = −32768 + 32767 − 4 = −5.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 8</span><b>8 bitten 16 bite.</b> Mavi çerçeveli hücreler eklenen bitler. İşaret genişletme, sayının en soldaki bitinin −2<sup>n−1</sup> değerini yeni genişlikte de korur: 1111 1111 1111 1011 = −32768 + 32767 − 4 = −5.</figcaption>
 </figure>
 
 <p>İşlemcilerin bunun için ayrı komutları vardır (x86’da <code>MOVSX</code> ve <code>MOVZX</code>). Hangisinin kullanılacağına türe göre derleyici karar verir; tür yanlışsa hata sinsi olur. Klasik bir örnek: bir dosyadan okunan <span class="h">0xFF</span> byte’ı, Java’da <code>byte</code> türü işaretli olduğu için <strong>−1</strong> olur ve <code>int</code>’e çevrilince <span class="h">0xFFFFFFFF</span> hâline gelir. C’de düz <code>char</code>’ın işaretli mi işaretsiz mi olduğu bile platforma bağlıdır.</p>
@@ -209,7 +209,7 @@ print(int.from_bytes(b"\xfb", "big"))                # 251
 
 <h2><span class="sec">§ 5.11</span>Sessiz felaket: taşma</h2>
 
-<p>2’ye tümleyenin bir bedeli var. Çember başa sardığı için, sonucu kutuya sığmayan bir işlem <strong>hata vermez</strong>; sessizce yanlış bir sayı üretir. İşaretli taşmanın kuralı basit: <strong>aynı işaretli iki sayıyı toplayınca sonuç ters işaretli çıkıyorsa</strong> taşma olmuştur. Farklı işaretli iki sayının toplamı asla taşmaz. Devre düzeyinde bu, işaret sütununa <em>giren</em> elde ile oradan <em>çıkan</em> eldenin farklı olması demektir: V = c<sub>7</sub> ⊕ c<sub>8</sub>. 100 + 50’yi ve 100 − (−50)’yi dene:</p>
+<p>2’ye tümleyenin bir bedeli var. Çember başa sardığı için, sonucu kutuya sığmayan bir işlem <strong>hata vermez</strong>; sessizce yanlış bir sayı üretir. İşaretli taşmanın kuralı basit: <strong>aynı işaretli iki sayıyı toplayınca sonuç ters işaretli çıkıyorsa</strong> taşma olmuştur. Farklı işaretli iki sayının toplamı asla taşmaz. Sonuç aralığın altından taşarsa (−128 − 1 = 127 gibi) buna da sık sık <em>alttan taşma</em> denir; işlemci açısından ikisi aynı V bayrağıdır. Devre düzeyinde bu, işaret sütununa <em>giren</em> elde ile oradan <em>çıkan</em> eldenin farklı olması demektir: V = c<sub>7</sub> ⊕ c<sub>8</sub>. 100 + 50’yi ve 100 − (−50)’yi dene:</p>
 
 <figure class="fig narrow" id="f-ovf">
   <div class="fig-in">

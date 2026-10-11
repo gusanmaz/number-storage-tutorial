@@ -280,6 +280,46 @@
   $('#sum-a').addEventListener('input', drawSum); $('#sum-b').addEventListener('input', drawSum);
   drawSum();
 
+  /* ---------- taşma ve alttan taşma ---------- */
+  let ufx = 1;
+  const MINN = 2 ** -126, MINS = 2 ** -149;
+  function ufState(x) { const a = Math.abs(x); return Number.isNaN(x) ? 'nan' : !isFinite(a) ? 'inf' : a === 0 ? 'zero' : a < MINN ? 'sub' : 'norm'; }
+  const UFL = { norm: { tr: 'normal', en: 'normal' }, sub: { tr: 'alt-normal (kademeli alttan taşma)', en: 'subnormal (gradual underflow)' }, zero: { tr: 'sıfır: alttan taştı', en: 'zero: underflowed' }, inf: { tr: 'sonsuz: taştı', en: 'infinity: overflowed' }, nan: { tr: 'NaN', en: 'NaN' } };
+  function drawUf(msg) {
+    const st = ufState(ufx), { s: sg, ex, fr } = f32parts(ufx);
+    const bits = pad(f32parts(ufx).u.toString(2), 32);
+    const sig = st === 'norm' ? 24 : st === 'sub' ? Math.floor(Math.log2(fr)) + 1 : 0;
+    $('#uf-bits').innerHTML = '<span class="cs">' + bits[0] + '</span> <span class="ce">' + bits.slice(1, 9) + '</span> <span class="cm">' + bits.slice(9) + '</span>';
+    const shown = st === 'inf' ? (ufx > 0 ? '+∞' : '−∞') : ufx === 0 ? '0' : ufx.toExponential(6).replace('.', DS).replace(/e([+-])(\d+)/, ' × 10<sup>$1$2</sup>').replace('<sup>+', '<sup>');
+    const l2 = ufx === 0 || !isFinite(ufx) ? null : Math.round(Math.log2(Math.abs(ufx)) * 100) / 100;
+    $('#uf-out').innerHTML = '<b class="d">' + shown + '</b>' + (l2 != null ? ' <span class="muted">≈ 2<sup>' + ds(l2) + '</sup></span>' : '') + ' · <span class="uf-st ' + st + '">' + esc(t(UFL[st])) + '</span>' +
+      (st === 'norm' || st === 'sub' ? ' · ' + t({ tr: 'anlamlı bit: ', en: 'significant bits: ' }) + '<b class="' + (sig < 24 ? 'bad' : '') + '">' + sig + '</b>/24' : '');
+    // log2 doğrusu
+    const W = 1000, X = (v) => 20 + (v + 160) / 300 * 960;
+    let h = '<svg viewBox="0 0 ' + W + ' 86" class="nline" role="img" aria-label="float32 range">';
+    h += '<rect x="' + X(-160) + '" y="20" width="' + (X(-149) - X(-160)) + '" height="26" fill="color-mix(in srgb, var(--ink-3) 25%, transparent)"/>';
+    h += '<rect x="' + X(-149) + '" y="20" width="' + (X(-126) - X(-149)) + '" height="26" fill="color-mix(in srgb, var(--hex) 30%, transparent)"/>';
+    h += '<rect x="' + X(-126) + '" y="20" width="' + (X(128) - X(-126)) + '" height="26" fill="color-mix(in srgb, var(--on) 22%, transparent)"/>';
+    h += '<rect x="' + X(128) + '" y="20" width="' + (X(140) - X(128)) + '" height="26" fill="color-mix(in srgb, var(--neg) 25%, transparent)"/>';
+    [[-149, '2⁻¹⁴⁹'], [-126, '2⁻¹²⁶'], [0, '1'], [128, '2¹²⁸']].forEach(([v, l]) => { h += '<line x1="' + X(v) + '" x2="' + X(v) + '" y1="16" y2="50" stroke="var(--ink-3)"/><text x="' + X(v) + '" y="68" text-anchor="middle" font-family="var(--mono)" font-size="15" fill="var(--ink-3)">' + l + '</text>'; });
+    [[-155, { tr: '0', en: '0' }], [-137.5, { tr: 'alt-normal', en: 'subnormal' }], [1, { tr: 'normal sayılar', en: 'normal numbers' }], [134, '∞']].forEach(([v, l]) => { h += '<text x="' + X(v) + '" y="38" text-anchor="middle" font-family="var(--sans)" font-size="13" font-weight="600" fill="var(--ink-2)">' + esc(t(l)) + '</text>'; });
+    const pos = ufx === 0 ? -156 : !isFinite(ufx) ? 135 : Math.log2(Math.abs(ufx));
+    h += '<path d="M' + (X(pos) - 8) + ' 6h16l-8 12z" fill="var(--on-deep)"/></svg>';
+    $('#uf-line').innerHTML = h;
+    $('#uf-tell').innerHTML = msg || '';
+  }
+  const ufOp = (f, label) => { const old = ufx, ost = ufState(old); ufx = Math.fround(f(ufx)); const st = ufState(ufx); let m = label; if (st !== ost) m += ' → <b>' + esc(t(UFL[st])) + '</b>'; if (st === 'zero' && ost !== 'zero') m += '. ' + t({ tr: 'Gerçek sonuç sıfır değildi, ama yazılabilecek en küçük sayıdan da küçüktü.', en: 'The true result was not zero, but it was smaller than the smallest representable number.' }); if (st === 'inf' && ost !== 'inf') m += '. ' + t({ tr: 'Geri dönüş yok: ∞ ÷ 2 yine ∞.', en: 'No way back: ∞ ÷ 2 is still ∞.' }); drawUf(m); };
+  $('#uf-ctl').append(
+    el('button', { class: 'btn', type: 'button', text: '÷ 1000', onclick: () => ufOp((x) => x / 1000, '÷ 1000') }),
+    el('button', { class: 'btn fill', type: 'button', text: '÷ 2', onclick: () => ufOp((x) => x / 2, '÷ 2') }),
+    el('button', { class: 'btn fill', type: 'button', text: '× 2', onclick: () => ufOp((x) => x * 2, '× 2') }),
+    el('button', { class: 'btn', type: 'button', text: '× 1000', onclick: () => ufOp((x) => x * 1000, '× 1000') }),
+    el('button', { class: 'btn ghost', type: 'button', text: '1', onclick: () => { ufx = 1; drawUf(''); } }),
+    el('button', { class: 'btn ghost', type: 'button', text: '2⁻¹²⁴', onclick: () => { ufx = 2 ** -124; drawUf(''); } }),
+    el('button', { class: 'btn ghost', type: 'button', text: '2¹²⁶', onclick: () => { ufx = 2 ** 126; drawUf(''); } }),
+  );
+  drawUf(t({ tr: '÷ 2’ye art arda bas ve 2⁻¹²⁶’dan sonra ne olduğuna bak.', en: 'Press ÷ 2 repeatedly and watch what happens after 2⁻¹²⁶.' }));
+
   /* ---------- 2^24 sınırı ---------- */
   const drawBig = (v) => { const f = Math.fround(v); out(null, 'f32', '<b class="' + (f === v ? 'good' : 'bad') + '">' + fmt(f) + '</b>'); };
   knob($('#k-big'), { value: 16777217, min: 16777208, max: 16777240, px: 10, fmt: (v) => fmt(v), onChange: drawBig });
