@@ -61,7 +61,7 @@
     <div class="tell" id="add-tell"></div>
     <div id="add-steps"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>8-bit unsigned addition.</b> The small orange digits in the top row are carry bits. Every column goes through a full adder. If the result exceeds 255, a ninth bit is born; there is no room for it in an 8-bit box.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>8-bit unsigned addition.</b> The small blue digits in the top row are carry bits. Every column goes through a full adder. If the result exceeds 255, a ninth bit is born; there is no room for it in an 8-bit box.</figcaption>
 </figure>
 
 <p>This design is called a <strong>ripple-carry adder</strong>, because the carry ripples from one column to the next like a wave. In a 64-bit addition the leftmost column has to wait for the carry to travel through 63 columns. Real processors use more elaborate circuits that compute the carries in advance (carry-lookahead); the result is the same, just faster.</p>
@@ -95,6 +95,8 @@
   </div>
   <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>8-bit unsigned subtraction.</b> Red digits are borrow bits. If a bigger number is subtracted from a smaller one, a borrow leaves the leftmost column and the result wraps around: 3 − 5 = 254. In the second tab, follow the same operation the way a processor really does it: flip the bits of B and add with carry = 1.</figcaption>
 </figure>
+
+<p>Going below the lower limit (0) by subtracting a bigger number from a smaller one is often called <strong>underflow</strong> in everyday speech; the result is still taken mod 2<sup>n</sup>: 3 − 5 = 256 − 2 = 254. We will meet “real” floating-point underflow in Chapter 6.</p>
 
 <p>The second tab previews the big idea of the next chapter: <strong>a − b = a + (flipped b) + 1</strong>. The processor needs no separate subtraction circuit; it is enough to put NOT gates in front of one adder input and set the first carry to 1. In Chapter 5 we will see why this is true and how negative numbers grow out of this idea.</p>
 

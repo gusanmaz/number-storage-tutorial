@@ -39,7 +39,7 @@
       if (cur) h += '<circle cx="' + x2 + '" cy="' + y2 + '" r="19" fill="var(--on)" style="filter:drop-shadow(0 0 8px var(--on-glow))"/>';
       h += '<circle cx="' + x2 + '" cy="' + y2 + '" r="19" fill="transparent"/>';
       h += '<text x="' + x1 + '" y="' + y1 + '" text-anchor="middle" dominant-baseline="central" font-family="var(--mono)" font-size="12" fill="' + (cur ? 'var(--ink)' : 'var(--ink-3)') + '" font-weight="' + (cur ? 700 : 500) + '">' + pad(p.toString(2), 4) + '</text>';
-      h += '<text x="' + x2 + '" y="' + y2 + '" text-anchor="middle" dominant-baseline="central" font-family="var(--mono)" font-size="16" font-weight="700" fill="' + (cur ? '#3a1600' : v < 0 ? 'var(--neg)' : 'var(--dec)') + '">' + v + '</text></g>';
+      h += '<text x="' + x2 + '" y="' + y2 + '" text-anchor="middle" dominant-baseline="central" font-family="var(--mono)" font-size="16" font-weight="700" fill="' + (cur ? '#ffffff' : v < 0 ? 'var(--neg)' : 'var(--dec)') + '">' + v + '</text></g>';
     }
     const px = C + Math.cos(ang(pos)) * (R2 - 34), py = C + Math.sin(ang(pos)) * (R2 - 34);
     h += '<line x1="' + C + '" y1="' + C + '" x2="' + px + '" y2="' + py + '" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><circle cx="' + C + '" cy="' + C + '" r="8" fill="var(--ink)"/>';

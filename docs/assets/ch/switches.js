@@ -159,7 +159,7 @@
         '<text x="210" y="50" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink-3)">' + esc(t({ tr: 'yalnız biri açıksa', en: 'exactly one on' })) + '</text>' + sw(130, 92, A, 'A').replace('stroke-width="5"', 'stroke-width="4"') + sw(240, 92, B, 'B').replace('stroke-width="5"', 'stroke-width="4"');
     }
     s += '<circle cx="420" cy="122" r="26" fill="' + (lit ? 'var(--on)' : 'var(--off)') + '" stroke="' + (lit ? 'var(--on-deep)' : 'var(--off-ring)') + '" stroke-width="2.5"' + (lit ? ' style="filter:drop-shadow(0 0 12px var(--on-glow))"' : '') + '/>';
-    s += '<text x="420" y="127" text-anchor="middle" font-family="var(--mono)" font-size="16" font-weight="700" fill="' + (lit ? '#5a2300' : 'var(--ink-3)') + '">' + (lit ? 1 : 0) + '</text></svg>';
+    s += '<text x="420" y="127" text-anchor="middle" font-family="var(--mono)" font-size="16" font-weight="700" fill="' + (lit ? '#ffffff' : 'var(--ink-3)') + '">' + (lit ? 1 : 0) + '</text></svg>';
     $('#gate').innerHTML = s;
     $$('#gate .sw').forEach((g) => {
       const tog = () => { if (g.dataset.k === 'A') A = A ? 0 : 1; else B = B ? 0 : 1; drawGate(); };

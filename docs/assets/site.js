@@ -344,6 +344,7 @@
           });
           box.append(b);
         });
+        if (box.children.length === 3) box.classList.add('n3');
         list.replaceWith(box);
       });
       sc.textContent = '0 / ' + qs.length;

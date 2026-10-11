@@ -159,11 +159,11 @@
     S.forEach(([tt, v], n) => { st += (n ? 'L' + X(tt).toFixed(1) + ' ' + Y(S[n - 1][1]).toFixed(1) : 'M' + X(tt).toFixed(1) + ' ' + Y(v).toFixed(1)) + 'L' + X(tt).toFixed(1) + ' ' + Y(v).toFixed(1); });
     h += '<path d="' + st + '" fill="none" stroke="var(--on-deep)" stroke-width="2.5"/>';
     const k = Math.round(f / R), fa = f - k * R, alias = f > R / 2;
-    if (alias && fa !== 0) { let a = ''; for (let i = 0; i <= 600; i++) { const tt = i / 600; a += (i ? 'L' : 'M') + X(tt).toFixed(1) + ' ' + Y(Math.sin(2 * Math.PI * fa * tt)).toFixed(1); } h += '<path d="' + a + '" fill="none" stroke="var(--dec)" stroke-width="2" stroke-dasharray="6 5"/>'; }
+    if (alias && fa !== 0) { let a = ''; for (let i = 0; i <= 600; i++) { const tt = i / 600; a += (i ? 'L' : 'M') + X(tt).toFixed(1) + ' ' + Y(Math.sin(2 * Math.PI * fa * tt)).toFixed(1); } h += '<path d="' + a + '" fill="none" stroke="var(--hex)" stroke-width="2.5" stroke-dasharray="6 5"/>'; }
     S.forEach(([tt, v]) => { h += '<circle cx="' + X(tt).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="4.5" fill="var(--on)" stroke="var(--card)" stroke-width="1.5"/>'; });
     wv.innerHTML = h;
     $('#w-tell').innerHTML = t({ tr: 'Salınım başına ', en: 'Samples per cycle: ' }) + '<b>' + fmt(R / f, 1) + '</b>' + t({ tr: ' örnek. ', en: '. ' }) +
-      (alias ? '<span class="bad">' + t({ tr: 'Örtüşme!', en: 'Aliasing!' }) + '</span> ' + t({ tr: 'Örnekler, gerçekte olmayan ' + Math.abs(fa) + ' Hz’lik bir dalgaya (mavi kesikli) da tam uyuyor. Bilgisayar ikisini ayırt edemez.', en: 'The samples also fit a ' + Math.abs(fa) + ' Hz wave (dashed blue) that is not really there. The computer cannot tell them apart.' })
+      (alias ? '<span class="bad">' + t({ tr: 'Örtüşme!', en: 'Aliasing!' }) + '</span> ' + t({ tr: 'Örnekler, gerçekte olmayan ' + Math.abs(fa) + ' Hz’lik bir dalgaya (yeşil-mavi kesikli) da tam uyuyor. Bilgisayar ikisini ayırt edemez.', en: 'The samples also fit a ' + Math.abs(fa) + ' Hz wave (dashed teal) that is not really there. The computer cannot tell them apart.' })
         : t({ tr: 'Nyquist sınırı: ' + R / 2 + ' Hz. Bu frekans güvenle yakalanıyor.', en: 'Nyquist limit: ' + R / 2 + ' Hz. This frequency is captured safely.' }));
   }
   ['#w-f', '#w-r', '#w-b'].forEach((s) => $(s).addEventListener('input', drawWave));

@@ -94,7 +94,7 @@
     s += pan(lx, ly) + pan(rx, ry);
     s += '<rect x="' + (lx - 34) + '" y="' + (ly + 26) + '" width="68" height="44" rx="6" fill="var(--dec)"/><text x="' + lx + '" y="' + (ly + 54) + '" text-anchor="middle" font-family="var(--mono)" font-size="18" font-weight="700" fill="#fff">' + target + '</text>';
     const ws = W8.filter((_, i) => used[i]);
-    ws.slice(0, 8).forEach((w, j) => { const col = j % 4, row = Math.floor(j / 4), bx = rx - 50 + col * 25, by = ry + 50 - row * 20; s += '<rect x="' + bx + '" y="' + by + '" width="23" height="18" rx="3" fill="var(--on)" stroke="var(--on-deep)"/><text x="' + (bx + 11.5) + '" y="' + (by + 13) + '" text-anchor="middle" font-family="var(--mono)" font-size="9.5" font-weight="700" fill="#5a2300">' + w + '</text>'; });
+    ws.slice(0, 8).forEach((w, j) => { const col = j % 4, row = Math.floor(j / 4), bx = rx - 50 + col * 25, by = ry + 50 - row * 20; s += '<rect x="' + bx + '" y="' + by + '" width="23" height="18" rx="3" fill="var(--on)" stroke="var(--on-deep)"/><text x="' + (bx + 11.5) + '" y="' + (by + 13) + '" text-anchor="middle" font-family="var(--mono)" font-size="9.5" font-weight="700" fill="#ffffff">' + w + '</text>'; });
     s += '</svg>';
     $('#scale').innerHTML = s;
     $$('.wt', wbox).forEach((b, i) => { b.classList.toggle('on', !!used[i]); b.setAttribute('aria-pressed', String(!!used[i])); });

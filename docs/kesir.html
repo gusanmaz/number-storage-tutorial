@@ -180,7 +180,40 @@ console.log(fiyat * 3 / 100);          // 59.97
   <li><strong>Alt-normal sayılar</strong>: Üs bitleri sıfırken gizli bit 0 kabul edilir; sıfıra çok yakın sayılar böyle yazılır.</li>
 </ul>
 
-<h2><span class="sec">§ 6.8</span>Kendini dene</h2>
+<h2><span class="sec">§ 6.8</span>Taşma ve alttan taşma</h2>
+
+<p>Bir sayının kutuya sığmamasının iki yönü var. <strong>Taşma</strong> (overflow), sonucun yazılabilecek en büyük değerden <em>büyük</em> olmasıdır. <strong>Alttan taşma</strong> (underflow) ise kayan noktalı sayılarda, sonucun sıfır olmadığı hâlde yazılabilecek en küçük pozitif değerden <em>küçük</em> olmasıdır. Tamsayılarda kutu başa sarar; float’ta ise davranış farklıdır: taşan sayı <strong>±∞</strong> olur, alttan taşan sayı önce yavaş yavaş hassasiyet kaybeder, sonunda <strong>0</strong> olur.</p>
+
+<p>32 bitlik float’ta en küçük <em>normal</em> sayı 2<sup>−126</sup> ≈ 1,18 × 10<sup>−38</sup>’dir. Bunun altında üs bitleri sıfırlanır ve gizli bit 0 sayılır: bunlar <strong>alt-normal</strong> sayılardır. Her yarıya bölmede mantisten bir anlamlı bit kaybolur, ta ki en küçük alt-normal 2<sup>−149</sup> ≈ 1,4 × 10<sup>−45</sup>’in de yarısına inip sıfıra yuvarlanana kadar. Buna <strong>kademeli alttan taşma</strong> denir. Aşağıda dene:</p>
+
+<figure class="fig" id="f-uf">
+  <div class="fig-in">
+    <div class="uf-bits" id="uf-bits"></div>
+    <div class="readout" id="uf-out"></div>
+    <div id="uf-line"></div>
+    <div class="ctl" id="uf-ctl"></div>
+    <div class="tell" id="uf-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 7</span><b>float32’nin iki ucu.</b> Sayı doğrusu logaritmiktir: her adım bir ikinin kuvveti. 1’den başlayıp ÷ 2’ye bas: 126 adım boyunca sadece üs küçülür. Sonra alt-normal bölgeye girersin; mantis bitleri sağa kayar ve “anlamlı bit” sayısı 24’ten 1’e düşer. 150. bölmede sayı sıfır olur. Ters yönde 2¹²⁸’e ulaşınca ∞ olur.</figcaption>
+</figure>
+
+<div class="tbl ovtbl"><table>
+  <thead><tr><th>Ne oldu</th><th>Örnek (8 bit / float32)</th><th>Sonuç</th></tr></thead>
+  <tbody>
+    <tr><td>İşaretsiz taşma</td><td class="m">255 + 1</td><td>0’a sarar, C bayrağı = 1</td></tr>
+    <tr><td>İşaretsiz “alttan taşma”</td><td class="m">0 − 1</td><td>255’e sarar (ödünç dışarı çıkar)</td></tr>
+    <tr><td>İşaretli taşma</td><td class="m">127 + 1</td><td>−128’e sarar, V bayrağı = 1</td></tr>
+    <tr><td>İşaretli “alttan taşma”</td><td class="m">−128 − 1</td><td>127’ye sarar, V bayrağı = 1</td></tr>
+    <tr><td>Float taşma</td><td class="m">3,4 × 10³⁸ × 10</td><td>+∞ (geri dönüşü yok)</td></tr>
+    <tr><td>Float alttan taşma</td><td class="m">10⁻⁴⁵ ÷ 10</td><td>önce alt-normal, sonra 0</td></tr>
+  </tbody>
+</table></div>
+
+<p>Tamsayılardaki “alttan taşma” sözcüğü gündelik bir kullanımdır: aslında sayının alt sınırdan aşağı inip başa sarmasıdır ve standartlar bunu da taşma (wraparound) olarak adlandırır. Kayan noktadaki alttan taşma ise gerçek bir sınırdır ve pratikte sık karşılaşılır. Örneğin olasılık hesaplarında yüzlerce küçük olasılığı çarpınca sonuç kolayca 10<sup>−400</sup>’ün altına iner ve double bile onu 0 yapar. Çözüm, olasılıkları çarpmak yerine logaritmalarını toplamaktır; makine öğrenmesindeki “log-olasılık” bu yüzden vardır.</p>
+
+<aside class="aside"><span class="t">Alt-normal sayılar neden var?</span>Onlar olmasaydı 2<sup>−126</sup> ile 0 arasında boşluk olurdu ve birbirine çok yakın iki farklı sayının farkı 0 çıkabilirdi: <code>x != y</code> iken <code>x − y == 0</code>. Kademeli alttan taşma bunu önler. Bedeli hızdır: bazı işlemciler alt-normal sayılarla 10–100 kat yavaş çalışır. Oyunlarda ve ses işlemede bu yüzden çoğu zaman “sıfıra yuvarla” (flush-to-zero) modu açılır.</aside>
+
+<h2><span class="sec">§ 6.9</span>Kendini dene</h2>
 
 <div id="try"></div>
 

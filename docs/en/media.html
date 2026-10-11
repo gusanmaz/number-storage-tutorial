@@ -152,7 +152,7 @@ print(img.tobytes())                   # b'\xff\x88\x00\xff\x88\x00'
     </div>
     <div class="tell" id="w-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Sampling and quantization.</b> The gray curve is the real sound, the orange dots are the samples taken, the stepped line is what the computer stores. The horizontal lines are the levels the bit depth allows. Push the frequency above half the sample rate and you will see something strange.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Sampling and quantization.</b> The gray curve is the real sound, the blue dots are the samples taken, the stepped line is what the computer stores. The horizontal lines are the levels the bit depth allows. Push the frequency above half the sample rate and you will see something strange.</figcaption>
 </figure>
 
 <p>That strangeness is called <strong>aliasing</strong>. To capture a wave correctly you need at least two samples per oscillation: the sample rate must be more than twice the highest frequency (the Nyquist–Shannon theorem). The human ear hears up to roughly 20,000 Hz, which is why 44,100 Hz was chosen. Wagon wheels that seem to spin backwards in movies are the same effect: the camera takes 24 frame “samples” per second.</p>
