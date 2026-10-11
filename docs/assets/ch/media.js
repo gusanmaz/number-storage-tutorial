@@ -123,7 +123,7 @@
   addEventListener('pointerup', () => { painting = false; });
   const pal = el('div', { class: 'pal' });
   const pbtn = [el('button', { type: 'button', class: 'pal-b on', text: t({ tr: 'İncele', en: 'Inspect' }), onclick: (e) => setBrush(null, e.currentTarget) })];
-  ['#FF8800', '#FFD23F', '#3BA55C', '#1E6FD9', '#FFFFFF', '#3A2A1A', '#E0245E', '#8ED1FC'].forEach((c) => pbtn.push(el('button', { type: 'button', class: 'pal-b sw', style: 'background:' + c, 'aria-label': c, onclick: (e) => setBrush(c, e.currentTarget) })));
+  ['#FF8800', '#FFD23F', '#3BA55C', '#1E6FD9', '#FFFFFF', '#3A2A1A', '#E0245E', '#8ED1FC'].forEach((c) => pbtn.push(el('button', { type: 'button', class: 'pal-b swc', style: 'background:' + c, 'aria-label': c, onclick: (e) => setBrush(c, e.currentTarget) })));
   function setBrush(c, b) { brush = c; pbtn.forEach((x) => x.classList.toggle('on', x === b)); pix.classList.toggle('paint', !!c); }
   pal.append(...pbtn);
   $('#pix-ctl').append(pal,

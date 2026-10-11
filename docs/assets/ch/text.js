@@ -89,7 +89,7 @@
   }
   function drawTty() {
     tty.innerHTML = '<div class="tty-paper">' + grid.map((r, ri) => '<div class="tty-row">' + r.map((c, ci) => '<span class="tc' + (ri === row && ci === col ? ' tcur' : '') + (c.length > 1 ? ' over' : '') + '">' + (c.length ? c.map((x, k) => '<i' + (k < c.length - 1 ? ' class="u"' : '') + '>' + esc(x) + '</i>').join('') : '') + '</span>').join('') + (ri === row && col >= COLS ? '<span class="tc tcur"></span>' : '') + '</div>').join('') + '</div>';
-    $('#tty-bytes').innerHTML = sent.length ? sent.map((c) => '<span class="tb' + (c < 32 ? ' ctl' : '') + '" title="' + esc(name(c)) + '">' + (c < 32 ? esc(name(c)) : hx(c)) + '</span>').join(' ') : '<span class="muted">' + t({ tr: 'Gönderilen byte’lar burada görünecek.', en: 'Bytes sent will show here.' }) + '</span>';
+    $('#tty-bytes').innerHTML = sent.length ? sent.map((c) => '<span class="tb' + (c < 32 ? ' tctl' : '') + '" title="' + esc(name(c)) + '">' + (c < 32 ? esc(name(c)) : hx(c)) + '</span>').join(' ') : '<span class="muted">' + t({ tr: 'Gönderilen byte’lar burada görünecek.', en: 'Bytes sent will show here.' }) + '</span>';
   }
   const typeStr = (s) => { [...s].forEach((ch) => send(ch.charCodeAt(0))); drawTty(); };
   const W1 = t({ tr: 'MERHABA', en: 'HELLO' }), W2 = t({ tr: 'DUNYA', en: 'WORLD' });
@@ -132,7 +132,7 @@
     const start = 0x7ffe10;
     const lbl = (c) => (c.tag === 'nul' || c.tag === 'nul2' ? 'NUL' : c.tag === 'len' ? '#' + c.b : c.b >= 32 && c.b < 127 ? esc(String.fromCharCode(c.b)) : c.b >= 128 ? '·' : '');
     $('#mem').innerHTML = cells.map((c, i) => '<div class="mc ' + c.tag + (c.read ? ' rd' : '') + '"><b>' + hx(c.b) + '</b><span>' + lbl(c) + '</span><small>…' + toBase(start + i, 16).slice(-3) + '</small></div>').join('') +
-      '<div class="mem-legend"><span class="lg str">' + esc(t({ tr: 'metin', en: 'string' })) + '</span>' + (memMode === 'p' ? '<span class="lg len">' + esc(t({ tr: 'uzunluk', en: 'length' })) + '</span>' : '<span class="lg nul">NUL</span>') + '<span class="lg sec">' + esc(t({ tr: 'yandaki değişken', en: 'neighboring variable' })) + '</span></div>';
+      '<div class="mem-legend"><span class="mlg str">' + esc(t({ tr: 'metin', en: 'string' })) + '</span>' + (memMode === 'p' ? '<span class="mlg len">' + esc(t({ tr: 'uzunluk', en: 'length' })) + '</span>' : '<span class="mlg nul">NUL</span>') + '<span class="mlg sec">' + esc(t({ tr: 'yandaki değişken', en: 'neighboring variable' })) + '</span></div>';
     const outStr = new TextDecoder().decode(new Uint8Array(read.map((c) => c.b)));
     brk.hidden = memMode !== 'c';
     brk.textContent = broken ? t({ tr: 'NUL’u geri koy', en: 'Restore the NUL' }) : t({ tr: 'NUL’un üstüne yaz (hata!)', en: 'Overwrite the NUL (bug!)' });

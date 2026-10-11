@@ -674,7 +674,7 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 @keyframes blink { 50% { opacity: 0; } }
 @media (max-width: 560px) { .tty-paper { font-size: 12.5px; } .tty { padding: 8px; } }
 .tb { display: inline-block; font-size: 13px; padding: 0 0.25rem; border-radius: 4px; background: var(--card); color: var(--hex); }
-.tb.ctl { color: #fff; background: var(--on-deep); font-size: 11px; }
+.tb.tctl { color: #fff; background: var(--on-deep); font-size: 11px; }
 .memrow { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; margin: 1rem auto 0.4rem; max-width: 52rem; }
 .mc { width: 2.7rem; text-align: center; border-radius: 6px; padding: 0.2rem 0 0.15rem; background: var(--card); box-shadow: inset 0 0 0 1px var(--rule); font-family: var(--mono); display: grid; line-height: 1.2; }
 .mc b { font-size: 13.5px; color: var(--hex); }
@@ -688,8 +688,8 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .mc.junk, .mc.nul2 { opacity: 0.55; }
 .mc.rd { outline: 2.5px solid var(--on); outline-offset: -1px; }
 .mem-legend { flex-basis: 100%; display: flex; justify-content: center; gap: 1rem; font-size: 12px; color: var(--ink-3); margin-top: 0.4rem; }
-.lg::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 0.3rem; vertical-align: -0.05em; border: 1.5px solid; }
-.lg.str::before { border-color: var(--dec); } .lg.len::before { border-color: #7a4fc4; } .lg.nul::before { border-color: var(--ok); } .lg.sec::before { border-color: var(--rule-2); background: var(--paper-2); }
+.mlg::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 0.3rem; vertical-align: -0.05em; border: 1.5px solid; }
+.mlg.str::before { border-color: var(--dec); } .mlg.len::before { border-color: #7a4fc4; } .mlg.nul::before { border-color: var(--ok); } .mlg.sec::before { border-color: var(--rule-2); background: var(--paper-2); }
 @media (max-width: 560px) { .mc { width: 2.2rem; } .mc b { font-size: 12px; } }
 .cp { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; margin-top: 1rem; }
 .cpc { display: grid; text-align: center; width: 2.4rem; background: var(--card); border-radius: 6px; padding: 0.2rem 0; box-shadow: inset 0 0 0 1px var(--rule); line-height: 1.25; }
@@ -764,7 +764,7 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .pix-info { display: flex; gap: 0.8rem; align-items: center; font-size: 14px; }
 .pal { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-right: 0.4rem; }
 .pal-b { border: 1.5px solid var(--rule-2); background: var(--card); border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: var(--sans); }
-.pal-b.sw { width: 1.6rem; height: 1.6rem; padding: 0; }
+.pal-b.swc { width: 1.6rem; height: 1.6rem; padding: 0; }
 .pal-b.on { outline: 2.5px solid var(--on); outline-offset: 1px; }
 .pix-bytes { font-family: var(--mono); font-size: 12px; line-height: 1.6; }
 .pb { display: inline-block; margin: 0 0.35rem 0 0; color: var(--hex); white-space: nowrap; }
@@ -937,9 +937,9 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .fa-tbl td, .fa-tbl th { text-align: center; }
 .fa-tbl tr.cur td { background: color-mix(in srgb, var(--on) 22%, transparent); color: var(--ink); font-weight: 700; }
 @media (max-width: 560px) { .fa-ar { transform: rotate(90deg); } .fa-row { flex-direction: column; gap: 0.4rem; } }
-.addgrid.big .ar i { width: 38px; height: 40px; font-size: 1.3rem; }
-.addgrid.big .arl { width: 5.4rem; font-size: 15px; }
-.addgrid.big .arline { margin-left: 5.4rem; }
+.addgrid.xl .ar i { width: 38px; height: 40px; font-size: 1.3rem; }
+.addgrid.xl .arl { width: 5.4rem; font-size: 15px; }
+.addgrid.xl .arline { margin-left: 5.4rem; }
 .ar i.cur { background: color-mix(in srgb, var(--on) 20%, transparent); box-shadow: inset 0 0 0 2px var(--on); }
 .ar i.ov { border-right: 2px dashed var(--rule-2); border-radius: 0; }
 .ar.cyr i { height: 24px !important; font-size: 0.95rem !important; color: var(--on-deep); background: none; box-shadow: none; }
@@ -948,7 +948,7 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .ar.inv i { color: var(--hex); }
 .ar.res i { background: var(--card); }
 .ar.res i.bad { color: var(--neg); background: color-mix(in srgb, var(--neg) 12%, var(--card)); }
-@media (max-width: 560px) { .addgrid.big .ar i { width: 27px; height: 32px; font-size: 1rem; } .addgrid.big .arl { width: 3.4rem; font-size: 12px; } .addgrid.big .arline { margin-left: 3.4rem; } }
+@media (max-width: 560px) { .addgrid.xl .ar i { width: 27px; height: 32px; font-size: 1rem; } .addgrid.xl .arl { width: 3.4rem; font-size: 12px; } .addgrid.xl .arline { margin-left: 3.4rem; } }
 .adc { display: grid; gap: 0.5rem; }
 .adc-r { display: grid; grid-template-columns: 11rem 1fr auto; gap: 0.8rem; align-items: center; background: var(--card); border-radius: 10px; padding: 0.6rem 0.9rem; box-shadow: inset 0 0 0 1px var(--rule); }
 .adc-r.tot { box-shadow: inset 0 0 0 1.5px var(--ink); }
@@ -981,9 +981,9 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .nrb i.ext0 { box-shadow: inset 0 0 0 1.5px var(--rule-2) !important; background: var(--paper-2); }
 .nrb i.ext1 { box-shadow: inset 0 0 0 2px var(--on) !important; }
 .nrb i.gapl { margin-left: 6px; }
-.negrows.sx { max-width: 46rem; margin-top: 1rem; }
-.negrows.sx .nr { grid-template-columns: 9rem auto 1fr; }
-@media (max-width: 640px) { .nrb.wide i { width: 17px; height: 24px; font-size: 11px; } .nrb i.gapl { margin-left: 3px; } .negrows.sx .nr { grid-template-columns: 1fr; } }
+.negrows.sxrows { max-width: 46rem; margin-top: 1rem; }
+.negrows.sxrows .nr { grid-template-columns: 9rem auto 1fr; }
+@media (max-width: 640px) { .nrb.wide i { width: 17px; height: 24px; font-size: 11px; } .nrb i.gapl { margin-left: 3px; } .negrows.sxrows .nr { grid-template-columns: 1fr; } }
 .cmp-wrap { max-width: 44rem; margin: 1rem auto 0; }
 .cmp td, .cmp th { text-align: center !important; }
 .cmp tr { cursor: pointer; }
