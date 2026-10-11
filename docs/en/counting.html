@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../sayma.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -20,7 +20,7 @@
   <div class="kicker"><span class="bits"></span>Chapter 2</div>
   <h1>The hidden order of counting</h1>
   <p class="lede">The way to read switch patterns as numbers is hidden in an idea we all learned in primary school: place value. Once you truly understand it, binary and hexadecimal become mere dialects.</p>
-  <div class="meta"><span>Reading: ~30 min</span><span>Before: Chapter 1</span></div>
+  <div class="meta"><span>Reading: ~50 min</span><span>Before: Chapter 1</span></div>
 </header>
 
 <article class="prose">
@@ -124,7 +124,74 @@
 
 <aside class="aside side"><span class="t">In everyday life</span>In the Linux command <code>chmod 755</code> every digit is a 3-bit permission group: read (4) + write (2) + execute (1). 7 = <span class="b">111</span> = everything, 5 = <span class="b">101</span> = read and execute.</aside>
 
-<h2><span class="sec">§ 2.7</span>Shorthand for long bits: hexadecimal</h2>
+<h2><span class="sec">§ 2.7</span>How many numbers fit? The mathematics of counting</h2>
+
+<p>So far we have played with the machine; now let’s collect the mathematics behind it. There are four questions: which digits does a base use, how many different numbers can n digits write, what is the largest, and how many digits does a number need?</p>
+
+<h3>1. Digits in base b: 0 to b − 1</h3>
+
+<p>In exploding dots a box exploded when it reached b dots, so a box can hold at most b − 1 dots. That is why base b has exactly <strong>b digits</strong>: 0, 1, …, b − 1. There can be no digit “b”; b itself is written “10”. In every base, “10” is the base itself: 10<span class="sub">2</span> = 2, 10<span class="sub">8</span> = 8, 10<span class="sub">16</span> = 16.</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Base</th><th>Digits</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td class="m">2</td><td class="m">0 1</td><td>bit</td></tr>
+    <tr><td class="m">3</td><td class="m">0 1 2</td><td>the Soviet Setun computer used “balanced ternary” (−1, 0, 1)</td></tr>
+    <tr><td class="m">8</td><td class="m">0 … 7</td><td>no 8 or 9</td></tr>
+    <tr><td class="m">10</td><td class="m">0 … 9</td><td></td></tr>
+    <tr><td class="m">16</td><td class="m">0 … 9 A B C D E F</td><td>A = 10 … F = 15</td></tr>
+    <tr><td class="m">36</td><td class="m">0 … 9 A … Z</td><td>short URLs, some IDs</td></tr>
+  </tbody>
+</table></div>
+
+<h3>2. How many numbers with n digits? bⁿ</h3>
+
+<p>Each position has b choices, and the positions are independent. By the counting principle (the multiplication rule) the total number of choices is the product of the choices: b × b × … × b = <strong>b<sup>n</sup></strong>. In combinatorics this is a <em>permutation with repetition</em>: we put one of b symbols in each of n positions. The 2<sup>n</sup> patterns of Chapter 1 were the case b = 2. Let’s list every number for small cases: base <span id="k-eb"></span>, <span id="k-en"></span> digits.</p>
+
+<figure class="fig" id="f-enum">
+  <div class="fig-in">
+    <div class="fig-title" id="enum-title"></div>
+    <div class="enum" id="enum"></div>
+    <div class="tell" id="enum-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>All n-digit patterns.</b> The list is in counting order: the rightmost digit changes fastest, the leftmost slowest. There are b<sup>n</sup> patterns, the smallest is 0 and the largest b<sup>n</sup> − 1. Leading zeros are faded; they do not change the value.</figcaption>
+</figure>
+
+<h3>3. The largest n-digit number: bⁿ − 1</h3>
+
+<p>Since numbers start at 0, the largest of b<sup>n</sup> different numbers is <strong>b<sup>n</sup> − 1</strong>. The nicest way to see it is to add 1 to the largest number: 999 + 1 = 1000 = 10<sup>3</sup>, so 999 = 10<sup>3</sup> − 1. The same in binary: <span class="b">1111</span> + 1 = <span class="b">10000</span> = 2<sup>4</sup>, so <span class="b">1111</span> = 2<sup>4</sup> − 1 = 15. Adding 1 to a number whose digits are all the largest digit causes a chain of explosions and leaves “1 followed by n zeros”.</p>
+
+<p class="formula">(b−1)·b<sup>n−1</sup> + … + (b−1)·b + (b−1) = b<sup>n</sup> − 1</p>
+
+<p>That is why the largest value of an 8-bit byte is 2<sup>8</sup> − 1 = 255, of 16 bits 65,535, of 32 bits 4,294,967,295. No need to memorize: with <span id="k-mn"></span> bits the largest unsigned number is 2<sup><span class="out" data-o="mn"></span></sup> − 1 = <span class="out" data-o="mx"></span>, i.e. <span class="out" data-o="mxb"></span>.</p>
+
+<div class="think">
+  <p class="q">What is the largest 3-digit number in base 5? What is it in decimal?</p>
+  <details><summary>Think first, then open</summary>
+    <p>The largest digit 4 in every place: <span class="b">444</span><span class="sub">5</span>. Add 1 and you get 1000<span class="sub">5</span> = 5<sup>3</sup> = 125. So 444<span class="sub">5</span> = 125 − 1 = <b>124</b>. Check: 4·25 + 4·5 + 4 = 124.</p>
+  </details>
+</div>
+
+<h3>4. How many digits does a number need?</h3>
+
+<p>The reverse question: how many digits does N need in base b? Since n digits cover 0 … b<sup>n</sup> − 1, we want the smallest n with b<sup>n</sup> &gt; N. The formula is <strong>n = ⌊log<sub>b</sub> N⌋ + 1</strong>. You do not need logarithms: keep dividing N by b; the number of divisions until you reach 0 is the number of digits. For <span id="k-dg"></span>:</p>
+
+<figure class="fig narrow" id="f-digits">
+  <div class="fig-in">
+    <div class="digbars" id="digits"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 7</span><b>One number, four lengths.</b> The bigger the base, the shorter the number. Binary is about 3.32 times as long as decimal, because log<sub>2</sub> 10 ≈ 3.32. Hex is exactly a quarter of binary (rounded up), because every hex digit is 4 bits.</figcaption>
+</figure>
+
+<h3>Powers of two and the “2¹⁰ ≈ 10³” trick</h3>
+
+<p>2<sup>10</sup> = 1024 is very close to 1000. This single observation lets you estimate big powers of two in your head: <strong>every 10 bits add about 3 decimal digits</strong> (one “thousand”). To estimate 2<sup>n</sup>, split n into tens and units: 2<sup>37</sup> = 2<sup>7</sup> × 2<sup>30</sup> ≈ 128 × 10<sup>9</sup> = 128 billion. The true value is 137 billion; the estimate is within 7%. Try it: 2<sup><span id="k-pw"></span></sup> <span class="out" data-o="pw"></span>.</p>
+
+<div class="pow2" id="pow2"></div>
+
+<p>A few values programmers know by heart: 2<sup>8</sup> = 256 (byte), 2<sup>10</sup> = 1024 (Ki), 2<sup>16</sup> = 65,536, 2<sup>20</sup> ≈ 1 million (Mi), 2<sup>30</sup> ≈ 1 billion (Gi), 2<sup>32</sup> ≈ 4.3 billion, 2<sup>64</sup> ≈ 1.8 × 10<sup>19</sup>. And one less than a power of two: 2<sup>k</sup> − 1 is k ones in binary (255 = <span class="b">11111111</span>, 1023 = <span class="b">1111111111</span>).</p>
+
+<h2><span class="sec">§ 2.8</span>Shorthand for long bits: hexadecimal</h2>
 
 <p>Think of a 32-bit value: <span class="b">11011110101011011011111011101111</span>. A pain to read and to write; missing a bit is far too easy. Converting to decimal (3735928559) makes it shorter but loses the link to the bits: we can no longer see which bits are on.</p>
 
@@ -136,7 +203,7 @@
     <div class="grp" id="grp"></div>
     <div class="readout" id="grp-out"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>Grouping = changing base.</b> Groups of 4 give hex digits, groups of 3 octal digits. If the leftmost group is short, imagine zeros in front; leading zeros do not change the value.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 8</span><b>Grouping = changing base.</b> Groups of 4 give hex digits, groups of 3 octal digits. If the leftmost group is short, imagine zeros in front; leading zeros do not change the value.</figcaption>
 </figure>
 
 <p>So 32 bits shrink to eight hex digits: <span class="h">DEADBEEF</span>. Every digit corresponds to exactly 4 bits, so you can still see which bits are on. Two hex digits = 8 bits; in the next chapter we will call that group of eight a <em>byte</em>.</p>
@@ -147,14 +214,54 @@
 
 <h3>Where will you meet hexadecimal?</h3>
 <ul>
-  <li><strong>Colors</strong>: <code>#FF5733</code> is three bytes: red, green, blue (Chapter 7).</li>
-  <li><strong>Memory addresses</strong>: <code>0x7FFE42A0</code> (Chapter 8).</li>
-  <li><strong>Character numbers</strong>: <code>U+00E7</code> = ç (Chapter 6).</li>
+  <li><strong>Colors</strong>: <code>#FF5733</code> is three bytes: red, green, blue (Chapter 8).</li>
+  <li><strong>Memory addresses</strong>: <code>0x7FFE42A0</code> (Chapter 10).</li>
+  <li><strong>Character numbers</strong>: <code>U+00E7</code> = ç (Chapter 7).</li>
   <li><strong>Network card IDs</strong>: a MAC address <code>00:1A:2B:3C:4D:5E</code>, six bytes.</li>
   <li><strong>Error codes</strong>: on Windows <code>0x80070005</code> = “Access denied”.</li>
 </ul>
 
-<h2><span class="sec">§ 2.8</span>Bases in code</h2>
+<h2><span class="sec">§ 2.9</span>Fast conversion between bases</h2>
+
+<p>We now have several methods. Knowing which to use when is the secret of converting quickly and without mistakes:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>From → to</th><th>Fastest way</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td>any base → decimal</td><td><b>Horner</b>: start on the left, “previous × b + digit”</td><td class="m">1011₂: 1→2+0=2→4+1=5→10+1=11</td></tr>
+    <tr><td>decimal → any base</td><td><b>Repeated division</b> (remainders bottom to top), or for small numbers <b>subtracting powers</b> (the balance)</td><td class="m">13 = 8+4+1 → 1101₂</td></tr>
+    <tr><td>2 ↔ 2<sup>k</sup> (4, 8, 16, 32)</td><td><b>Grouping</b>: groups of k from the right, no arithmetic</td><td class="m">1 1010 1111₂ = 1AF₁₆</td></tr>
+    <tr><td>8 ↔ 16</td><td><b>Via binary</b>: expand in 3s, regroup in 4s</td><td class="m">377₈ = 011 111 111 = 1111 1111 = FF₁₆</td></tr>
+    <tr><td>4 ↔ 16</td><td>Each hex digit = 2 base-4 digits (16 = 4²)</td><td class="m">B₁₆ = 23₄</td></tr>
+    <tr><td>unrelated bases (3 → 5)</td><td>Via decimal: Horner first, then division</td><td class="m">212₃ = 23 = 43₅</td></tr>
+  </tbody>
+</table></div>
+
+<p><strong>Horner’s method</strong> is especially nice, because it removes the need to compute powers at all: as you read the number from the left, multiply your running total by the base and add the new digit. In binary this becomes “double and add the bit”, which is very fast in your head. Try it below: convert <input id="hn-in" class="inp inl" value="10110110" spellcheck="false" aria-label="number"> from base <span id="k-hb"></span> to decimal.</p>
+
+<figure class="fig narrow" id="f-horner">
+  <div class="fig-in">
+    <div class="horner" id="horner"></div>
+    <div class="tell" id="hn-tell"></div>
+    <div id="hn-steps"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 9</span><b>Horner’s method.</b> d<sub>n−1</sub>…d<sub>1</sub>d<sub>0</sub> = (…((d<sub>n−1</sub>·b + d<sub>n−2</sub>)·b + d<sub>n−3</sub>)…)·b + d<sub>0</sub>. It gives the same result as the place-value formula without computing a single power. Computers do exactly this when they read a number from text (<code>int("…")</code>, <code>parseInt</code>).</figcaption>
+</figure>
+
+<p>Now a universal converter that brings it all together. If the bases are powers of each other it shows the grouping route; otherwise the route through decimal:</p>
+
+<figure class="fig" id="f-conv">
+  <div class="fig-in">
+    <div class="conv-in"><input id="cv-in" class="inp" value="7F3A" spellcheck="false" aria-label="number"><span>base</span><span id="k-cf"></span><span>→</span><span id="k-ct"></span></div>
+    <div id="conv"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 10</span><b>Between any two bases.</b> Every base from 2 to 36 is supported (digits 0–9, A–Z). The route depends on whether both bases are powers of 2.</figcaption>
+</figure>
+
+<aside class="aside"><span class="t">Small tricks for converting in your head</span>
+<b>×b = append a 0</b>: 101₂ × 2 = 1010₂. <b>2<sup>k</sup> = 1 and k zeros</b>, <b>2<sup>k</sup> − 1 = k ones</b>. <b>Subtract from one less than a power</b>: 250 = 255 − 5 = 11111111 − 101 = 11111010. <b>To turn hex into binary, memorize four digits</b>: 8 = 1000, 4 = 0100, 2 = 0010, 1 = 0001; the rest are sums (B = 8+2+1 = 1011). <b>Even or odd?</b> In binary the last bit tells, in octal and hex the parity of the last digit.</aside>
+
+<h2><span class="sec">§ 2.10</span>Bases in code</h2>
 
 <p>In Python and JavaScript you can write numbers directly in different bases. They all produce the same number; the base is only a way of writing it.</p>
 
@@ -184,7 +291,7 @@ parseInt("ff", 16);                // 255
 </pre>
 </div>
 
-<h2><span class="sec">§ 2.9</span>Try it yourself</h2>
+<h2><span class="sec">§ 2.11</span>Try it yourself</h2>
 
 <div id="try"></div>
 

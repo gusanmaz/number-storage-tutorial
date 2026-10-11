@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../byte.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -39,7 +39,7 @@
   <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>Anatomy of a byte.</b> Eight bits split into two four-bit halves (<em>nibbles</em>). Each half becomes a single hex digit, which is why a byte is always written with two hex digits: 00 to FF.</figcaption>
 </figure>
 
-<p>A byte can make 2<sup>8</sup> = <strong>256</strong> different patterns. Those patterns can be the numbers 0 to 255, but remember the lens from Chapter 1: the same 256 patterns can just as well be a letter, a shade of gray, the red part of a color, or (as we will see in Chapter 4) a number from −128 to 127.</p>
+<p>A byte can make 2<sup>8</sup> = <strong>256</strong> different patterns. Those patterns can be the numbers 0 to 255, but remember the lens from Chapter 1: the same 256 patterns can just as well be a letter, a shade of gray, the red part of a color, or (as we will see in Chapter 5) a number from −128 to 127.</p>
 
 <aside class="aside side"><span class="t">Terms</span><b>Nibble</b>: 4 bits (half a byte). <b>Word</b>: the size a processor handles in one go; mostly 64 bits today. <b>Byte</b>: the smallest unit with its own address in memory; you cannot address a single bit directly.</aside>
 
@@ -70,7 +70,7 @@
     <div class="ctl" id="odo-ctl"></div>
     <div class="tell" id="odo-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>An eight-bit box.</b> Adding 1 to 255 = 11111111 makes every bit carry in a chain; there is no room for a ninth bit, so that carry is lost and the counter returns to 0. This is called <em>overflow</em>, and Chapter 4 shows its real-world consequences.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>An eight-bit box.</b> Adding 1 to 255 = 11111111 makes every bit carry in a chain; there is no room for a ninth bit, so that carry is lost and the counter returns to 0. This is called <em>overflow</em>, and Chapter 5 shows its real-world consequences.</figcaption>
 </figure>
 
 <div class="tbl"><table>

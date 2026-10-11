@@ -1,4 +1,4 @@
-/* Bölüm 8 — Bellek */
+/* Bölüm 10 — Bellek */
 (function () {
   const { t, $, $$, el, esc, fmt, pad, toBase, knob, out, steps, tryIt, rand, pick } = NS;
   const hx = (b) => pad(toBase(b, 16), 2);

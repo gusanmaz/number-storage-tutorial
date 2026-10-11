@@ -1,4 +1,4 @@
-/* Bölüm 7 — Renk, resim ve ses */
+/* Bölüm 8 — Renk, resim ve ses */
 (function () {
   const { t, $, $$, el, esc, fmt, pad, toBase, knob, out, tryIt, human, rand, pick } = NS;
   const hx = (v) => pad(toBase(v, 16), 2);

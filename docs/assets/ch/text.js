@@ -1,4 +1,4 @@
-/* Bölüm 6 — Metin */
+/* Bölüm 7 — Metin */
 (function () {
   const { t, $, $$, el, esc, fmt, pad, toBase, lamps, steps, tryIt, LANG, pick } = NS;
   const hx = (b) => pad(toBase(b, 16), 2);

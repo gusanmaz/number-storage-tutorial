@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="en" href="en/memory.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 <script src="assets/gen.js" defer></script>
@@ -17,15 +17,15 @@
 <body data-chapter="memory">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Bölüm 8</div>
+  <div class="kicker"><span class="bits"></span>Bölüm 10</div>
   <h1>Bellek: uzun bir byte şeridi</h1>
   <p class="lede">Şimdiye kadar tek tek sayıları, harfleri, renkleri inceledik. Hepsi aynı yerde yaşıyor: numaralandırılmış milyarlarca byte’tan oluşan tek bir şeritte. Bu bölümde o şeridin üstünde yürüyeceğiz.</p>
-  <div class="meta"><span>Okuma: ~40 dk</span><span>Önce: Bölüm 3, 4 ve 6</span></div>
+  <div class="meta"><span>Okuma: ~40 dk</span><span>Önce: Bölüm 3, 5 ve 7</span></div>
 </header>
 
 <article class="prose">
 
-<h2><span class="sec">§ 8.1</span>Her byte’ın bir adresi var</h2>
+<h2><span class="sec">§ 10.1</span>Her byte’ın bir adresi var</h2>
 
 <p class="dropcap">Bilgisayarın ana belleğini (RAM) çok uzun bir sokak gibi düşün. Sokaktaki her evde tam 8 bit, yani bir byte oturuyor ve her evin bir kapı numarası var: <strong>adres</strong>. İşlemci belleğe “şu adresteki byte’ı ver” ya da “şu adrese şunu yaz” der. Başka bir şey bilmez; değişken, dizi, metin gibi kavramların hepsi bu iki komutun üstüne kurulur.</p>
 
@@ -39,7 +39,7 @@
 
 <p>Adresler de bitlerle yazıldığına göre, bir işlemcinin kaç byte’a ulaşabileceği adres bitlerinin sayısına bağlıdır. <span id="k-ab"></span> bitlik adreslerle en fazla <span class="out" data-o="addr"></span> belleğe erişilebilir. 32 bitlik bilgisayarların 4 GB’tan fazla RAM kullanamamasının sebebi buydu. Bugünkü 64 bitlik işlemciler pratikte 48 bit kullanır; o da 256 TiB eder.</p>
 
-<h2><span class="sec">§ 8.2</span>Byte’lar ne olduklarını bilmez</h2>
+<h2><span class="sec">§ 10.2</span>Byte’lar ne olduklarını bilmez</h2>
 
 <p>Bölüm 1’in ana fikrine geri döndük: bir bit deseni kendi anlamını taşımaz. Bellekte yan yana duran 8 byte, bir metin, iki tamsayı, bir ondalıklı sayı ya da bir adres olabilir. Neye bakacağımıza, onu okuyan program karar verir. Aşağıdaki byte’ları düzenle (hex) ve aynı 8 byte’ın farklı okunuşlarına bak.</p>
 
@@ -52,7 +52,7 @@
   <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>Aynı 8 byte, sekiz farklı tür.</b> Her satır aynı belleğe farklı bir gözlükle bakıyor. C dilinde <code>(float*)</code> gibi tür dönüşümleri, JavaScript’te <code>DataView</code>, Python’da <code>struct</code> modülü tam olarak bunu yapar: byte’lara dokunmadan yorumu değiştirir.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 8.3</span>Byte sırası: endianness</h2>
+<h2><span class="sec">§ 10.3</span>Byte sırası: endianness</h2>
 
 <p>Bir byte’tan büyük sayılar birden fazla adrese yayılır. 32 bitlik <span class="h">0x12345678</span> sayısı 4 byte tutar: <span class="h">12</span>, <span class="h">34</span>, <span class="h">56</span>, <span class="h">78</span>. Peki hangisi küçük adrese yazılır? İki cevap var ve ikisi de kullanılıyor:</p>
 <ul>
@@ -92,7 +92,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 </pre>
 </div>
 
-<h2><span class="sec">§ 8.4</span>Değişkenler, diziler, pointer’lar</h2>
+<h2><span class="sec">§ 10.4</span>Değişkenler, diziler, pointer’lar</h2>
 
 <p>Bir programda <code>int yas = 17;</code> yazdığında derleyici bellekte 4 byte’lık bir yer ayırır ve “yas” adını o yerin adresiyle eşleştirir. Değişken adı, bir adresin insanlar için hatırlanabilir takma adıdır. Bir <strong>dizi</strong> ise aynı türden elemanların bellekte arka arkaya dizilmesidir; <code>dizi[i]</code>’nin adresi basit bir hesaptır:</p>
 
@@ -123,7 +123,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <aside class="aside"><span class="t">Hizalama</span>İşlemciler 4 byte’lık bir sayıyı 4’ün katı olan adreslerden daha hızlı okur. Bu yüzden derleyiciler değişkenlerin arasına bazen boş byte’lar (padding) koyar. Şekildeki <code>short</code> ile <code>char</code>’dan sonraki gri byte’lar bu yüzden boş.</aside>
 
-<h2><span class="sec">§ 8.5</span>Dosyalar da byte dizisidir</h2>
+<h2><span class="sec">§ 10.5</span>Dosyalar da byte dizisidir</h2>
 
 <p>Disk, belleğe göre çok daha yavaş ama kalıcı bir byte şerididir. Bir dosya, bu şeritteki bir byte dizisi ve ona verilmiş bir addır. “Bu bir PNG resmi” bilgisi dosyanın içinde, genellikle ilk birkaç byte’ta yazılıdır. Bu byte’lara <strong>sihirli sayı</strong> (magic number) ya da dosya imzası denir. Dosya uzantısını değiştirmek dosyanın türünü değiştirmez; imza aynı kalır.</p>
 
@@ -154,7 +154,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <p class="key">Bellek de disk de sadece numaralı byte’lardır. <strong>Adres</strong> nerede olduğunu, <strong>tür</strong> nasıl okunacağını, <strong>byte sırası</strong> çok byte’lı değerlerin dizilişini belirler. Bu üçünü bilen, herhangi bir veriyi byte byte okuyabilir.</p>
 
-<h2><span class="sec">§ 8.6</span>Kendini dene</h2>
+<h2><span class="sec">§ 10.6</span>Kendini dene</h2>
 
 <div id="try"></div>
 

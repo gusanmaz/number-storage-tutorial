@@ -1,4 +1,4 @@
-/* Bölüm 10 — Kendini sına */
+/* Bölüm 12 — Kendini sına */
 (function () {
   const { t, $, fmt, pad, toBase, pick, tryIt } = NS;
   const any = (...fs) => () => pick(fs)();

@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../kesir.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -17,15 +17,15 @@
 <body data-chapter="fractions">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Chapter 5</div>
+  <div class="kicker"><span class="bits"></span>Chapter 6</div>
   <h1>Where the point goes: fractions</h1>
   <p class="lede">How do we write 3.14 or 0.1 with lamps? The answer leads to programming’s most famous oddity: as far as the computer is concerned, 0.1 + 0.2 is not 0.3.</p>
-  <div class="meta"><span>Reading: ~35 min</span><span>Before: Chapters 2 and 4</span></div>
+  <div class="meta"><span>Reading: ~35 min</span><span>Before: Chapters 2 and 5</span></div>
 </header>
 
 <article class="prose">
 
-<h2><span class="sec">§ 5.1</span>There are boxes right of the point too</h2>
+<h2><span class="sec">§ 6.1</span>There are boxes right of the point too</h2>
 
 <p class="dropcap">In decimal, the digits right of the point are worth a tenth, a hundredth, a thousandth. We can extend the exploding dots machine to the right as well: each box is worth <em>one base-th</em> of the box to its left. In binary that means the boxes right of the point are <strong>a half, a quarter, an eighth…</strong> Like cutting a strip in half again and again.</p>
 
@@ -40,7 +40,7 @@
 
 <p>This tells us something both beautiful and unsettling. Fractions like ½, ¾ and ⅝ can be written <em>exactly</em> with a few bits. But 0.1? No combination of lamps paints exactly a tenth of the strip. Let’s prove it.</p>
 
-<h2><span class="sec">§ 5.2</span>Why 0.1 never ends in binary</h2>
+<h2><span class="sec">§ 6.2</span>Why 0.1 never ends in binary</h2>
 
 <p>To convert a fraction to binary, <strong>keep multiplying it by 2</strong>: if the result reaches 1, that digit is 1 (and we drop the 1); if not, it is 0. We stop when the fraction reaches zero. Try 0.625 first, then 0.1.</p>
 
@@ -57,7 +57,7 @@
 
 <p>Decimal has the same problem: 1/3 = 0.3333… never ends, because 3 does not divide 10. The binary rule is similar: <strong>any fraction whose denominator (after reducing) is not a power of 2 repeats forever in binary.</strong> 1/10 has a 5 in its denominator, so none of everyday numbers like 0.1, 0.2, 0.3 can be stored exactly in a computer. What gets stored is a value very close to it.</p>
 
-<h2><span class="sec">§ 5.3</span>Pinning the point down</h2>
+<h2><span class="sec">§ 6.3</span>Pinning the point down</h2>
 
 <p>The simplest solution is to fix the position of the point in advance: of 8 bits, 4 for the integer part and 4 for the fraction. This is called <strong>fixed point</strong>. The values are evenly spaced on the number line.</p>
 
@@ -74,7 +74,7 @@
 
 <aside class="aside warn"><span class="t">In real life</span>In the 1991 Gulf War a Patriot missile defense system counted time in steps of 0.1 seconds and stored 0.1 as a 24-bit fixed-point number. The tiny error at each step grew to about 0.34 seconds after 100 hours; in that time a missile travels more than half a kilometer. The incoming missile was not intercepted.</aside>
 
-<h2><span class="sec">§ 5.4</span>Letting the point float</h2>
+<h2><span class="sec">§ 6.4</span>Letting the point float</h2>
 
 <p>To write very large and very small numbers at the same time, physics uses <em>scientific notation</em>: Avogadro’s number is 6.022 × 10²³, an electron’s mass 9.1 × 10⁻³¹ kg. The <em>digits</em> of the number (6.022) and its <em>size</em> (10²³) are written separately, and the point “floats” according to the exponent.</p>
 
@@ -97,7 +97,7 @@
 
 <p>This picture captures the essence of floating point: <strong>relative precision is constant, absolute precision is not.</strong> We move in very fine steps for small numbers and coarse steps for big ones. That is exactly what science wants: we do not need a planet’s distance to the millimeter, but we do need an atom’s size.</p>
 
-<h2><span class="sec">§ 5.5</span>The real format: IEEE 754</h2>
+<h2><span class="sec">§ 6.5</span>The real format: IEEE 754</h2>
 
 <p>The <strong>IEEE 754</strong> standard, published in 1985, is the format nearly every processor uses today. A 32-bit <code>float</code> is split into 1 sign bit, 8 exponent bits and 23 mantissa bits. A 64-bit <code>double</code> has 11 exponent bits and 52 mantissa bits. JavaScript numbers and Python’s <code>float</code> are doubles.</p>
 
@@ -120,7 +120,7 @@
   <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Inside a float.</b> When you type 0.1, memory holds 0.100000001490116…: the float closest to 0.1. The difference is tiny, but not zero.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 5.6</span>Why 0.1 + 0.2 isn’t 0.3</h2>
+<h2><span class="sec">§ 6.6</span>Why 0.1 + 0.2 isn’t 0.3</h2>
 
 <p>Now we have everything we need to solve the mystery. None of 0.1, 0.2 and 0.3 can be stored exactly as a double. The stored 0.1 and 0.2 are slightly too big, the stored 0.3 slightly too small. The sum lands not on the double that represents 0.3 but on the one right next to it.</p>
 
@@ -158,7 +158,7 @@ console.log(price * 3 / 100);          // 59.97
 
 <p class="key">Never compare two floating-point numbers with <strong>==</strong>: check whether their difference is below a small tolerance. Do money calculations with <strong>integer cents</strong> or decimal types (<code>Decimal</code> in Python).</p>
 
-<h2><span class="sec">§ 5.7</span>The limits of precision and special values</h2>
+<h2><span class="sec">§ 6.7</span>The limits of precision and special values</h2>
 
 <p>The gaps we saw in the toy float exist in the real float too, just smaller. In a 32-bit float, odd numbers can no longer be written after 2<sup>24</sup> = 16,777,216: <span id="k-big"></span> becomes <span class="out" data-o="f32"></span> when converted to float. For doubles the same limit is 2<sup>53</sup> ≈ 9 × 10<sup>15</sup>.</p>
 
@@ -180,7 +180,7 @@ console.log(price * 3 / 100);          // 59.97
   <li><strong>Subnormal numbers</strong>: When the exponent bits are zero the hidden bit is taken as 0; this is how numbers very close to zero are written.</li>
 </ul>
 
-<h2><span class="sec">§ 5.8</span>Try it yourself</h2>
+<h2><span class="sec">§ 6.8</span>Try it yourself</h2>
 
 <div id="try"></div>
 

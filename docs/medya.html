@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="en" href="en/media.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 <script src="assets/gen.js" defer></script>
@@ -17,7 +17,7 @@
 <body data-chapter="media">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Bölüm 7</div>
+  <div class="kicker"><span class="bits"></span>Bölüm 8</div>
   <h1>Renk, resim ve ses</h1>
   <p class="lede">Bir fotoğraf ya da bir şarkı da sonunda sayılardan ibaret. Ama dünyadaki renkler ve sesler sürekli; bilgisayar ise sadece tamsayı sayabiliyor. Aradaki köprüyü kurmanın yolu: <em>örneklemek</em> ve <em>yuvarlamak</em>.</p>
   <div class="meta"><span>Okuma: ~35 dk</span><span>Önce: Bölüm 2 ve 3</span></div>
@@ -25,7 +25,7 @@
 
 <article class="prose">
 
-<h2><span class="sec">§ 7.1</span>Üç ışıkla her renk</h2>
+<h2><span class="sec">§ 8.1</span>Üç ışıkla her renk</h2>
 
 <p class="dropcap">Gözümüzün retinasında üç tür renk algılayıcı hücre (koni) var. Kabaca biri kırmızıya, biri yeşile, biri maviye duyarlı. Beynimiz gördüğümüz her rengi bu üç sinyalin oranından çıkarır. Ekranlar da bu açığı kullanır: her piksel, yan yana duran üç minik ışıktan oluşur. Üçünün parlaklığını ayarlayarak gözümüzü istediğimiz rengi gördüğüne ikna ederiz.</p>
 
@@ -41,7 +41,7 @@
 
 <p>Her kanal için bir byte ayırınca bir renk <strong>3 byte = 24 bit</strong> tutar. Bu da 2<sup>24</sup> = 16 777 216 farklı renk demek. İnsan gözünün ayırt edebildiği renk sayısının birkaç milyon olduğu düşünülürse, 24 bit çoğu iş için yeterlidir; bu yüzden ona “gerçek renk” (true color) denir.</p>
 
-<h2><span class="sec">§ 7.2</span>#RRGGBB: renklerin hex adresi</h2>
+<h2><span class="sec">§ 8.2</span>#RRGGBB: renklerin hex adresi</h2>
 
 <p>Web sayfalarında ve tasarım programlarında renkleri <span class="h">#FF8800</span> gibi yazarız. Artık bunun ne olduğunu biliyoruz: 3 byte’ın hex yazımı. Her byte tam olarak iki hex rakamı olduğu için renk kodu altı haneye düzgünce bölünür: ilk ikisi kırmızı, ortadaki ikisi yeşil, son ikisi mavi.</p>
 
@@ -60,7 +60,7 @@
   <li><strong>Griler:</strong> üç kanal eşitse renk gridir: <span class="h">#000000</span> siyah, <span class="h">#808080</span> orta gri, <span class="h">#FFFFFF</span> beyaz. Gri için tek byte yeter; siyah-beyaz fotoğraflar bu yüzden üçte bir yer tutar.</li>
 </ul>
 
-<h2><span class="sec">§ 7.3</span>Renk derinliği: kanal başına kaç bit?</h2>
+<h2><span class="sec">§ 8.3</span>Renk derinliği: kanal başına kaç bit?</h2>
 
 <p>Her kanala 8 bit yerine daha az bit verseydik ne olurdu? Kanal başına 1 bitle sadece 8 renk (siyah, beyaz, kırmızı, yeşil, mavi, sarı, camgöbeği, eflatun) kalır. Eski bilgisayarlar böyleydi. Aşağıdaki gün batımını farklı bit derinlikleriyle göster:</p>
 
@@ -70,10 +70,10 @@
     <div class="center" style="margin-top:.8rem"><label class="muted" for="depth-r">Kanal başına bit</label> <input type="range" id="depth-r" min="1" max="8" value="3" style="width:14rem"> <b class="mono" id="depth-v"></b></div>
     <div class="readout" id="depth-out"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Az bit = bantlanma.</b> Bit sayısı düştükçe yumuşak geçişler basamaklara bölünür. Yuvarlama hatası artık gözle görülür hale gelir. Bölüm 5’teki kayan nokta hikâyesinin görsel hali: sınırlı bit, sınırlı ara değer.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Az bit = bantlanma.</b> Bit sayısı düştükçe yumuşak geçişler basamaklara bölünür. Yuvarlama hatası artık gözle görülür hale gelir. Bölüm 6’daki kayan nokta hikâyesinin görsel hali: sınırlı bit, sınırlı ara değer.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 7.4</span>Bir resim: sayılardan bir ızgara</h2>
+<h2><span class="sec">§ 8.4</span>Bir resim: sayılardan bir ızgara</h2>
 
 <p>Dijital bir resim, <strong>piksel</strong> denen renkli karelerden oluşan bir ızgaradır. Her piksel 3 byte’lık bir renk. Resmi bellekte saklamak için pikselleri satır satır, soldan sağa sıralarız. Aşağıdaki resim 16 × 16 piksel; büyütülmüş hali. Bir piksele dokun.</p>
 
@@ -95,9 +95,9 @@
 
 <aside class="aside"><span class="t">Paletli resimler</span>GIF formatı her pikselde 3 byte yerine 1 byte saklar. O byte bir renk değil, 256 renklik bir <em>palet</em> tablosundaki sıra numarasıdır. Yine bir “anlaşma”: numara → renk. ASCII’nin numara → harf tablosuna çok benziyor.</aside>
 
-<h2><span class="sec">§ 7.5</span>Kodda renkler</h2>
+<h2><span class="sec">§ 8.5</span>Kodda renkler</h2>
 
-<p>Bir rengi tek bir 24 bitlik sayı olarak sakladığımızda kanalları ayırmak bir bit işlemidir: kırmızıyı almak için sayıyı 16 bit sağa kaydırır, son 8 biti maskeleriz. Bit işlemlerini Bölüm 9’da ayrıntılı göreceğiz.</p>
+<p>Bir rengi tek bir 24 bitlik sayı olarak sakladığımızda kanalları ayırmak bir bit işlemidir: kırmızıyı almak için sayıyı 16 bit sağa kaydırır, son 8 biti maskeleriz. Bit işlemlerini Bölüm 11’de ayrıntılı göreceğiz.</p>
 
 <div class="code-tabs">
 <pre data-lang="js">
@@ -134,7 +134,7 @@ print(img.tobytes())                   # b'\xff\x88\x00\xff\x88\x00'
 </pre>
 </div>
 
-<h2><span class="sec">§ 7.6</span>Ses: havadaki dalgayı saymak</h2>
+<h2><span class="sec">§ 8.6</span>Ses: havadaki dalgayı saymak</h2>
 
 <p>Ses, havanın basıncındaki hızlı dalgalanmalardır. Mikrofon bu dalgalanmayı bir elektrik gerilimine çevirir; gerilim, zamanla sürekli değişen bir eğridir. Bilgisayar bu eğriyi saklamak için iki şey yapar:</p>
 <ol>
@@ -181,7 +181,7 @@ print(img.tobytes())                   # b'\xff\x88\x00\xff\x88\x00'
 
 <p class="key">Renk, resim ve ses için aynı tarif geçerli: sürekli bir şeyi <strong>parçalara böl</strong> (piksel, örnek), her parçayı <strong>sınırlı sayıda bitle yuvarla</strong> (renk derinliği, bit derinliği). Kalite, bu iki ayardan gelir; dosya boyutu da.</p>
 
-<h2><span class="sec">§ 7.7</span>Kendini dene</h2>
+<h2><span class="sec">§ 8.7</span>Kendini dene</h2>
 
 <div id="try"></div>
 

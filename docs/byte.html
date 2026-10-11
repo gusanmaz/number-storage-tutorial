@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="en" href="en/bytes.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/site.js" defer></script>
 <script src="assets/gen.js" defer></script>
@@ -39,7 +39,7 @@
   <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>Bir byte’ın anatomisi.</b> Sekiz bit, iki tane dört bitlik yarıma (<em>nibble</em>) ayrılır. Her yarım tek bir onaltılık rakam olur; bu yüzden bir byte her zaman iki hex rakamıyla yazılır: 00’dan FF’ye.</figcaption>
 </figure>
 
-<p>Bir byte 2<sup>8</sup> = <strong>256</strong> farklı desen yapabilir. Bu desenler 0’dan 255’e kadar sayılar olabilir, ama Bölüm 1’deki merceği hatırla: aynı 256 desen bir harf, bir gri tonu, bir rengin kırmızı bileşeni ya da (Bölüm 4’te göreceğimiz gibi) −128 ile 127 arası bir sayı da olabilir.</p>
+<p>Bir byte 2<sup>8</sup> = <strong>256</strong> farklı desen yapabilir. Bu desenler 0’dan 255’e kadar sayılar olabilir, ama Bölüm 1’deki merceği hatırla: aynı 256 desen bir harf, bir gri tonu, bir rengin kırmızı bileşeni ya da (Bölüm 5’te göreceğimiz gibi) −128 ile 127 arası bir sayı da olabilir.</p>
 
 <aside class="aside side"><span class="t">Terimler</span><b>Nibble</b>: 4 bit (yarım byte). <b>Word</b> (kelime): işlemcinin bir seferde işlediği boyut; bugün çoğunlukla 64 bit. <b>Byte</b>: bellekte adresi olan en küçük birim; tek bir biti doğrudan adresleyemezsin.</aside>
 
@@ -70,7 +70,7 @@
     <div class="ctl" id="odo-ctl"></div>
     <div class="tell" id="odo-tell"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Sekiz bitlik bir kutu.</b> 255 = 11111111’e 1 ekleyince bütün bitler zincirleme taşar; dokuzuncu bit için yer olmadığından o taşma kaybolur ve sayaç 0’a döner. Buna <em>taşma</em> (overflow) denir ve Bölüm 4’te gerçek hayattaki sonuçlarını göreceğiz.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Sekiz bitlik bir kutu.</b> 255 = 11111111’e 1 ekleyince bütün bitler zincirleme taşar; dokuzuncu bit için yer olmadığından o taşma kaybolur ve sayaç 0’a döner. Buna <em>taşma</em> (overflow) denir ve Bölüm 5’te gerçek hayattaki sonuçlarını göreceğiz.</figcaption>
 </figure>
 
 <div class="tbl"><table>

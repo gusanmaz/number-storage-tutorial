@@ -165,11 +165,121 @@
   /* onaltılık rakam tablosu */
   $('#hexchart').innerHTML = Array.from({ length: 16 }, (_, v) => '<div class="hc"><b class="h">' + D[v] + '</b><span class="hc-l">' + pad(v.toString(2), 4).split('').map((b) => '<i class="' + (b === '1' ? 'on' : '') + '"></i>').join('') + '</span><small>' + v + '</small></div>').join('');
 
+  /* ---------- sayma matematiği: bütün desenler ---------- */
+  const D36 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const sup = (x) => '<sup>' + x + '</sup>';
+  let EB = 3, EN = 2;
+  function drawEnum() {
+    const total = EB ** EN, show = total <= 256 ? total : 64;
+    $('#enum-title').innerHTML = Array(EN).fill(EB).join(' × ') + ' = ' + EB + sup(EN) + ' = <b class="d">' + fmt(total) + '</b> ' + t({ tr: 'desen', en: 'patterns' });
+    let h = '';
+    for (let v = 0; v < show; v++) {
+      const s2 = pad(v.toString(EB), EN), lead = s2.match(/^0*/)[0].length;
+      h += '<span class="en-c' + (v === total - 1 ? ' max' : '') + '"><b><i>' + s2.slice(0, Math.min(lead, EN - 1)) + '</i>' + s2.slice(Math.min(lead, EN - 1)) + '</b><small>' + v + '</small></span>';
+    }
+    if (show < total) { const v = total - 1, s2 = pad(v.toString(EB), EN); h += '<span class="en-dots">… ' + fmt(total - show - 1) + ' ' + t({ tr: 'tane daha', en: 'more' }) + ' …</span><span class="en-c max"><b>' + s2 + '</b><small>' + fmt(v) + '</small></span>'; }
+    $('#enum').innerHTML = h;
+    const top = pad((total - 1).toString(EB), EN);
+    $('#enum-tell').innerHTML = t({ tr: 'En büyük: <b class="b">' + top + '</b>' + sub(EB) + ' = ' + EB + sup(EN) + ' − 1 = <b>' + fmt(total - 1) + '</b>. Bir eklersen: 1' + '0'.repeat(EN) + sub(EB) + ' = ' + fmt(total) + '.', en: 'Largest: <b class="b">' + top + '</b>' + sub(EB) + ' = ' + EB + sup(EN) + ' − 1 = <b>' + fmt(total - 1) + '</b>. Add one: 1' + '0'.repeat(EN) + sub(EB) + ' = ' + fmt(total) + '.' });
+  }
+  knob($('#k-eb'), { value: EB, min: 2, max: 10, px: 18, onChange: (v) => { EB = v; drawEnum(); } });
+  knob($('#k-en'), { value: EN, min: 1, max: 4, px: 24, onChange: (v) => { EN = v; drawEnum(); } });
+  drawEnum();
+
+  /* en büyük n bitlik sayı */
+  const bigGroup = (x) => group(x.toString(), 3, NS.LANG === 'en' ? ',' : '.');
+  const drawMax = (n) => { const m = 2n ** BigInt(n) - 1n; out(null, 'mn', n); out(null, 'mx', bigGroup(m)); out(null, 'mxb', n <= 24 ? '<span class="b">' + '1'.repeat(n) + '</span>' + sub(2) : t({ tr: n + ' tane 1', en: n + ' ones' })); };
+  knob($('#k-mn'), { value: 8, min: 1, max: 64, px: 8, onChange: drawMax });
+  drawMax(8);
+
+  /* kaç basamak? */
+  function drawDigits(N) {
+    const rows = [[2, 'b'], [8, 'b'], [10, 'd'], [16, 'h']].map(([b, cls]) => { const s2 = N.toString(b).toUpperCase(); return [b, cls, s2]; });
+    const mx = rows[0][2].length;
+    $('#digits').innerHTML = rows.map(([b, cls, s2]) => '<div class="dg-r"><span class="dg-b">' + t({ tr: 'taban ', en: 'base ' }) + b + '</span><span class="dg-bar"><i style="width:' + (100 * s2.length / mx) + '%"></i></span><span class="dg-n"><b>' + s2.length + '</b></span><span class="dg-s ' + cls + '">' + s2 + '</span></div>').join('') +
+      '<div class="dg-f">⌊log' + sub(2) + ' ' + fmt(N) + '⌋ + 1 = ⌊' + fmt(Math.log2(N), 2) + '⌋ + 1 = <b>' + (Math.floor(Math.log2(N)) + 1) + '</b> bit · ' + t({ tr: 'oran ', en: 'ratio ' }) + fmt(rows[0][2].length / rows[2][2].length, 2) + '</div>';
+  }
+  knob($('#k-dg'), { value: 1000, min: 1, max: 1000000, px: 0.5, fmt: (v) => fmt(v), onChange: drawDigits });
+  drawDigits(1000);
+
+  /* 2^n tahmini */
+  const SUPN = (x) => String(x).replace(/\d/g, (d) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+  const drawPw = (n) => { const ex = 2n ** BigInt(n), a = 2 ** (n % 10), k = Math.floor(n / 10); out(null, 'pw', '= ' + bigGroup(ex) + (k ? ' ≈ ' + a + ' × 10' + SUPN(3 * k) : '')); };
+  knob($('#k-pw'), { value: 37, min: 0, max: 64, px: 8, onChange: drawPw });
+  drawPw(37);
+  const P2 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20, 24, 30, 32, 40, 64];
+  const P2N = { 8: { tr: 'byte', en: 'byte' }, 10: 'Ki', 16: { tr: '2 byte', en: '2 bytes' }, 20: 'Mi', 24: { tr: 'renk', en: 'colors' }, 30: 'Gi', 32: 'IPv4', 40: 'Ti', 64: '64 bit' };
+  $('#pow2').innerHTML = P2.map((k) => '<span><i>2' + sup(k) + '</i><b>' + bigGroup(2n ** BigInt(k)) + '</b>' + (P2N[k] ? '<small>' + esc(t(P2N[k])) + '</small>' : '') + '</span>').join('');
+
+  /* Horner */
+  let HB = 2;
+  const hin = $('#hn-in');
+  const hnSteps = steps($('#hn-steps'), { count: 1, render: drawHn });
+  function hDigits() { const s2 = hin.value.trim().toUpperCase().replace(/[\s_]/g, ''); if (!s2) return null; const d = [...s2].map((c) => D36.indexOf(c)); return d.every((x) => x >= 0 && x < HB) ? d : null; }
+  function resetHn() { const d = hDigits(); hin.classList.toggle('bad', !d); hnSteps.reset(d ? d.length + 1 : 1); }
+  function drawHn(k) {
+    const d = hDigits();
+    if (!d) { $('#horner').innerHTML = ''; $('#hn-tell').innerHTML = '<span class="bad">' + t({ tr: 'Taban ' + HB + '’de geçerli rakamlar: 0–' + D36[HB - 1], en: 'Valid digits in base ' + HB + ': 0–' + D36[HB - 1] }) + '</span>'; return; }
+    let acc = 0n, h = '<div class="hn-digits">' + d.map((x, i) => '<span class="' + (i < k ? 'used' : '') + (i === k - 1 ? ' cur' : '') + '">' + D36[x] + '</span>').join('') + sub(HB) + '</div>';
+    for (let i = 0; i < k && i < d.length; i++) {
+      const prev = acc; acc = acc * BigInt(HB) + BigInt(d[i]);
+      h += '<div class="hn-r' + (i === k - 1 ? ' cur' : '') + '"><span class="mono">' + bigGroup(prev) + ' × ' + HB + ' + <b class="b">' + D36[d[i]] + (d[i] > 9 ? '(' + d[i] + ')' : '') + '</b></span><span>=</span><b class="mono">' + bigGroup(acc) + '</b></div>';
+    }
+    $('#horner').innerHTML = h;
+    $('#hn-tell').innerHTML = k === 0 ? t({ tr: 'Toplam 0 ile başla; soldan sağa her rakamda “× ' + HB + ' + rakam”.', en: 'Start with a total of 0; for each digit left to right do “× ' + HB + ' + digit”.' }) : k > d.length ? '' : k === d.length ? '<span class="good">' + t({ tr: 'Sonuç: ', en: 'Result: ' }) + bigGroup(acc) + '</span>' : '';
+  }
+  hin.addEventListener('input', resetHn);
+  knob($('#k-hb'), { value: HB, min: 2, max: 16, px: 14, onChange: (v) => { HB = v; resetHn(); } });
+  resetHn();
+
+  /* evrensel çevirici */
+  let CF = 16, CT = 2;
+  const log2i = (b) => { const k = Math.log2(b); return Number.isInteger(k) ? k : 0; };
+  function drawConv() {
+    const raw = $('#cv-in').value.trim().toUpperCase().replace(/[\s_]/g, ''), dg = [...raw].map((c) => D36.indexOf(c));
+    const ok = raw && dg.every((x) => x >= 0 && x < CF);
+    $('#cv-in').classList.toggle('bad', !ok);
+    if (!ok) { $('#conv').innerHTML = '<p class="tell bad">' + t({ tr: 'Taban ' + CF + '’de geçerli rakamlar: 0–' + D36[CF - 1], en: 'Valid digits in base ' + CF + ': 0–' + D36[CF - 1] }) + '</p>'; return; }
+    let v = 0n; dg.forEach((x) => { v = v * BigInt(CF) + BigInt(x); });
+    const res = v.toString(CT).toUpperCase(), a = log2i(CF), c = log2i(CT);
+    let route;
+    if (CF === CT) route = '<p class="tell">' + t({ tr: 'Aynı taban.', en: 'Same base.' }) + '</p>';
+    else if (a && c) {
+      const bin = v.toString(2), w = Math.ceil(bin.length / c) * c, pb = bin.padStart(w, '0');
+      const groups = []; for (let i = 0; i < w; i += c) groups.push(pb.slice(i, i + c));
+      route = (a > 1 ? '<div class="cv-step"><span class="cv-l">' + t({ tr: 'her rakamı ' + a + ' bite aç', en: 'expand each digit to ' + a + ' bits' }) + '</span><div class="cv-g">' + dg.map((x) => '<span><b>' + D36[x] + '</b><i>' + pad(x.toString(2), a) + '</i></span>').join('') + '</div></div>' : '') +
+        (c > 1 ? '<div class="cv-step"><span class="cv-l">' + t({ tr: 'sağdan ' + c + '’li grupla', en: 'regroup in ' + c + 's from the right' }) + '</span><div class="cv-g">' + groups.map((g) => '<span><i>' + g + '</i><b>' + D36[parseInt(g, 2)] + '</b></span>').join('') + '</div></div>' : '') +
+        '<p class="tell">' + t({ tr: 'İki taban da 2’nin kuvveti (2' + sup(a) + ' ve 2' + sup(c) + '): hiç çarpma ya da bölme gerekmedi.', en: 'Both bases are powers of 2 (2' + sup(a) + ' and 2' + sup(c) + '): no multiplication or division needed.' }) + '</p>';
+    } else {
+      const divs = []; let x = v; while (x > 0n && divs.length < 10) { divs.push(bigGroup(x) + ' ÷ ' + CT + ' → ' + t({ tr: 'kalan ', en: 'rem ' }) + D36[Number(x % BigInt(CT))]); x /= BigInt(CT); }
+      route = '<div class="cv-step"><span class="cv-l">1 · Horner → ' + t({ tr: 'onlu', en: 'decimal' }) + '</span><div class="mono">' + raw + sub(CF) + ' = <b class="d">' + bigGroup(v) + '</b></div></div>' +
+        (CT === 10 ? '' : '<div class="cv-step"><span class="cv-l">2 · ' + t({ tr: CT + '’ye tekrarlı bölme', en: 'repeated division by ' + CT }) + '</span><div class="cv-div">' + divs.map((d) => '<span>' + d + '</span>').join('') + (x > 0n ? '<span>…</span>' : '') + '</div></div>');
+    }
+    $('#conv').innerHTML = '<div class="cv-res"><b class="mono">' + raw + '</b>' + sub(CF) + ' = <b class="mono cv-out">' + res + '</b>' + sub(CT) + ' <span class="muted">(' + bigGroup(v) + sub(10) + ')</span></div>' + route;
+  }
+  $('#cv-in').addEventListener('input', drawConv);
+  knob($('#k-cf'), { value: CF, min: 2, max: 36, px: 8, onChange: (v) => { CF = v; drawConv(); } });
+  knob($('#k-ct'), { value: CT, min: 2, max: 36, px: 8, onChange: (v) => { CT = v; drawConv(); } });
+  drawConv();
+
+  /* alıştırma üreteçleri */
+  const { rand, pick } = NS;
+  function patQ() { const b = pick([2, 3, 4, 5, 8, 10, 16]), n = rand(2, b > 8 ? 3 : 5); return { q: t({ tr: 'Taban ' + b + '’de ' + n + ' basamakla kaç farklı sayı yazılabilir?', en: 'How many different numbers can ' + n + ' digits write in base ' + b + '?' }), a: String(b ** n), kind: 'dec', hint: 'bⁿ', explain: b + sup(n) + ' = <b>' + fmt(b ** n) + '</b>' }; }
+  function maxQ() { const b = pick([2, 3, 5, 8, 16]), n = rand(2, 4); return { q: t({ tr: 'Taban ' + b + '’de ' + n + ' basamaklı en büyük sayının onlu değeri?', en: 'Decimal value of the largest ' + n + '-digit number in base ' + b + '?' }), a: String(b ** n - 1), kind: 'dec', hint: 'bⁿ − 1', explain: D36[b - 1].repeat(n) + sub(b) + ' = ' + b + sup(n) + ' − 1 = <b>' + fmt(b ** n - 1) + '</b>' }; }
+  function digQ() { const b = pick([2, 8, 16]), N = rand(50, 70000); return { q: t({ tr: fmt(N) + ' sayısı taban ' + b + '’de kaç basamaktır?', en: 'How many digits does ' + fmt(N) + ' have in base ' + b + '?' }), a: String(N.toString(b).length), kind: 'dec', hint: t({ tr: b + 'ⁿ > N olan en küçük n.', en: 'The smallest n with ' + b + 'ⁿ > N.' }), explain: N.toString(b).toUpperCase() + sub(b) + ' → <b>' + N.toString(b).length + '</b>' }; }
+  function b4Q() { const v = rand(20, 255), to4 = Math.random() < 0.6; return to4 ? { q: '<span class="b">' + v.toString(2) + '</span>' + sub(2) + ' → ' + t({ tr: 'taban 4?', en: 'base 4?' }), a: v.toString(4), kind: 'dec', hint: t({ tr: 'Sağdan ikişerli grupla: 00=0, 01=1, 10=2, 11=3.', en: 'Group in twos from the right: 00=0, 01=1, 10=2, 11=3.' }), explain: '<b>' + v.toString(4) + '</b>' + sub(4) } : { q: '<span class="b">' + v.toString(8) + '</span>' + sub(8) + ' → hex?', a: v.toString(16).toUpperCase(), kind: 'hex', hint: t({ tr: 'Önce ikiliye aç (3’lü), sonra 4’lü grupla.', en: 'Expand to binary (3s), then regroup in 4s.' }), explain: v.toString(2) + sub(2) + ' → <b class="h">' + v.toString(16).toUpperCase() + '</b>' }; }
+  function pw2Q() { const n = pick([11, 12, 13, 14, 15, 16, 20, 24]); return { q: '2' + sup(n) + ' = ?', a: String(2 ** n), kind: 'dec', hint: '2¹⁰ = 1024', explain: '<b>' + fmt(2 ** n) + '</b>' }; }
+
   tryIt($('#try'), [
     { label: t({ tr: 'İkili → onlu', en: 'Binary → decimal' }), fn: GEN.binToDec },
     { label: t({ tr: 'Onlu → ikili', en: 'Decimal → binary' }), fn: GEN.decToBin },
     { label: t({ tr: 'Hex ↔ ikili', en: 'Hex ↔ binary' }), fn: () => (Math.random() < 0.5 ? GEN.hexToBin() : GEN.binToHex()) },
     { label: t({ tr: 'Hex → onlu', en: 'Hex → decimal' }), fn: GEN.hexToDec },
     { label: t({ tr: 'Sekizli', en: 'Octal' }), fn: () => (Math.random() < 0.5 ? GEN.octToDec() : GEN.binToOct()) },
+    { label: t({ tr: 'Desen sayısı', en: 'Pattern count' }), fn: patQ },
+    { label: t({ tr: 'En büyük sayı', en: 'Largest number' }), fn: maxQ },
+    { label: t({ tr: 'Basamak sayısı', en: 'Digit count' }), fn: digQ },
+    { label: t({ tr: 'Taban 4 / 8↔16', en: 'Base 4 / 8↔16' }), fn: b4Q },
+    { label: t({ tr: '2’nin kuvvetleri', en: 'Powers of 2' }), fn: pw2Q },
   ]);
 })();

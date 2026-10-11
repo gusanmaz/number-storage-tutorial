@@ -8,7 +8,7 @@
 <link rel="alternate" hreflang="tr" href="../bellek.html">
 <script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <script src="../assets/site.js" defer></script>
 <script src="../assets/gen.js" defer></script>
@@ -17,15 +17,15 @@
 <body data-chapter="memory">
 <main>
 <header class="opener">
-  <div class="kicker"><span class="bits"></span>Chapter 8</div>
+  <div class="kicker"><span class="bits"></span>Chapter 10</div>
   <h1>Memory: one long strip of bytes</h1>
   <p class="lede">So far we have looked at single numbers, letters and colors. They all live in the same place: one strip made of billions of numbered bytes. In this chapter we walk along that strip.</p>
-  <div class="meta"><span>Reading: ~40 min</span><span>Before: Chapters 3, 4 and 6</span></div>
+  <div class="meta"><span>Reading: ~40 min</span><span>Before: Chapters 3, 5 and 7</span></div>
 </header>
 
 <article class="prose">
 
-<h2><span class="sec">§ 8.1</span>Every byte has an address</h2>
+<h2><span class="sec">§ 10.1</span>Every byte has an address</h2>
 
 <p class="dropcap">Think of the computer’s main memory (RAM) as a very long street. Every house on the street holds exactly 8 bits, one byte, and every house has a door number: its <strong>address</strong>. The processor tells memory “give me the byte at this address” or “write this at that address”. It knows nothing else; concepts like variables, arrays and strings are all built on top of these two commands.</p>
 
@@ -39,7 +39,7 @@
 
 <p>Since addresses are written in bits too, how many bytes a processor can reach depends on the number of address bits. With <span id="k-ab"></span>-bit addresses you can reach at most <span class="out" data-o="addr"></span> of memory. That is why 32-bit computers could not use more than 4 GB of RAM. Today’s 64-bit processors use 48 bits in practice, which is 256 TiB.</p>
 
-<h2><span class="sec">§ 8.2</span>Bytes don’t know what they are</h2>
+<h2><span class="sec">§ 10.2</span>Bytes don’t know what they are</h2>
 
 <p>We are back to the main idea of Chapter 1: a bit pattern carries no meaning of its own. Eight bytes side by side in memory can be text, two integers, a floating-point number or an address. The program that reads them decides what we are looking at. Edit the bytes below (in hex) and look at different readings of the same 8 bytes.</p>
 
@@ -52,7 +52,7 @@
   <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>The same 8 bytes, many types.</b> Each row looks at the same memory through different glasses. Casts like <code>(float*)</code> in C, <code>DataView</code> in JavaScript and the <code>struct</code> module in Python do exactly this: they change the interpretation without touching the bytes.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 8.3</span>Byte order: endianness</h2>
+<h2><span class="sec">§ 10.3</span>Byte order: endianness</h2>
 
 <p>Numbers bigger than a byte spread across several addresses. The 32-bit number <span class="h">0x12345678</span> takes 4 bytes: <span class="h">12</span>, <span class="h">34</span>, <span class="h">56</span>, <span class="h">78</span>. Which one goes to the lowest address? There are two answers, and both are in use:</p>
 <ul>
@@ -92,7 +92,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 </pre>
 </div>
 
-<h2><span class="sec">§ 8.4</span>Variables, arrays, pointers</h2>
+<h2><span class="sec">§ 10.4</span>Variables, arrays, pointers</h2>
 
 <p>When you write <code>int age = 17;</code> in a program, the compiler reserves 4 bytes of memory and pairs the name “age” with that address. A variable name is a memorable nickname for an address. An <strong>array</strong> is elements of the same type laid out one after another in memory; the address of <code>arr[i]</code> is a simple calculation:</p>
 
@@ -123,7 +123,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <aside class="aside"><span class="t">Alignment</span>Processors read a 4-byte number faster from addresses that are multiples of 4. So compilers sometimes put empty bytes (padding) between variables. That is why the gray bytes after the <code>char</code> and after the array are empty in the figure.</aside>
 
-<h2><span class="sec">§ 8.5</span>Files are byte sequences too</h2>
+<h2><span class="sec">§ 10.5</span>Files are byte sequences too</h2>
 
 <p>A disk is a byte strip that is much slower than memory but permanent. A file is a sequence of bytes on that strip plus a name. The fact “this is a PNG image” is written inside the file, usually in the first few bytes. These bytes are called a <strong>magic number</strong> or file signature. Changing the file extension does not change the file type; the signature stays the same.</p>
 
@@ -154,7 +154,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <p class="key">Memory and disk alike are just numbered bytes. The <strong>address</strong> says where, the <strong>type</strong> says how to read it, and the <strong>byte order</strong> says how multi-byte values are laid out. Know those three and you can read any data byte by byte.</p>
 
-<h2><span class="sec">§ 8.6</span>Try it yourself</h2>
+<h2><span class="sec">§ 10.6</span>Try it yourself</h2>
 
 <div id="try"></div>
 

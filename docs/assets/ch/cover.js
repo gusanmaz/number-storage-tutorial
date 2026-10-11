@@ -18,7 +18,7 @@
   let touched = false;
   function hint() {
     if (touched) return; touched = true;
-    $('#board-hint').innerHTML = t({ tr: 'Gördün mü? Sadece bir bit değişti. Nedenini <a href="metin.html">Bölüm 6</a> anlatıyor.', en: 'See? Only one bit changed. <a href="text.html">Chapter 6</a> explains why.' });
+    $('#board-hint').innerHTML = t({ tr: 'Gördün mü? Sadece bir bit değişti. Nedenini <a href="metin.html">Bölüm 7</a> anlatıyor.', en: 'See? Only one bit changed. <a href="text.html">Chapter 7</a> explains why.' });
   }
   void rows;
   const read = store.get('zo-read', {});

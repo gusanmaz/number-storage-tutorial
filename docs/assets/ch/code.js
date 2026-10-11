@@ -1,4 +1,4 @@
-/* Bölüm 9 — Kodda bitler ve referanslar */
+/* Bölüm 11 — Kodda bitler ve referanslar */
 (function () {
   const { t, $, $$, el, esc, fmt, pad, toBase, group, lamps, steps, tryIt, rand, pick, LANG } = NS;
   const sub = (b) => '<span class="sub">' + b + '</span>';
@@ -34,7 +34,7 @@
     const r = parseLit($('#lit-in').value), o = $('#lit-out');
     $('#lit-in').classList.toggle('bad', !!r.err);
     if (r.err) { o.innerHTML = '<p class="tell bad">' + esc(r.err) + '</p>'; return; }
-    if (r.f != null) { o.innerHTML = '<p class="tell">' + t({ tr: 'Bu bir kesirli sayı (float): ', en: 'This is a floating-point number: ' }) + '<b class="mono">' + esc(String(r.f)) + '</b>. ' + t({ tr: 'Nasıl saklandığını Bölüm 5’te gördük.', en: 'Chapter 5 showed how it is stored.' }) + '</p>'; return; }
+    if (r.f != null) { o.innerHTML = '<p class="tell">' + t({ tr: 'Bu bir kesirli sayı (float): ', en: 'This is a floating-point number: ' }) + '<b class="mono">' + esc(String(r.f)) + '</b>. ' + t({ tr: 'Nasıl saklandığını Bölüm 6’da gördük.', en: 'Chapter 6 showed how it is stored.' }) + '</p>'; return; }
     const v = r.v, neg = v < 0n, a = neg ? -v : v, sg = neg ? '-' : '';
     const b2 = a.toString(2), b8 = a.toString(8), b16 = a.toString(16).toUpperCase(), big = a > 9007199254740991n;
     const row = (lbl, cls, val, py, js) => '<div class="lit-r"><span class="lit-l">' + lbl + '</span><b class="' + cls + '">' + val + '</b><code>' + esc(py) + '</code><code>' + esc(js) + '</code></div>';

@@ -192,7 +192,7 @@
     const v = L8.value(), bits = L8.get(), o = $('#lens-out');
     if (lens === 'num') o.innerHTML = '<div class="big d">' + v + '</div><div class="muted">' + (bits.map((b, i) => (b ? 2 ** (7 - i) : null)).filter(Boolean).join(' + ') || '0') + '</div>';
     if (lens === 'chr') o.innerHTML = v >= 32 && v < 127 ? '<div class="lens-chr">' + esc(String.fromCharCode(v)) + '</div><div class="muted">' + esc(t({ tr: 'ASCII tablosunda ' + v + ' numaralı karakter', en: 'character number ' + v + ' in the ASCII table' })) + '</div>'
-      : v < 32 || v === 127 ? '<div class="lens-chr small">' + (CTRL[v] || 'DEL') + '</div><div class="muted">' + esc(t({ tr: 'Görünmez bir kontrol karakteri (Bölüm 6’da)', en: 'An invisible control character (chapter 6)' })) + '</div>'
+      : v < 32 || v === 127 ? '<div class="lens-chr small">' + (CTRL[v] || 'DEL') + '</div><div class="muted">' + esc(t({ tr: 'Görünmez bir kontrol karakteri (Bölüm 7’de)', en: 'An invisible control character (chapter 7)' })) + '</div>'
       : '<div class="lens-chr small">?</div><div class="muted">' + esc(t({ tr: 'ASCII 7 bittir (0–127). Bu desen ASCII’de yok; başka bir anlaşma gerekir.', en: 'ASCII is 7 bits (0–127). This pattern isn’t in ASCII; another agreement is needed.' })) + '</div>';
     if (lens === 'gray') o.innerHTML = '<div class="lens-sw" style="background:rgb(' + v + ',' + v + ',' + v + ')"></div><div class="muted">' + esc(t({ tr: '0 = siyah, 255 = beyaz. Bu desen: ', en: '0 = black, 255 = white. This pattern: ' })) + '<span class="h">#' + (pad(toBase(v, 16), 2)).repeat(3) + '</span></div>';
     if (lens === 'note') {
