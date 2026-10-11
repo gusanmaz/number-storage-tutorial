@@ -75,6 +75,46 @@
     <p><b>−x</b> = flip the bits, <b>+1</b>. The leftmost bit is worth −2<sup>n−1</sup>. Overflow wraps around.</p>
   </section>
   <section class="sc-card">
+    <h3>Binary arithmetic</h3>
+    <ul>
+      <li>0+0=0 · 0+1=1 · 1+1=10 (carry) · 1+1+1=11</li>
+      <li>Sum bit = a⊕b⊕c, carry = majority</li>
+      <li>Unsigned result = (a+b) mod 2<sup>n</sup>; the overflowing bit → C flag</li>
+      <li>a − b = a + ~b + 1 · multiply = shift + add · divide = shift + subtract</li>
+      <li><code>x &lt;&lt; k</code> = x·2<sup>k</sup> · <code>x % 2<sup>k</sup></code> = <code>x &amp; (2<sup>k</sup>−1)</code></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Four representations</h3>
+    <ul>
+      <li>Sign-magnitude: sign bit + size, two zeros</li>
+      <li>One’s complement: −x = ~x, end-around carry, two zeros</li>
+      <li>Two’s complement: −x = ~x + 1 = 2<sup>n</sup> − x, one zero</li>
+      <li>Excess-K: value = pattern − K (float exponent: K = 127)</li>
+      <li>Sign extension: fill the top bits with the sign bit · V = c<sub>7</sub>⊕c<sub>8</sub></li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Lesser-known formats</h3>
+    <ul>
+      <li>BCD: each decimal digit in 4 bits · Gray: <code>n ^ (n&gt;&gt;1)</code></li>
+      <li>Parity: make the 1s even · Hamming(7,4): fixes 1 error</li>
+      <li>Varint: 7-bit pieces, top bit = continue · zigzag for negatives</li>
+      <li>Base64: 3 bytes → 4 characters (+33%)</li>
+      <li>float16 1/5/10 · bfloat16 1/8/7 · RGB565 5/6/5</li>
+    </ul>
+  </section>
+  <section class="sc-card">
+    <h3>Alignment</h3>
+    <ul>
+      <li>A bit has no address: byte = k&gt;&gt;3, bit = k&amp;7, mask = 1&lt;&lt;bit</li>
+      <li>An n-byte value at a multiple of n: <code>(a &amp; (n−1)) == 0</code></li>
+      <li>Align up: <code>(a + n − 1) &amp; ~(n − 1)</code></li>
+      <li>struct: order fields largest first, less padding</li>
+      <li>4 KiB page: last 12 bits offset · 64 B cache line: last 6 bits</li>
+    </ul>
+  </section>
+  <section class="sc-card">
     <h3>Floating point (IEEE 754)</h3>
     <p class="mono" style="font-size:13px">(−1)<sup>s</sup> × 1.m × 2<sup>e − bias</sup></p>
     <ul>

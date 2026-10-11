@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Az bilinen formatlar · Sıfırlar ve Birler</title>
+<meta name="description" content="BCD ve 7 segment gösterge, Gray kodu, parite ve Hamming hata düzeltme, sağlama toplamı ve CRC, varint ve zigzag, Base64, Baudot ve EBCDIC, float16 ve bfloat16, RGB565, zaman damgaları. Etkileşimli anlatım.">
+<link rel="alternate" hreflang="en" href="en/formats.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js" defer></script>
+<script src="assets/gen.js" defer></script>
+<script src="assets/ch/formats.js" defer></script>
+</head>
+<body data-chapter="formats">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Bölüm 9</div>
+  <h1>Az bilinen formatlar</h1>
+  <p class="lede">İkili tamsayı, ASCII, Unicode ve IEEE 754 en ünlü anlaşmalar. Ama bilgisayarların içi, belirli bir derdi çözmek için icat edilmiş daha tuhaf ve zekice kodlamalarla dolu: hata düzelten kodlar, yer kazandıran tamsayılar, mekanik sensörler için sayma düzenleri, metne çevrilmiş byte’lar.</p>
+  <div class="meta"><span>Okuma: ~55 dk</span><span>Önce: Bölüm 2–7</span></div>
+</header>
+
+<article class="prose">
+
+<p class="dropcap">Bir veri formatı tasarlamak her zaman bir şeyi bir şeyle takas etmektir. Sıradan ikili sayı en az yeri kaplar, ama insanlar için okunması zordur. Yer kazanmak isteyen hız kaybeder, hataya dayanıklı olmak isteyen fazladan bit harcar. Bu bölümdeki her format, bu takasta farklı bir noktayı seçmiş ve bugün hâlâ bir yerde, belki tam şu an cebinde çalışıyor.</p>
+
+<h2><span class="sec">§ 9.1</span>BCD: onlu basamakları ayrı ayrı saklamak</h2>
+
+<p><strong>İkili kodlanmış onlu</strong> (BCD, binary-coded decimal) sayıyı bütün olarak değil, her onlu basamağını ayrı ayrı 4 bitle saklar. 59 sayısı ikilide <span class="b">111011</span>’dir; BCD’de ise 5 = <span class="b">0101</span> ve 9 = <span class="b">1001</span> yan yana yazılır: <span class="b">0101 1001</span>. Hex gibi görünür ama değildir: 4 bitlik 16 desenin yalnızca 10’u kullanılır, A–F desenleri yasaktır.</p>
+
+<figure class="fig" id="f-bcd">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-bcd"></span></div>
+    <div class="seg7row" id="bcd"></div>
+    <div class="tell" id="bcd-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 1</span><b>BCD ve 7 segmentli gösterge.</b> Her basamak 4 bitlik bir BCD rakamına, o da 7 segmentli göstergenin hangi çubuklarının yanacağını söyleyen 7 bitlik bir desene dönüşür (a–g). Bu son adım da bir kodlamadır: aynı bilgi, bir ekran için farklı bir anlaşma.</figcaption>
+</figure>
+
+<p>Neden yer israfına katlanılır? Çünkü onlu dünya ile konuşmak kolaylaşır. Hesap makineleri, dijital saatler ve bilgisayarlardaki gerçek zaman saati çipleri (RTC) sayıları BCD saklar; her basamak doğrudan bir göstergeye gider, bölme gerekmez. Bankacılıkta kullanılan COBOL’un “packed decimal” türü de BCD’dir: 0,1 gibi onlu kesirler tam olarak saklanır ve Bölüm 6’daki yuvarlama sürprizleri yaşanmaz.</p>
+
+<aside class="aside"><span class="t">BCD toplamada “+6 düzeltmesi”</span>İki BCD rakamını ikili toplarsan sonuç 9’u geçtiğinde yasak bir desene düşer: 5 + 8 = <span class="b">1101</span> (13, ama BCD’de geçersiz). Düzeltme için 6 eklenir: <span class="b">1101</span> + <span class="b">0110</span> = <span class="b">1 0011</span> → elde 1, rakam 3, yani 13. Neden 6? Çünkü 4 bitlik kutuda kullanılmayan desen sayısı 16 − 10 = 6’dır. Eski Intel işlemcilerde bunun için özel bir komut vardı: DAA (decimal adjust after addition).</aside>
+
+<h2><span class="sec">§ 9.2</span>Gray kodu: her adımda tek bit</h2>
+
+<p>Sıradan ikili saymada bazı adımlar birden çok biti aynı anda değiştirir: 7’den 8’e geçerken <span class="b">0111</span> → <span class="b">1000</span>, dört bitin dördü de değişir. Bitleri okuyan bir sensör hepsini tam aynı anda göremezse, geçiş anında 15 ya da 0 gibi tamamen yanlış değerler okuyabilir. Frank Gray’in 1947’de patent başvurusu yaptığı <strong>yansıtılmış ikili kod</strong>da ise ardışık her iki sayı <em>tek bir bitte</em> farklıdır.</p>
+
+<figure class="fig" id="f-gray">
+  <div class="fig-in">
+    <div class="gray-top">
+      <div><div class="fa-h">ikili</div><div id="gr-bin"></div></div>
+      <div><div class="fa-h">Gray</div><div id="gr-gray"></div></div>
+    </div>
+    <div class="ctl" id="gr-ctl"></div>
+    <div class="tell" id="gr-tell"></div>
+    <div class="tbl gray-t" id="gr-tbl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 2</span><b>İkili ve Gray kodu yan yana.</b> İleri ve geri git; ikili sayaçta değişen bit sayısı 1 ile 4 arasında oynarken Gray kodunda her zaman 1’dir. “Ara okumalar”, bitler aynı anda değişmezse sensörün görebileceği yanlış değerlerdir.</figcaption>
+</figure>
+
+<p>Dönüşüm formülü bit işlemleriyle tek satırdır: <code>gray = n ^ (n &gt;&gt; 1)</code>. Gray kodu bugün döner kodlayıcılarda (encoder: bir motorun ya da ses düğmesinin açısını okuyan diskler), Karnaugh haritalarında ve saat alanları arasında sayaç aktaran donanım devrelerinde kullanılır. Adındaki “yansıtılmış” sözcüğü, listenin ikinci yarısının ilk yarının ayna görüntüsü olmasından gelir.</p>
+
+<h2><span class="sec">§ 9.3</span>Parite ve Hamming: hatayı bulmak ve düzeltmek</h2>
+
+<p>Bölüm 1’de gürültünün bitleri bozabileceğini gördük. Kozmik ışınlar bile bellekteki bir biti çevirebilir. Hatayı <strong>bulmanın</strong> en basit yolu bir <strong>parite biti</strong> eklemektir: 1’lerin sayısını çift yapacak şekilde fazladan bir bit. Alıcı 1’leri sayar; sayı tekse bir bit bozulmuştur. Ama hangisi? Parite bunu söyleyemez, iki bit bozulursa da fark etmez.</p>
+
+<p>Richard Hamming 1950’de daha zekice bir şey buldu: 4 veri bitine 3 parite biti ekleyip her pariteyi bitlerin farklı bir alt kümesine bakacak şekilde yerleştirdi. Hangi pariteler tutmuyorsa, onların konumları toplamı bozuk bitin <em>adresini</em> verir. Aşağıda veri bitlerini seç, sonra “gürültü” olarak herhangi bir bite dokunup çevir:</p>
+
+<figure class="fig" id="f-ham">
+  <div class="fig-in">
+    <div class="ham-row"><span class="fa-h">veri</span><div id="ham-data"></div></div>
+    <div class="ham-row"><span class="fa-h">gönderilen</span><div id="ham-sent"></div></div>
+    <div class="ham-row"><span class="fa-h">alınan (dokun: boz)</span><div id="ham-recv"></div></div>
+    <div class="ham-chk" id="ham-chk"></div>
+    <div class="tell" id="ham-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 3</span><b>Hamming(7,4).</b> Konum 1, 2 ve 4 parite bitleridir; p1 konumu ikilide son biti 1 olanları (1, 3, 5, 7), p2 ikinci biti 1 olanları (2, 3, 6, 7), p4 üçüncü biti 1 olanları (4, 5, 6, 7) kontrol eder. Tutmayan paritelerin konumları toplanınca bozuk bitin konumu çıkar. İki bit bozarsan kod yanlış bite “düzeltir”; bu kod tek hata düzeltir.</figcaption>
+</figure>
+
+<p>Sunuculardaki <strong>ECC bellek</strong> tam olarak bu fikri kullanır: her 64 bitlik word’e 8 kontrol biti eklenir ve tek bitlik hatalar okuma sırasında sessizce düzeltilir. QR kodları, CD’ler, DVD’ler ve uzay sondaları ise daha güçlü bir aile olan Reed–Solomon kodlarını kullanır; bu yüzden çizik bir CD hâlâ çalar ve köşesi yırtık bir QR kod hâlâ okunur.</p>
+
+<h2><span class="sec">§ 9.4</span>Sağlama toplamı ve CRC</h2>
+
+<p>Bazen düzeltmek gerekmez, bir şeyin bozulduğunu fark etmek yeter; sonra yeniden istenir. Bunun için verinin özetini çıkaran küçük bir sayı eklenir. En basiti bütün byte’ları toplamak (256’ya göre kalan). İnternet paketleri (IP, TCP, UDP) 16 bitlik 1’e tümleyen toplam kullanır (Bölüm 5). Ethernet, ZIP ve PNG ise <strong>CRC-32</strong> kullanır: veriyi dev bir ikili sayı gibi görüp sabit bir polinoma (ikili bir bölene) böler ve kalanı saklar. Toplama, iki byte’ın yer değiştirmesini fark etmez; CRC eder.</p>
+
+<figure class="fig" id="f-ck">
+  <div class="fig-in">
+    <div class="center"><input id="ck-in" class="inp" value="Merhaba dünya" spellcheck="false" style="width:min(22rem,100%);text-align:center" aria-label="metin"></div>
+    <div class="chips" id="ck-pre" style="margin-top:.7rem"></div>
+    <div id="ck"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 4</span><b>Üç özet.</b> Tek bir harfi değiştir ve üç özetin nasıl değiştiğine bak. “ab” ile “ba”yı dene: basit toplam aynı kalır, CRC-32 tamamen değişir. Bu algoritmalar kazara bozulmayı yakalar; kasıtlı değişikliğe karşı koruma için SHA-256 gibi kriptografik özetler gerekir.</figcaption>
+</figure>
+
+<aside class="aside hist"><span class="t">Cebindeki sağlama basamakları</span>Kredi kartı numaralarının son hanesi Luhn algoritmasıyla hesaplanan bir kontrol basamağıdır; bir rakamı yanlış yazarsan site daha göndermeden fark eder. T.C. kimlik numarasının son iki hanesi de ilk dokuz haneden hesaplanır. ISBN kitap numaraları ve IBAN’lar da aynı fikri kullanır.</aside>
+
+<h2><span class="sec">§ 9.5</span>Varint: küçük sayılara küçük yer</h2>
+
+<p>Bir sayıyı her zaman 4 ya da 8 byte’ta saklamak, sayıların çoğu küçükse israftır. <strong>Değişken uzunluklu tamsayı</strong> (varint, ya da LEB128) sayıyı 7 bitlik parçalara böler ve her parçayı bir byte’a koyar. Her byte’ın en soldaki biti bir <strong>devam bayrağıdır</strong>: 1 ise “arkamdan byte gelecek”, 0 ise “son byte benim”. Bu sayede 0–127 arası sayılar tek byte tutar. UTF-8’deki fikre çok benziyor, değil mi? Google’ın Protocol Buffers formatı, WebAssembly ve MIDI dosyaları varint kullanır.</p>
+
+<figure class="fig" id="f-vi">
+  <div class="fig-in">
+    <div class="center" style="gap:.6rem"><input id="vi-in" class="inp" value="300" spellcheck="false" style="width:12rem;text-align:center" aria-label="sayı"><span id="vi-mode"></span></div>
+    <div id="vi"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 5</span><b>Varint kodlayıcı.</b> Sayı ikiliye çevrilir, sağdan 7’li gruplara bölünür ve gruplar <em>küçük uç önce</em> sırayla byte’lara yazılır. Negatif sayılar için önce <strong>zigzag</strong> uygulanır: 0, −1, 1, −2, 2… sırasıyla 0, 1, 2, 3, 4… olur; böylece küçük negatif sayılar da az yer tutar.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.6</span>Base64: byte’ları metne çevirmek</h2>
+
+<p>E-posta ve URL gibi bazı kanallar yalnızca güvenli metin karakterlerini taşır; bir resmin ham byte’ları oradan geçemez. <strong>Base64</strong> çözümü: byte’ları art arda dizip 6 bitlik gruplara böl. 2<sup>6</sup> = 64 desen var; her birine bir karakter ver: A–Z, a–z, 0–9, + ve /. 3 byte (24 bit) tam olarak 4 karaktere dönüşür. Sonda eksik kalırsa <code>=</code> ile doldurulur.</p>
+
+<figure class="fig" id="f-b64">
+  <div class="fig-in">
+    <div class="center"><input id="b64-in" class="inp" value="Kedi" spellcheck="false" style="width:min(20rem,100%);text-align:center" aria-label="metin"></div>
+    <div id="b64"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 6</span><b>8 bitten 6 bite.</b> Üst satırda byte’lar, altta aynı bitlerin 6’lı gruplar hâli. Renkler hangi bitin hangi byte’tan geldiğini gösteriyor. Base64 veriyi %33 büyütür (3 byte → 4 karakter); hex ise %100 (1 byte → 2 karakter).</figcaption>
+</figure>
+
+<p>Base64’ü her gün kullanıyorsun: e-posta ekleri, web sayfalarına gömülü küçük resimler (<code>data:image/png;base64,…</code>), JSON içinde taşınan dosyalar ve oturum açma belirteçleri (JWT) Base64 ile yazılır. Dikkat: Base64 bir şifreleme değildir; herkes geri çevirebilir.</p>
+
+<h2><span class="sec">§ 9.7</span>ASCII’den önce ve yanında: Baudot, EBCDIC, Mors</h2>
+
+<p>ASCII tek karakter kodu değildi. 1870’lerde Émile Baudot’nun telgrafı için tasarlanan ve 1930’larda ITA2 olarak standartlaşan kod yalnızca <strong>5 bit</strong> kullanıyordu: 32 desen. Harflerle rakamları sığdırmak için iki özel “kaydırma” karakteri vardı (LTRS ve FIGS); aynı desen, son kaydırmaya göre harf ya da rakamdı. Klavyedeki Shift fikrinin atası. IBM’in 1964’te ana bilgisayarları için çıkardığı <strong>EBCDIC</strong> ise 8 bitti ve delikli kartlardan miras kalan tuhaf bir düzeni vardı: harfler bile ardışık değildi. Bankaların ana bilgisayarlarında hâlâ yaşıyor.</p>
+
+<figure class="fig" id="f-old">
+  <div class="fig-in">
+    <div class="center"><input id="old-in" class="inp" value="HELLO 42" spellcheck="false" style="width:min(18rem,100%);text-align:center;text-transform:uppercase" aria-label="metin"></div>
+    <div class="tbl old-t" id="old"></div>
+    <div class="tell" id="old-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 7</span><b>Aynı harfler, dört kod.</b> ASCII’de A–Z ardışıktır (41–5A); EBCDIC’te üç parçaya bölünür (C1–C9, D1–D9, E2–E9). Baudot 5 bitle yetinir ama rakamlara geçerken FIGS karakterine ihtiyaç duyar. Mors ise <em>değişken uzunluklu</em> bir koddur: sık kullanılan E tek bir nokta, nadir Q dört semboldür.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.8</span>Küçük kayan noktalılar: float16, bfloat16, FP8</h2>
+
+<p>Bölüm 6’da 32 ve 64 bitlik float’ları gördük. Grafik kartları ve yapay zekâ ise milyarlarca sayıyla çalışır; her sayıdan birkaç byte kazanmak, belleği ve hızı katlar. Bu yüzden daha küçük formatlar doğdu:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Format</th><th>Bit</th><th>İşaret / üs / mantis</th><th>En büyük</th><th>Nerede</th></tr></thead>
+  <tbody>
+    <tr><td>float32</td><td class="m">32</td><td class="m">1 / 8 / 23</td><td class="m">3,4 × 10³⁸</td><td>her yerde</td></tr>
+    <tr><td>float16 (half)</td><td class="m">16</td><td class="m">1 / 5 / 10</td><td class="m">65 504</td><td>grafik, oyunlar, görüntü dosyaları</td></tr>
+    <tr><td>bfloat16</td><td class="m">16</td><td class="m">1 / 8 / 7</td><td class="m">3,4 × 10³⁸</td><td>Google TPU, yapay zekâ eğitimi</td></tr>
+    <tr><td>FP8 E5M2</td><td class="m">8</td><td class="m">1 / 5 / 2</td><td class="m">57 344</td><td>yapay zekâ (gradyanlar)</td></tr>
+    <tr><td>FP8 E4M3</td><td class="m">8</td><td class="m">1 / 4 / 3</td><td class="m">448</td><td>yapay zekâ (ağırlıklar)</td></tr>
+  </tbody>
+</table></div>
+
+<p>bfloat16’nın hilesi şu: float32’nin üst 16 bitini aynen alır. Üs alanı aynı kaldığı için aralık aynıdır, sadece hassasiyet düşer (yaklaşık 2–3 onlu basamak). float16 ise tersini seçer: daha hassas ama 65 504’ten büyük sayılar taşar. Bir sayı yaz ve her formatta neye dönüştüğüne bak:</p>
+
+<figure class="fig" id="f-sf">
+  <div class="fig-in">
+    <div class="center"><input id="sf-in" class="inp" value="3.14159" spellcheck="false" style="width:12rem;text-align:center" aria-label="sayı"></div>
+    <div class="chips" id="sf-pre" style="margin-top:.7rem"></div>
+    <div class="tbl sf-t" id="sf"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 8</span><b>Bir sayı, beş format.</b> Her satır, sayının o formatta saklanabilen en yakın değerini, bit düzenini ve bağıl hatayı gösterir. 100 000 dene: float16 taşar, bfloat16 taşmaz ama kaba yuvarlar. 0,0001 dene: E4M3’ün alt-normal sayılarına düşer.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.9</span>16 bitlik renk: RGB565</h2>
+
+<p>Bölüm 8’de bir rengin 24 bit olduğunu gördük. Eski telefonlar, oyun konsolları ve bugün hâlâ küçük mikrodenetleyici ekranları renk başına <strong>16 bit</strong> kullanır: 5 bit kırmızı, 6 bit yeşil, 5 bit mavi. Yeşile neden fazladan bit? Çünkü göz yeşildeki ince farklara en duyarlıdır.</p>
+
+<figure class="fig" id="f-565">
+  <div class="fig-in">
+    <div class="center" style="gap:.7rem"><input type="color" id="c565-in" value="#3a8fd6" aria-label="renk"> <span class="mono" id="c565-hex"></span></div>
+    <div id="c565"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 9</span><b>24 bitten 16 bite.</b> Her kanal daha az bite sıkıştırılınca bazı renkler aynı desene düşer: 65 536 renk kalır. Sağdaki kare, 16 bitlik desenden geri açılan renk. Çoğu zaman fark zor görülür; yumuşak geçişlerde bantlanma olarak ortaya çıkar.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.10</span>Zamanı saklamanın yolları</h2>
+
+<p>Zaman da bir sayıdır, ama hangi sayı? Her sistem farklı bir başlangıç anı (epoch) ve birim seçmiş. Aynı an, aşağıda canlı olarak beş farklı biçimde:</p>
+
+<figure class="fig narrow" id="f-tm">
+  <div class="fig-in">
+    <div class="tbl tm-t" id="tm"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Şekil 10</span><b>Aynı an, beş sayı.</b> Unix ve JavaScript aynı başlangıcı (1 Ocak 1970 UTC) farklı birimlerle sayar. Windows 1601’den beri 100 nanosaniyeleri sayar (64 bit gerekir). Excel günleri sayar ve tarihin kesirli kısmı saati verir; 1900’ü yanlışlıkla artık yıl kabul ettiği için Lotus 1-2-3’ten miras bir hata da taşır.</figcaption>
+</figure>
+
+<p class="key">Her formatın arkasında bir soru var: <strong>neyi ucuzlatmak istiyoruz?</strong> BCD insanla konuşmayı, Gray kodu mekanik okumayı, Hamming hatayı, varint yeri, Base64 taşımayı, küçük float’lar yapay zekâyı. Bitler aynı; değişen, üzerinde anlaştığımız kural.</p>
+
+<h2><span class="sec">§ 9.11</span>Kendini dene</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="1">
+    <p>Onlu 47’nin BCD gösterimi?</p>
+    <ul><li>0010 1111</li><li>0100 0111</li><li>0101 0111</li><li>0100 1111</li></ul>
+    <div class="quiz-why">4 = 0100, 7 = 0111; yan yana. (00101111 ise 47’nin ikili hâli.)</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>Gray kodunun temel özelliği?</p>
+    <ul><li>Daha az bit kullanır</li><li>Negatif sayıları gösterir</li><li>Hataları düzeltir</li><li>Ardışık sayılar tek bitte farklıdır</li></ul>
+    <div class="quiz-why">Bu yüzden mekanik sensörler geçiş anında yanlış değer okumaz.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>Çift parite kullanan bir sistemde <span class="b">1011 0011</span> alındı. Sonuç?</p>
+    <ul><li>Bir hata var</li><li>Hata yok</li><li>Bozuk bit 3. bittir</li><li>Kesinlikle iki bit bozuk</li></ul>
+    <div class="quiz-why">Beş tane 1 var: tek sayı, oysa çift olmalıydı. Parite hatayı fark eder ama hangi bitte olduğunu söyleyemez.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>10 byte’lık veri Base64 ile kaç karakter olur?</p>
+    <ul><li>10</li><li>14</li><li>16</li><li>20</li></ul>
+    <div class="quiz-why">⌈10/3⌉ = 4 grup × 4 karakter = 16 (son grupta == dolgusu var).</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>bfloat16 neden yapay zekâda popüler?</p>
+    <ul><li>float16’dan daha hassas olduğu için</li><li>float32 ile aynı aralığı yarı boyutta sunduğu için</li><li>Tamsayı olduğu için</li><li>Hata düzelttiği için</li></ul>
+    <div class="quiz-why">8 bitlik üs alanını float32’den aynen alır; taşma riski olmadan yarı bellek.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>

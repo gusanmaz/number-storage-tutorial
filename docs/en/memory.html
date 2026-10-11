@@ -20,7 +20,7 @@
   <div class="kicker"><span class="bits"></span>Chapter 10</div>
   <h1>Memory: one long strip of bytes</h1>
   <p class="lede">So far we have looked at single numbers, letters and colors. They all live in the same place: one strip made of billions of numbered bytes. In this chapter we walk along that strip.</p>
-  <div class="meta"><span>Reading: ~40 min</span><span>Before: Chapters 3, 5 and 7</span></div>
+  <div class="meta"><span>Reading: ~60 min</span><span>Before: Chapters 3, 5 and 7</span></div>
 </header>
 
 <article class="prose">
@@ -39,7 +39,26 @@
 
 <p>Since addresses are written in bits too, how many bytes a processor can reach depends on the number of address bits. With <span id="k-ab"></span>-bit addresses you can reach at most <span class="out" data-o="addr"></span> of memory. That is why 32-bit computers could not use more than 4 GB of RAM. Today’s 64-bit processors use 48 bits in practice, which is 256 TiB.</p>
 
-<h2><span class="sec">§ 10.2</span>Bytes don’t know what they are</h2>
+<h2><span class="sec">§ 10.2</span>A bit has no address</h2>
+
+<p>The smallest addressable unit of memory is the <strong>byte</strong>. A single bit has no address of its own; you cannot tell the processor “give me bit 5 of the byte at 0x41”. Why? Giving every bit an address would mean 8 times as many addresses, 3 more bits per address; and memory is not even read byte by byte but in 64-byte blocks (§ 10.8). Languages follow suit: in C, Java or Python a <code>bool</code> variable usually takes a whole byte; 7 bits are wasted.</p>
+
+<p>So how do we read or change a single bit? With <strong>bitwise operations</strong>, which Chapter 11 covers in detail: first find the byte the bit lives in (<code>k &gt;&gt; 3</code>, i.e. divide by 8), then its position within that byte (<code>k &amp; 7</code>, the remainder mod 8). Build a <strong>mask</strong> with a single 1 at that position (<code>1 &lt;&lt; position</code>). Then <em>read, modify, write back</em> the byte:</p>
+
+<figure class="fig" id="f-bm">
+  <div class="fig-in">
+    <div class="fig-title">bit <span id="k-bit"></span></div>
+    <div id="bm"></div>
+    <div class="ctl" id="bm-ctl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>A bit array.</b> 8 bytes = 64 bits. Tap a bit or change the number, then try the operations. Each operation reads the whole byte, changes a single bit with the mask, and writes the byte back. This pattern is called <em>read-modify-write</em>.</figcaption>
+</figure>
+
+<p>With this technique 8 true/false values fit in one byte. This is called a <strong>bitset</strong> (or bitmap): the tables file systems use to track which disk blocks are in use, database indexes, Bloom filters and the “bitboards” chess engines use to keep a whole board in a single 64-bit number all work this way. In C you can also write <em>bit fields</em> inside a struct, like <code>unsigned flag : 1;</code>; the compiler generates the masking code for you.</p>
+
+<aside class="aside"><span class="t">A little-known exception: bit-banding</span>On ARM Cortex-M microcontrollers every bit in one memory region is “mirrored” to a separate 4-byte address in another region. Writing 1 to that address sets a single bit. That way a single bit in a hardware register can be changed without read-modify-write and without other code sneaking in between. Since a bit has no real address, engineers invented a fake one for it.</aside>
+
+<h2><span class="sec">§ 10.3</span>Bytes don’t know what they are</h2>
 
 <p>We are back to the main idea of Chapter 1: a bit pattern carries no meaning of its own. Eight bytes side by side in memory can be text, two integers, a floating-point number or an address. The program that reads them decides what we are looking at. Edit the bytes below (in hex) and look at different readings of the same 8 bytes.</p>
 
@@ -49,10 +68,10 @@
     <div class="chips" id="lens-pre" style="margin-top:.8rem"></div>
     <div class="tbl lens-t" id="lens-out"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>The same 8 bytes, many types.</b> Each row looks at the same memory through different glasses. Casts like <code>(float*)</code> in C, <code>DataView</code> in JavaScript and the <code>struct</code> module in Python do exactly this: they change the interpretation without touching the bytes.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>The same 8 bytes, many types.</b> Each row looks at the same memory through different glasses. Casts like <code>(float*)</code> in C, <code>DataView</code> in JavaScript and the <code>struct</code> module in Python do exactly this: they change the interpretation without touching the bytes.</figcaption>
 </figure>
 
-<h2><span class="sec">§ 10.3</span>Byte order: endianness</h2>
+<h2><span class="sec">§ 10.4</span>Byte order: endianness</h2>
 
 <p>Numbers bigger than a byte spread across several addresses. The 32-bit number <span class="h">0x12345678</span> takes 4 bytes: <span class="h">12</span>, <span class="h">34</span>, <span class="h">56</span>, <span class="h">78</span>. Which one goes to the lowest address? There are two answers, and both are in use:</p>
 <ul>
@@ -65,7 +84,7 @@
     <div class="center"><span class="muted">0x</span><input id="end-in" class="inp" value="12345678" maxlength="8" spellcheck="false" style="width:9rem;text-align:center" aria-label="hex"> <span class="muted" id="end-dec"></span></div>
     <div class="endian" id="endian"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>One number, two orders.</b> Addresses grow from left to right. In little endian the bytes look “reversed”, but that is a convenience for the processor: the low byte of a number is always at the same address, so reading a 32-bit number as 8 or 16 bits needs no change of address.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>One number, two orders.</b> Addresses grow from left to right. In little endian the bytes look “reversed”, but that is a convenience for the processor: the low byte of a number is always at the same address, so reading a 32-bit number as 8 or 16 bits needs no change of address.</figcaption>
 </figure>
 
 <aside class="aside hist"><span class="t">Where the name comes from</span>“Endian” comes from Jonathan Swift’s <em>Gulliver’s Travels</em>. In the novel two nations go to war over whether a boiled egg should be cracked at the big end (Big-Endians) or the little end (Little-Endians). In 1980 computer scientist Danny Cohen borrowed the terms to say that this debate was just as arbitrary.</aside>
@@ -92,7 +111,61 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 </pre>
 </div>
 
-<h2><span class="sec">§ 10.4</span>Variables, arrays, pointers</h2>
+<h2><span class="sec">§ 10.5</span>Words and alignment: multiples of 4 and 8</h2>
+
+<p>When the processor talks to memory it does not work with individual bytes but with bigger pieces called <strong>words</strong>: mostly 8 bytes (64 bits) today. Memory buses are built around these boundaries: 8-byte blocks starting at addresses 0, 8, 16, 24… are read in one go. So an n-byte value is <strong>aligned</strong> when its address is a multiple of n: a 4-byte <code>int</code> should sit at multiples of 4, an 8-byte <code>double</code> at multiples of 8.</p>
+
+<p>Because n is a power of 2, “a multiple of n” means the last log<sub>2</sub> n bits of the address are zero: multiples of 4 end in <span class="b">…00</span>, multiples of 8 in <span class="b">…000</span>. Checking alignment is a mask: <code>(address &amp; (n − 1)) == 0</code>. Change the type and the address:</p>
+
+<figure class="fig" id="f-al">
+  <div class="fig-in">
+    <div class="center" id="al-size"></div>
+    <div class="fig-title" style="margin-top:.8rem"><span class="muted">address</span> <span id="k-al"></span></div>
+    <div class="al" id="al"></div>
+    <div class="tell" id="al-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>Word boundaries.</b> Each row is an 8-byte word. Cells with a bold left edge are aligned starting addresses for the chosen type. A misaligned value can span two words; the processor then has to combine two separate reads.</figcaption>
+</figure>
+
+<p>The cost of misaligned access depends on the processor. x86 allows it but gets slower; on old ARM, SPARC and MIPS processors a misaligned read crashes the program with a <em>bus error</em>. Atomic operations (like lock-free counters in multicore programs) always require aligned addresses. That is why compilers align variables and struct fields, and <code>malloc</code> always returns an address that is a multiple of 8 or 16.</p>
+
+<h2><span class="sec">§ 10.6</span>Structs and padding bytes</h2>
+
+<p>The most visible consequence of alignment is the gaps inside structs. The compiler places every field at an offset that is a multiple of its size; the bytes left in between are <strong>padding</strong>. The total size of the struct is also rounded up to a multiple of its largest field’s alignment, so that the fields of every element stay aligned when structs sit side by side in an array. Change the order of the fields with ↑:</p>
+
+<figure class="fig" id="f-st">
+  <div class="fig-in">
+    <div class="st">
+      <pre class="prog-code st-code" id="st-code"></pre>
+      <div><div class="st-map" id="st-map"></div><div class="tell" id="st-tell"></div></div>
+    </div>
+    <div class="ctl" id="st-ctl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>The same fields, different sizes.</b> Each square is a byte, hatched squares are padding. In the bad order the struct is 32 bytes; sorted from largest to smallest it shrinks to 16. In a program with millions of records that is half the memory.</figcaption>
+</figure>
+
+<p>File formats and network protocols do not want this padding; bytes must sit exactly where specified. C uses <code>__attribute__((packed))</code> or <code>#pragma pack</code> for this; in Python’s <code>struct</code> module, starting the format string with <code>=</code>, <code>&lt;</code> or <code>&gt;</code> turns padding off.</p>
+
+<div class="code-tabs">
+<pre data-lang="c">
+#include &lt;stdio.h&gt;
+#include &lt;stddef.h&gt;
+struct Bad  { char c; double d; short s; int i; char c2; };
+struct Good { double d; int i; short s; char c; char c2; };
+int main(void) {
+  printf("%zu %zu\n", sizeof(struct Bad), sizeof(struct Good));   // 32 16
+  printf("%zu\n", offsetof(struct Bad, d));                       // 8
+}
+</pre>
+<pre data-lang="py">
+import struct
+print(struct.calcsize("@cdhic"))   # 25  native alignment (no trailing padding; 32 in C)
+print(struct.calcsize("=cdhic"))   # 16  no padding: 1+8+2+4+1
+print(struct.calcsize("@dihcc"))   # 16  good order
+</pre>
+</div>
+
+<h2><span class="sec">§ 10.7</span>Variables, arrays, pointers</h2>
 
 <p>When you write <code>int age = 17;</code> in a program, the compiler reserves 4 bytes of memory and pairs the name “age” with that address. A variable name is a memorable nickname for an address. An <strong>array</strong> is elements of the same type laid out one after another in memory; the address of <code>arr[i]</code> is a simple calculation:</p>
 
@@ -109,7 +182,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
     <div class="tell" id="prog-tell"></div>
     <div id="prog-steps"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>How a program uses memory.</b> Each color is a variable. <code>&amp;x</code> means “the address of x”, <code>*p</code> means “the value at the address p points to”. <code>p + 1</code> moves the address not by 1 but by the size of the type it points to (4 bytes here). Note that the bytes are written in little endian order.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 7</span><b>How a program uses memory.</b> Each color is a variable. <code>&amp;x</code> means “the address of x”, <code>*p</code> means “the value at the address p points to”. <code>p + 1</code> moves the address not by 1 but by the size of the type it points to (4 bytes here). Note that the bytes are written in little endian order.</figcaption>
 </figure>
 
 <div class="think">
@@ -121,9 +194,24 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <p>Pointers live in memory too: on a 64-bit system every pointer is 8 bytes. A pointer that points nowhere is called <code>NULL</code> and its value is usually 0. A program that tries to access address 0 is stopped by the operating system; that is the famous “segmentation fault”.</p>
 
-<aside class="aside"><span class="t">Alignment</span>Processors read a 4-byte number faster from addresses that are multiples of 4. So compilers sometimes put empty bytes (padding) between variables. That is why the gray bytes after the <code>char</code> and after the array are empty in the figure.</aside>
+<p>The hatched bytes in the figure are the alignment of § 10.5 at work: the byte after the <code>char</code> lets the array start at a multiple of 4, and the 4 bytes after the array let the 8-byte pointer sit at a multiple of 8.</p>
 
-<h2><span class="sec">§ 10.5</span>Files are byte sequences too</h2>
+<h2><span class="sec">§ 10.8</span>The bits of an address: pages and caches</h2>
+
+<p>The address itself is split into bit fields too. The operating system manages memory in 4 KiB <strong>pages</strong>: the address your program sees (the virtual address) can be placed anywhere in real RAM, or even moved to disk. Since 4096 = 2<sup>12</sup>, the last 12 bits of the address are <em>the position within the page</em> and the bits above are the <em>page number</em>. The hardware looks up the page number in a table to find the real address; the offset never changes. Caches use the same idea: they fetch memory in 64-byte <strong>lines</strong>; the last 6 bits of the address are the position within the line, and the next bits choose which set of the cache the line goes to.</p>
+
+<figure class="fig" id="f-ad">
+  <div class="fig-in">
+    <div class="center" style="gap:.6rem"><span class="muted">0x</span><input id="ad-in" class="inp" value="7FFE3A1C" maxlength="8" spellcheck="false" style="width:10rem;text-align:center" aria-label="address"></div>
+    <div class="center" id="ad-mode" style="margin-top:.7rem"></div>
+    <div id="ad"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 8</span><b>Splitting an address into fields.</b> Because page and cache-line sizes are powers of 2, splitting an address needs no division at all: shifting right and masking is enough. Hardware does it for free, just by splitting the wires.</figcaption>
+</figure>
+
+<p>This directly affects how fast programs run. Walking through an array in order is fast because one cache line brings 8 <code>double</code>s; walking randomly needs a new line, maybe a new page, at every step. Even two cores modifying two variables that share a line slows a program down (false sharing).</p>
+
+<h2><span class="sec">§ 10.9</span>Files are byte sequences too</h2>
 
 <p>A disk is a byte strip that is much slower than memory but permanent. A file is a sequence of bytes on that strip plus a name. The fact “this is a PNG image” is written inside the file, usually in the first few bytes. These bytes are called a <strong>magic number</strong> or file signature. Changing the file extension does not change the file type; the signature stays the same.</p>
 
@@ -133,7 +221,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
     <div class="tell" id="hex-sig"></div>
     <div class="hexdump" id="hexdump"></div>
   </div>
-  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>A hex viewer.</b> Pick one of the samples or open a file from your computer. The file is not sent anywhere; your browser reads it only on this page. The left column is the position in the file (offset), the middle the hex bytes, the right the same bytes read as ASCII.</figcaption>
+  <figcaption class="fig-cap"><span class="fn">Figure 9</span><b>A hex viewer.</b> Pick one of the samples or open a file from your computer. The file is not sent anywhere; your browser reads it only on this page. The left column is the position in the file (offset), the middle the hex bytes, the right the same bytes read as ASCII.</figcaption>
 </figure>
 
 <div class="tbl"><table>
@@ -154,7 +242,7 @@ console.log(new Float32Array(new Uint8Array([0, 0, 0x80, 0x3f]).buffer)[0]); // 
 
 <p class="key">Memory and disk alike are just numbered bytes. The <strong>address</strong> says where, the <strong>type</strong> says how to read it, and the <strong>byte order</strong> says how multi-byte values are laid out. Know those three and you can read any data byte by byte.</p>
 
-<h2><span class="sec">§ 10.6</span>Try it yourself</h2>
+<h2><span class="sec">§ 10.10</span>Try it yourself</h2>
 
 <div id="try"></div>
 

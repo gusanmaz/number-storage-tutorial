@@ -1,6 +1,7 @@
 /* Bölüm 10 — Bellek */
 (function () {
   const { t, $, $$, el, esc, fmt, pad, toBase, knob, out, steps, tryIt, rand, pick } = NS;
+  const sub = (b) => '<span class="sub">' + b + '</span>';
   const hx = (b) => pad(toBase(b, 16), 2);
   const asc = (b) => (b >= 32 && b < 127 ? String.fromCharCode(b) : '.');
 
@@ -202,7 +203,106 @@
     const n = pick([8, 10, 12, 16, 20, 24, 32]);
     return { q: t({ tr: n + ' bitlik adreslerle kaç farklı byte adreslenebilir?', en: 'How many different bytes can ' + n + '-bit addresses reach?' }), a: String(2 ** n), kind: 'dec', hint: '2ⁿ', explain: '2<sup>' + n + '</sup> = <b>' + fmt(2 ** n) + '</b> = ' + fmt(2 ** (n % 10)) + ' ' + U[Math.floor(n / 10)] };
   }
+  /* ---------- tek bir bite erişmek ---------- */
+  const mem8 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+  let bitK = 13, lastOpB = null;
+  function drawBits() {
+    const byte = bitK >> 3, bit = bitK & 7, mask = 1 << bit, v = mem8[byte];
+    let h = '<div class="bm-row">';
+    for (let i = 0; i < 8; i++) {
+      h += '<div class="bm-byte' + (i === byte ? ' cur' : '') + '"><div class="bm-bits">' + Array.from({ length: 8 }, (_, k) => { const bb = 7 - k, idx = i * 8 + bb; return '<button type="button" class="bm-b' + ((mem8[i] >> bb) & 1 ? ' on' : '') + (idx === bitK ? ' sel' : '') + '" data-k="' + idx + '" title="bit ' + idx + '"></button>'; }).join('') + '</div><small>' + t({ tr: 'adres ', en: 'addr ' }) + '0x' + toBase(0x40 + i, 16) + '</small><b class="h">' + pad(toBase(mem8[i], 16), 2) + '</b></div>';
+    }
+    h += '</div>';
+    const b8s = (x) => pad(x.toString(2), 8);
+    h += '<div class="bm-calc mono"><div>' + t({ tr: 'bit ', en: 'bit ' }) + bitK + ' → ' + t({ tr: 'byte ', en: 'byte ' }) + '<b>' + bitK + ' >> 3 = ' + byte + '</b> (0x' + toBase(0x40 + byte, 16) + '), ' + t({ tr: 'byte içinde bit ', en: 'bit within byte ' }) + '<b>' + bitK + ' & 7 = ' + bit + '</b></div>' +
+      '<div>' + t({ tr: 'maske', en: 'mask' }) + ' = 1 << ' + bit + ' = <span class="b">' + b8s(mask) + '</span> = 0x' + pad(toBase(mask, 16), 2) + '</div>' +
+      (lastOpB ? '<div class="bm-op">' + lastOpB + '</div>' : '') + '</div>';
+    $('#bm').innerHTML = h;
+  }
+  const doBit = (kind) => {
+    const byte = bitK >> 3, bit = bitK & 7, mask = 1 << bit, old = mem8[byte], b8s = (x) => pad(x.toString(2), 8);
+    let nv = old, code, res = '';
+    if (kind === 'set') { nv = old | mask; code = 'm[' + byte + '] |= ' + '0x' + pad(toBase(mask, 16), 2); }
+    if (kind === 'clr') { nv = old & ~mask & 255; code = 'm[' + byte + '] &= ~0x' + pad(toBase(mask, 16), 2) + ' (= 0x' + pad(toBase(~mask & 255, 16), 2) + ')'; }
+    if (kind === 'tog') { nv = old ^ mask; code = 'm[' + byte + '] ^= 0x' + pad(toBase(mask, 16), 2); }
+    if (kind === 'tst') { code = '(m[' + byte + '] & 0x' + pad(toBase(mask, 16), 2) + ') != 0'; res = ' → <b>' + ((old & mask) ? 'true' : 'false') + '</b>'; }
+    mem8[byte] = nv;
+    lastOpB = '<code>' + esc(code) + '</code>' + res + (kind !== 'tst' ? ' · ' + t({ tr: 'oku ', en: 'read ' }) + '<span class="b">' + b8s(old) + '</span> → ' + t({ tr: 'değiştir → yaz ', en: 'modify → write ' }) + '<span class="b">' + b8s(nv) + '</span>' : '');
+    drawBits();
+  };
+  $('#bm').addEventListener('click', (e) => { const b = e.target.closest('.bm-b'); if (b) { bitK = +b.dataset.k; lastOpB = null; drawBits(); kb.set(bitK); } });
+  const kb = knob($('#k-bit'), { value: bitK, min: 0, max: 63, px: 8, onChange: (v) => { bitK = v; lastOpB = null; drawBits(); } });
+  $('#bm-ctl').append(...[['set', { tr: 'Aç (OR)', en: 'Set (OR)' }], ['clr', { tr: 'Kapat (AND NOT)', en: 'Clear (AND NOT)' }], ['tog', { tr: 'Çevir (XOR)', en: 'Toggle (XOR)' }], ['tst', { tr: 'Oku (AND)', en: 'Test (AND)' }]].map(([k, l]) => el('button', { class: 'btn' + (k === 'set' ? ' fill' : ''), type: 'button', text: t(l), onclick: () => doBit(k) })));
+  drawBits();
+
+  /* ---------- hizalama ---------- */
+  let AS = 4, AA = 6;
+  const aseg = el('div', { class: 'seg', role: 'group' });
+  [[1, 'char · 1'], [2, 'short · 2'], [4, 'int · 4'], [8, 'double · 8']].forEach(([k, l]) => aseg.append(el('button', { type: 'button', 'aria-pressed': String(k === AS), text: l, onclick: (e) => { AS = k; $$('button', aseg).forEach((x) => x.setAttribute('aria-pressed', String(x === e.currentTarget))); drawAl(); } })));
+  $('#al-size').append(aseg);
+  function drawAl() {
+    const ok = (AA & (AS - 1)) === 0, w0 = AA >> 3, w1 = (AA + AS - 1) >> 3, cross = w0 !== w1;
+    let h = '';
+    for (let w = 0; w < 4; w++) {
+      h += '<div class="al-row"><span class="al-l">word ' + w + '<small>0x' + pad(toBase(w * 8, 16), 2) + '</small></span>';
+      for (let i = 0; i < 8; i++) { const a = w * 8 + i, inside = a >= AA && a < AA + AS; h += '<span class="al-c' + (inside ? (ok ? ' ok' : ' bad') : '') + (a % AS === 0 ? ' bd' : '') + '">' + pad(toBase(a, 16), 2) + '</span>'; }
+      h += '</div>';
+    }
+    $('#al').innerHTML = h;
+    const bin = pad(AA.toString(2), 5), low = Math.log2(AS);
+    $('#al-tell').innerHTML = t({ tr: 'Adres ', en: 'Address ' }) + '<b>' + AA + '</b> = <span class="mono">' + bin.slice(0, 5 - low) + '<b class="' + (ok ? 'good' : 'bad') + '">' + bin.slice(5 - low) + '</b></span>' + sub(2) + ' · ' + AA + ' % ' + AS + ' = ' + AA % AS + ' → ' +
+      (ok ? '<span class="good">' + t({ tr: 'hizalı', en: 'aligned' }) + '</span>' : '<span class="bad">' + t({ tr: 'hizasız', en: 'misaligned' }) + '</span>') + (cross ? ' · <span class="bad">' + t({ tr: 'iki word’e taşıyor: işlemci iki kez okumalı', en: 'spans two words: the CPU must read twice' }) + '</span>' : '') +
+      (ok ? '' : ' · ' + t({ tr: 'bir sonraki hizalı adres: ', en: 'next aligned address: ' }) + '(' + AA + ' + ' + (AS - 1) + ') & ~' + (AS - 1) + ' = <b>' + ((AA + AS - 1) & ~(AS - 1)) + '</b>');
+  }
+  knob($('#k-al'), { value: AA, min: 0, max: 24, px: 10, onChange: (v) => { AA = v; drawAl(); } });
+  drawAl();
+
+  /* ---------- struct dolgusu ---------- */
+  const TY = { char: 1, short: 2, int: 4, double: 8, 'char*': 8 };
+  let fields = [['c', 'char'], ['d', 'double'], ['s', 'short'], ['i', 'int'], ['c2', 'char']];
+  function layout(fs) { let off = 0, mx = 1; const out2 = []; fs.forEach(([n, ty]) => { const sz = TY[ty]; mx = Math.max(mx, sz); const padb = (sz - off % sz) % sz; if (padb) out2.push({ pad: padb, off }); off += padb; out2.push({ n, ty, sz, off }); off += sz; }); const tail = (mx - off % mx) % mx; if (tail) out2.push({ pad: tail, off, tail: true }); return { items: out2, size: off + tail, raw: fs.reduce((a, [, ty]) => a + TY[ty], 0), align: mx }; }
+  function drawSt() {
+    const L = layout(fields);
+    $('#st-code').innerHTML = '<span class="tk-k">struct</span> S {\n' + fields.map(([n, ty], i) => '  <span class="tk-k">' + ty + '</span> ' + n + ';' + '<button type="button" class="st-up" data-i="' + i + '" aria-label="up"' + (i ? '' : ' disabled') + '>↑</button>').join('\n') + '\n};';
+    let cells = '';
+    L.items.forEach((it) => { for (let k = 0; k < (it.pad || it.sz); k++) cells += it.pad ? '<span class="st-c pad" title="padding"></span>' : '<span class="st-c f' + (fields.findIndex((f) => f[0] === it.n) % 5) + '">' + (k === 0 ? it.n : '') + '</span>'; });
+    $('#st-map').innerHTML = cells;
+    $('#st-tell').innerHTML = 'sizeof(S) = <b>' + L.size + '</b> byte · ' + t({ tr: 'alanların toplamı ', en: 'sum of fields ' }) + L.raw + ' · ' + t({ tr: 'dolgu ', en: 'padding ' }) + '<b class="' + (L.size - L.raw ? 'bad' : 'good') + '">' + (L.size - L.raw) + '</b> · ' + t({ tr: 'hizalama ', en: 'alignment ' }) + L.align;
+  }
+  $('#st-code').addEventListener('click', (e) => { const b = e.target.closest('.st-up'); if (!b) return; const i = +b.dataset.i; [fields[i - 1], fields[i]] = [fields[i], fields[i - 1]]; drawSt(); });
+  $('#st-ctl').append(
+    el('button', { class: 'btn', type: 'button', text: t({ tr: 'Büyükten küçüğe sırala', en: 'Sort largest first' }), onclick: () => { fields.sort((x, y) => TY[y[1]] - TY[x[1]]); drawSt(); } }),
+    el('button', { class: 'btn ghost', type: 'button', text: t({ tr: 'Kötü sıra', en: 'Bad order' }), onclick: () => { fields = [['c', 'char'], ['d', 'double'], ['s', 'short'], ['i', 'int'], ['c2', 'char']]; drawSt(); } }),
+  );
+  drawSt();
+
+  /* ---------- adresin bitleri ---------- */
+  let amode = 'page';
+  const AM = { page: [[20, { tr: 'sayfa numarası', en: 'page number' }, 'f1'], [12, { tr: 'sayfa içi ofset (4 KiB)', en: 'offset in page (4 KiB)' }, 'f2']], cache: [[20, 'tag', 'f3'], [6, { tr: 'küme (64 küme)', en: 'set (64 sets)' }, 'f4'], [6, { tr: 'satır içi ofset (64 B)', en: 'offset in line (64 B)' }, 'f2']], word: [[29, { tr: 'word numarası', en: 'word number' }, 'f1'], [3, { tr: 'word içi byte (8 B)', en: 'byte in word (8 B)' }, 'f2']] };
+  const mseg = el('div', { class: 'seg', role: 'group' });
+  [['page', { tr: 'Sanal bellek sayfası', en: 'Virtual memory page' }], ['cache', { tr: 'Önbellek', en: 'Cache' }], ['word', { tr: '64 bit word', en: '64-bit word' }]].forEach(([k, l]) => mseg.append(el('button', { type: 'button', 'aria-pressed': String(k === amode), text: t(l), onclick: (e) => { amode = k; $$('button', mseg).forEach((x) => x.setAttribute('aria-pressed', String(x === e.currentTarget))); drawAd(); } })));
+  $('#ad-mode').append(mseg);
+  function drawAd() {
+    const raw = $('#ad-in').value.trim().replace(/^0x/i, '');
+    const ok = /^[0-9a-f]{1,8}$/i.test(raw); $('#ad-in').classList.toggle('bad', !ok); if (!ok) return;
+    const v = parseInt(raw, 16) >>> 0, bin = pad(v.toString(2), 32);
+    let pos = 0, strip = '', legend = '';
+    AM[amode].forEach(([w, l, cls]) => { const part = bin.slice(pos, pos + w), val = parseInt(part, 2); strip += '<span class="ad-f ' + cls + '">' + part.replace(/(.{4})(?=.)/g, '$1 ').trim() + '</span>'; legend += '<div class="ad-lg ' + cls + '"><small>' + esc(t(l)) + ' · ' + w + ' bit</small><b class="mono">0x' + toBase(val, 16) + ' = ' + fmt(val) + '</b><span class="mono">' + (pos ? '(a >> ' + (32 - pos - w) + ') & 0x' + toBase(2 ** w - 1, 16) : 'a >> ' + (32 - w)) + '</span></div>'; pos += w; });
+    $('#ad').innerHTML = '<div class="ad-strip mono">' + strip + '</div><div class="ad-legend">' + legend + '</div>';
+  }
+  $('#ad-in').addEventListener('input', drawAd);
+  drawAd();
+
+  function bitQ() { const k = rand(8, 255); return { q: t({ tr: 'Bir bit dizisinde ' + k + '. bit hangi byte’ta (0’dan sayarak)?', en: 'In a bit array, which byte holds bit ' + k + ' (counting from 0)?' }), a: String(k >> 3), kind: 'dec', hint: 'k >> 3 = ⌊k ÷ 8⌋', explain: k + ' >> 3 = <b>' + (k >> 3) + '</b>, ' + t({ tr: 'byte içinde bit ', en: 'bit within byte ' }) + (k & 7) }; }
+  function alQ() { const a = pick([2, 4, 8, 16]), x = rand(1, 200); return { q: t({ tr: x + ' adresinden sonraki (ya da kendisi) ' + a + ' byte’a hizalı ilk adres?', en: 'The first address at or after ' + x + ' that is aligned to ' + a + ' bytes?' }), a: String((x + a - 1) & ~(a - 1)), kind: 'dec', hint: '(x + a − 1) & ~(a − 1)', explain: '(' + x + ' + ' + (a - 1) + ') & ~' + (a - 1) + ' = <b>' + ((x + a - 1) & ~(a - 1)) + '</b>' }; }
+  function stQ() { const pool = Object.keys(TY).filter((k) => k !== 'char*'), fs = Array.from({ length: rand(2, 4) }, (_, i) => ['f' + i, pick(pool)]), L = layout(fs); return { q: t({ tr: 'Bu struct’ın boyutu (64 bit sistem, doğal hizalama)?', en: 'The size of this struct (64-bit system, natural alignment)?' }) + ' <code>struct { ' + fs.map(([n, ty]) => ty + ' ' + n + ';').join(' ') + ' }</code>', a: String(L.size), kind: 'dec', hint: t({ tr: 'Her alan kendi boyutunun katı olan ofsette başlar; toplam boyut en büyük hizalamanın katıdır.', en: 'Each field starts at a multiple of its size; the total is a multiple of the largest alignment.' }), explain: L.items.map((it) => (it.pad ? '+' + it.pad + ' pad' : it.ty + '@' + it.off)).join(', ') + ' → <b>' + L.size + '</b>' }; }
+  function pgQ() { const v = rand(0x10000, 0xffffff); return { q: t({ tr: '4 KiB’lık sayfalarda <span class="h">0x' + toBase(v, 16) + '</span> adresinin sayfa içi ofseti (hex)?', en: 'With 4 KiB pages, the in-page offset of address <span class="h">0x' + toBase(v, 16) + '</span> (hex)?' }), a: toBase(v & 0xfff, 16), kind: 'hex', hint: t({ tr: 'Son 12 bit = son 3 hex rakamı.', en: 'The last 12 bits = the last 3 hex digits.' }), explain: '0x' + toBase(v, 16) + ' & 0xFFF = <b class="h">0x' + toBase(v & 0xfff, 16) + '</b>' }; }
+
   tryIt($('#try'), [
+    { label: t({ tr: 'Bit → byte', en: 'Bit → byte' }), fn: bitQ },
+    { label: t({ tr: 'Hizalama', en: 'Alignment' }), fn: alQ },
+    { label: 'struct', fn: stQ },
+    { label: t({ tr: 'Sayfa ofseti', en: 'Page offset' }), fn: pgQ },
     { label: t({ tr: 'Byte sırası', en: 'Byte order' }), fn: endianQ },
     { label: t({ tr: 'Dizi adresi', en: 'Array address' }), fn: arrQ },
     { label: t({ tr: 'Adres bitleri', en: 'Address bits' }), fn: addrQ },

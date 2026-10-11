@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesser-known formats · Zeros &amp; Ones</title>
+<meta name="description" content="BCD and 7-segment displays, Gray code, parity and Hamming error correction, checksums and CRC, varints and zigzag, Base64, Baudot and EBCDIC, float16 and bfloat16, RGB565, timestamps. An interactive essay.">
+<link rel="alternate" hreflang="tr" href="../formatlar.html">
+<script>try{if(localStorage.getItem('zo-theme')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js" defer></script>
+<script src="../assets/gen.js" defer></script>
+<script src="../assets/ch/formats.js" defer></script>
+</head>
+<body data-chapter="formats">
+<main>
+<header class="opener">
+  <div class="kicker"><span class="bits"></span>Chapter 9</div>
+  <h1>Lesser-known formats</h1>
+  <p class="lede">Binary integers, ASCII, Unicode and IEEE 754 are the famous agreements. But computers are full of stranger, cleverer encodings invented to solve one particular problem: codes that correct errors, integers that save space, counting schemes for mechanical sensors, bytes turned into text.</p>
+  <div class="meta"><span>Reading: ~55 min</span><span>Before: Chapters 2–7</span></div>
+</header>
+
+<article class="prose">
+
+<p class="dropcap">Designing a data format is always a trade. Plain binary takes the least space but is hard for people to read. Saving space costs speed, being robust against errors costs extra bits. Every format in this chapter picked a different point in that trade, and each one is still running somewhere today, maybe in your pocket right now.</p>
+
+<h2><span class="sec">§ 9.1</span>BCD: storing decimal digits one by one</h2>
+
+<p><strong>Binary-coded decimal</strong> (BCD) does not store a number as a whole but stores each decimal digit separately in 4 bits. 59 is <span class="b">111011</span> in binary; in BCD 5 = <span class="b">0101</span> and 9 = <span class="b">1001</span> are written side by side: <span class="b">0101 1001</span>. It looks like hex but is not: only 10 of the 16 four-bit patterns are used, the A–F patterns are forbidden.</p>
+
+<figure class="fig" id="f-bcd">
+  <div class="fig-in">
+    <div class="fig-title"><span id="k-bcd"></span></div>
+    <div class="seg7row" id="bcd"></div>
+    <div class="tell" id="bcd-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 1</span><b>BCD and a 7-segment display.</b> Each digit becomes a 4-bit BCD digit, which in turn becomes a 7-bit pattern saying which bars of the 7-segment display to light (a–g). That last step is an encoding too: the same information, under a different agreement, for a display.</figcaption>
+</figure>
+
+<p>Why accept the wasted space? Because talking to the decimal world gets easy. Calculators, digital clocks and the real-time clock (RTC) chips in computers store numbers in BCD; each digit goes straight to a display with no division. COBOL’s “packed decimal” type, used in banking, is BCD too: decimal fractions like 0.1 are stored exactly and the rounding surprises of Chapter 6 never happen.</p>
+
+<aside class="aside"><span class="t">The “+6 correction” in BCD addition</span>If you add two BCD digits in binary, a result above 9 lands on a forbidden pattern: 5 + 8 = <span class="b">1101</span> (13, but invalid in BCD). The fix is to add 6: <span class="b">1101</span> + <span class="b">0110</span> = <span class="b">1 0011</span> → carry 1, digit 3, i.e. 13. Why 6? Because the number of unused patterns in a 4-bit box is 16 − 10 = 6. Old Intel processors had a dedicated instruction for this: DAA (decimal adjust after addition).</aside>
+
+<h2><span class="sec">§ 9.2</span>Gray code: one bit per step</h2>
+
+<p>In plain binary counting some steps change several bits at once: going from 7 to 8, <span class="b">0111</span> → <span class="b">1000</span>, all four bits change. If a sensor reading the bits cannot see them all change at exactly the same instant, it can read completely wrong values such as 15 or 0 during the transition. In the <strong>reflected binary code</strong> Frank Gray applied to patent in 1947, any two consecutive numbers differ in <em>a single bit</em>.</p>
+
+<figure class="fig" id="f-gray">
+  <div class="fig-in">
+    <div class="gray-top">
+      <div><div class="fa-h">binary</div><div id="gr-bin"></div></div>
+      <div><div class="fa-h">Gray</div><div id="gr-gray"></div></div>
+    </div>
+    <div class="ctl" id="gr-ctl"></div>
+    <div class="tell" id="gr-tell"></div>
+    <div class="tbl gray-t" id="gr-tbl"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 2</span><b>Binary and Gray code side by side.</b> Step forward and back; the number of bits that change in the binary counter jumps between 1 and 4, while in Gray code it is always 1. The “intermediate readings” are the wrong values a sensor could see if the bits do not change simultaneously.</figcaption>
+</figure>
+
+<p>The conversion formula is one line of bit operations: <code>gray = n ^ (n &gt;&gt; 1)</code>. Gray code is used today in rotary encoders (disks that read the angle of a motor or a volume knob), in Karnaugh maps, and in hardware circuits that pass counters between clock domains. The word “reflected” comes from the second half of the list being a mirror image of the first.</p>
+
+<h2><span class="sec">§ 9.3</span>Parity and Hamming: finding and fixing errors</h2>
+
+<p>In Chapter 1 we saw that noise can corrupt bits. Even cosmic rays can flip a bit in memory. The simplest way to <strong>detect</strong> an error is to add a <strong>parity bit</strong>: one extra bit that makes the number of 1s even. The receiver counts the 1s; if the count is odd, a bit was corrupted. But which one? Parity cannot say, and if two bits flip it does not notice at all.</p>
+
+<p>In 1950 Richard Hamming found something cleverer: he added 3 parity bits to 4 data bits and placed them so that each parity looks at a different subset of the bits. The positions of the parities that fail add up to the <em>address</em> of the bad bit. Choose the data bits below, then tap any bit as “noise” to flip it:</p>
+
+<figure class="fig" id="f-ham">
+  <div class="fig-in">
+    <div class="ham-row"><span class="fa-h">data</span><div id="ham-data"></div></div>
+    <div class="ham-row"><span class="fa-h">sent</span><div id="ham-sent"></div></div>
+    <div class="ham-row"><span class="fa-h">received (tap: corrupt)</span><div id="ham-recv"></div></div>
+    <div class="ham-chk" id="ham-chk"></div>
+    <div class="tell" id="ham-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 3</span><b>Hamming(7,4).</b> Positions 1, 2 and 4 are parity bits; p1 checks the positions whose last binary bit is 1 (1, 3, 5, 7), p2 those whose second bit is 1 (2, 3, 6, 7), p4 those whose third bit is 1 (4, 5, 6, 7). Add up the positions of the failing parities and you get the position of the bad bit. Flip two bits and the code “corrects” the wrong bit; this code fixes single errors.</figcaption>
+</figure>
+
+<p>The <strong>ECC memory</strong> in servers uses exactly this idea: every 64-bit word gets 8 check bits and single-bit errors are silently corrected on read. QR codes, CDs, DVDs and space probes use a stronger family, Reed–Solomon codes; that is why a scratched CD still plays and a QR code with a torn corner still scans.</p>
+
+<h2><span class="sec">§ 9.4</span>Checksums and CRC</h2>
+
+<p>Sometimes fixing is unnecessary; noticing that something broke is enough, and then it is requested again. For that a small number summarizing the data is attached. The simplest is adding up all the bytes (mod 256). Internet packets (IP, TCP, UDP) use a 16-bit one’s complement sum (Chapter 5). Ethernet, ZIP and PNG use <strong>CRC-32</strong>: it treats the data as a giant binary number, divides it by a fixed polynomial (a binary divisor) and keeps the remainder. A sum does not notice two bytes swapping places; a CRC does.</p>
+
+<figure class="fig" id="f-ck">
+  <div class="fig-in">
+    <div class="center"><input id="ck-in" class="inp" value="Hello world" spellcheck="false" style="width:min(22rem,100%);text-align:center" aria-label="text"></div>
+    <div class="chips" id="ck-pre" style="margin-top:.7rem"></div>
+    <div id="ck"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 4</span><b>Three summaries.</b> Change a single letter and watch all three change. Try “ab” and “ba”: the simple sum stays the same, CRC-32 changes completely. These algorithms catch accidental corruption; protection against deliberate changes needs cryptographic hashes such as SHA-256.</figcaption>
+</figure>
+
+<aside class="aside hist"><span class="t">Check digits in your pocket</span>The last digit of a credit card number is a check digit computed with the Luhn algorithm; mistype a digit and the website notices before sending anything. ISBN book numbers, IBANs and many national ID numbers use the same idea.</aside>
+
+<h2><span class="sec">§ 9.5</span>Varints: small space for small numbers</h2>
+
+<p>Always storing a number in 4 or 8 bytes is wasteful when most numbers are small. A <strong>variable-length integer</strong> (varint, or LEB128) splits the number into 7-bit pieces and puts each piece in a byte. The leftmost bit of every byte is a <strong>continuation flag</strong>: 1 means “more bytes follow”, 0 means “I am the last byte”. Numbers from 0 to 127 then take a single byte. Very much like the idea in UTF-8, isn’t it? Google’s Protocol Buffers, WebAssembly and MIDI files use varints.</p>
+
+<figure class="fig" id="f-vi">
+  <div class="fig-in">
+    <div class="center" style="gap:.6rem"><input id="vi-in" class="inp" value="300" spellcheck="false" style="width:12rem;text-align:center" aria-label="number"><span id="vi-mode"></span></div>
+    <div id="vi"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 5</span><b>A varint encoder.</b> The number is written in binary, split into groups of 7 from the right, and the groups are written into bytes <em>little end first</em>. Negative numbers first go through <strong>zigzag</strong>: 0, −1, 1, −2, 2… become 0, 1, 2, 3, 4…, so small negative numbers take little space too.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.6</span>Base64: turning bytes into text</h2>
+
+<p>Some channels, such as e-mail and URLs, carry only safe text characters; the raw bytes of an image cannot pass through. <strong>Base64</strong>’s solution: line the bytes up and cut them into 6-bit groups. There are 2<sup>6</sup> = 64 patterns; give each a character: A–Z, a–z, 0–9, + and /. 3 bytes (24 bits) turn into exactly 4 characters. If the end comes up short it is padded with <code>=</code>.</p>
+
+<figure class="fig" id="f-b64">
+  <div class="fig-in">
+    <div class="center"><input id="b64-in" class="inp" value="Cats" spellcheck="false" style="width:min(20rem,100%);text-align:center" aria-label="text"></div>
+    <div id="b64"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 6</span><b>From 8 bits to 6 bits.</b> The top row shows the bytes, the bottom the same bits in groups of 6. The colors show which byte each bit came from. Base64 grows data by 33% (3 bytes → 4 characters); hex by 100% (1 byte → 2 characters).</figcaption>
+</figure>
+
+<p>You use Base64 every day: e-mail attachments, small images embedded in web pages (<code>data:image/png;base64,…</code>), files carried inside JSON, and login tokens (JWT) are written in Base64. Beware: Base64 is not encryption; anyone can turn it back.</p>
+
+<h2><span class="sec">§ 9.7</span>Before and beside ASCII: Baudot, EBCDIC, Morse</h2>
+
+<p>ASCII was not the only character code. The code designed in the 1870s for Émile Baudot’s telegraph, standardized in the 1930s as ITA2, used only <strong>5 bits</strong>: 32 patterns. To fit letters and digits it had two special “shift” characters (LTRS and FIGS); the same pattern was a letter or a digit depending on the last shift. It is the ancestor of the Shift key. <strong>EBCDIC</strong>, which IBM introduced for its mainframes in 1964, was 8 bits and had a strange layout inherited from punched cards: even the letters were not contiguous. It still lives in banks’ mainframes.</p>
+
+<figure class="fig" id="f-old">
+  <div class="fig-in">
+    <div class="center"><input id="old-in" class="inp" value="HELLO 42" spellcheck="false" style="width:min(18rem,100%);text-align:center;text-transform:uppercase" aria-label="text"></div>
+    <div class="tbl old-t" id="old"></div>
+    <div class="tell" id="old-tell"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 7</span><b>The same letters, four codes.</b> In ASCII A–Z are contiguous (41–5A); in EBCDIC they are split into three runs (C1–C9, D1–D9, E2–E9). Baudot makes do with 5 bits but needs the FIGS character to switch to digits. Morse is a <em>variable-length</em> code: the common E is a single dot, the rare Q four symbols.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.8</span>Small floats: float16, bfloat16, FP8</h2>
+
+<p>In Chapter 6 we saw 32- and 64-bit floats. Graphics cards and AI work with billions of numbers; saving a few bytes per number multiplies memory and speed. So smaller formats were born:</p>
+
+<div class="tbl"><table>
+  <thead><tr><th>Format</th><th>Bits</th><th>Sign / exponent / mantissa</th><th>Largest</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td>float32</td><td class="m">32</td><td class="m">1 / 8 / 23</td><td class="m">3.4 × 10³⁸</td><td>everywhere</td></tr>
+    <tr><td>float16 (half)</td><td class="m">16</td><td class="m">1 / 5 / 10</td><td class="m">65,504</td><td>graphics, games, image files</td></tr>
+    <tr><td>bfloat16</td><td class="m">16</td><td class="m">1 / 8 / 7</td><td class="m">3.4 × 10³⁸</td><td>Google TPUs, AI training</td></tr>
+    <tr><td>FP8 E5M2</td><td class="m">8</td><td class="m">1 / 5 / 2</td><td class="m">57,344</td><td>AI (gradients)</td></tr>
+    <tr><td>FP8 E4M3</td><td class="m">8</td><td class="m">1 / 4 / 3</td><td class="m">448</td><td>AI (weights)</td></tr>
+  </tbody>
+</table></div>
+
+<p>bfloat16’s trick: it takes the top 16 bits of a float32 as they are. The exponent field stays the same, so the range is the same; only the precision drops (about 2–3 decimal digits). float16 makes the opposite choice: more precise, but numbers above 65,504 overflow. Type a number and see what it turns into in each format:</p>
+
+<figure class="fig" id="f-sf">
+  <div class="fig-in">
+    <div class="center"><input id="sf-in" class="inp" value="3.14159" spellcheck="false" style="width:12rem;text-align:center" aria-label="number"></div>
+    <div class="chips" id="sf-pre" style="margin-top:.7rem"></div>
+    <div class="tbl sf-t" id="sf"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 8</span><b>One number, five formats.</b> Each row shows the closest value the format can store, its bit layout and the relative error. Try 100,000: float16 overflows, bfloat16 does not but rounds coarsely. Try 0.0001: it lands in E4M3’s subnormal numbers.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.9</span>16-bit color: RGB565</h2>
+
+<p>In Chapter 8 we saw that a color is 24 bits. Old phones, game consoles and the small microcontroller displays of today use <strong>16 bits</strong> per color: 5 bits red, 6 bits green, 5 bits blue. Why an extra bit for green? Because the eye is most sensitive to fine differences in green.</p>
+
+<figure class="fig" id="f-565">
+  <div class="fig-in">
+    <div class="center" style="gap:.7rem"><input type="color" id="c565-in" value="#3a8fd6" aria-label="color"> <span class="mono" id="c565-hex"></span></div>
+    <div id="c565"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 9</span><b>From 24 bits to 16.</b> When each channel is squeezed into fewer bits, some colors fall onto the same pattern: 65,536 colors remain. The square on the right is the color unpacked from the 16-bit pattern. The difference is usually hard to see; it shows up as banding in smooth gradients.</figcaption>
+</figure>
+
+<h2><span class="sec">§ 9.10</span>Ways to store time</h2>
+
+<p>Time is a number too, but which number? Every system picked a different starting moment (epoch) and unit. The same moment, live, in five different forms:</p>
+
+<figure class="fig narrow" id="f-tm">
+  <div class="fig-in">
+    <div class="tbl tm-t" id="tm"></div>
+  </div>
+  <figcaption class="fig-cap"><span class="fn">Figure 10</span><b>The same moment, five numbers.</b> Unix and JavaScript count from the same start (1 January 1970 UTC) in different units. Windows has counted 100-nanosecond ticks since 1601 (it needs 64 bits). Excel counts days, with the fraction giving the time of day; it also carries a bug inherited from Lotus 1-2-3 that treats 1900 as a leap year.</figcaption>
+</figure>
+
+<p class="key">Behind every format there is a question: <strong>what do we want to make cheap?</strong> BCD makes talking to people cheap, Gray code mechanical reading, Hamming errors, varints space, Base64 transport, small floats AI. The bits are the same; what changes is the rule we agree on.</p>
+
+<h2><span class="sec">§ 9.11</span>Try it yourself</h2>
+
+<div id="try"></div>
+
+<div class="quiz">
+  <div class="quiz-q" data-ok="1">
+    <p>What is decimal 47 in BCD?</p>
+    <ul><li>0010 1111</li><li>0100 0111</li><li>0101 0111</li><li>0100 1111</li></ul>
+    <div class="quiz-why">4 = 0100, 7 = 0111, side by side. (00101111 is 47 in binary.)</div>
+  </div>
+  <div class="quiz-q" data-ok="3">
+    <p>What is the key property of Gray code?</p>
+    <ul><li>It uses fewer bits</li><li>It represents negative numbers</li><li>It corrects errors</li><li>Consecutive numbers differ in a single bit</li></ul>
+    <div class="quiz-why">That is why mechanical sensors do not read wrong values during a transition.</div>
+  </div>
+  <div class="quiz-q" data-ok="0">
+    <p>A system using even parity receives <span class="b">1011 0011</span>. The verdict?</p>
+    <ul><li>There is an error</li><li>No error</li><li>The bad bit is bit 3</li><li>Exactly two bits are bad</li></ul>
+    <div class="quiz-why">There are five 1s: odd, but it should be even. Parity notices the error but cannot say which bit it is in.</div>
+  </div>
+  <div class="quiz-q" data-ok="2">
+    <p>How many characters is 10 bytes of data in Base64?</p>
+    <ul><li>10</li><li>14</li><li>16</li><li>20</li></ul>
+    <div class="quiz-why">⌈10/3⌉ = 4 groups × 4 characters = 16 (the last group has == padding).</div>
+  </div>
+  <div class="quiz-q" data-ok="1">
+    <p>Why is bfloat16 popular in AI?</p>
+    <ul><li>It is more precise than float16</li><li>It offers float32’s range at half the size</li><li>It is an integer</li><li>It corrects errors</li></ul>
+    <div class="quiz-why">It keeps float32’s 8-bit exponent field; half the memory without overflow risk.</div>
+  </div>
+</div>
+
+</article>
+</main>
+</body>
+</html>
