@@ -149,13 +149,13 @@
     let s = '<svg viewBox="0 0 460 190" class="svgfig" style="width:100%;max-width:520px">';
     // pil
     s += '<line x1="30" y1="70" x2="30" y2="160" stroke="' + wire + '" stroke-width="3"/><rect x="18" y="104" width="24" height="22" fill="var(--paper-2)"/><line x1="16" y1="108" x2="44" y2="108" stroke="var(--ink)" stroke-width="3"/><line x1="23" y1="120" x2="37" y2="120" stroke="var(--ink)" stroke-width="3"/>';
-    s += '<line x1="30" y1="160" x2="420" y2="160" stroke="' + wire + '" stroke-width="3"/>';
+    s += '<path d="M30 160 H420 V146" fill="none" stroke="' + wire + '" stroke-width="3" stroke-linejoin="round"/>';
     if (gmode === 'and') {
-      s += '<path d="M30 70 H130 M180 70 H250 M300 70 H420 V95" fill="none" stroke="' + wire + '" stroke-width="3"/>' + sw(130, 70, A, 'A') + sw(250, 70, B, 'B');
+      s += '<path stroke-linejoin="round" d="M30 70 H130 M180 70 H250 M300 70 H420 V98" fill="none" stroke="' + wire + '" stroke-width="3"/>' + sw(130, 70, A, 'A') + sw(250, 70, B, 'B');
     } else if (gmode === 'or') {
-      s += '<path d="M30 70 H110 M110 40 V100 M110 40 H160 M110 100 H160 M210 40 H260 M210 100 H260 M260 40 V100 M260 70 H420 V95" fill="none" stroke="' + wire + '" stroke-width="3"/>' + sw(160, 40, A, 'A') + sw(160, 100, B, 'B');
+      s += '<path stroke-linejoin="round" d="M30 70 H110 M110 40 V100 M110 40 H160 M110 100 H160 M210 40 H260 M210 100 H260 M260 40 V100 M260 70 H420 V98" fill="none" stroke="' + wire + '" stroke-width="3"/>' + sw(160, 40, A, 'A') + sw(160, 100, B, 'B');
     } else {
-      s += '<path d="M30 70 H120 M300 70 H420 V95" fill="none" stroke="' + wire + '" stroke-width="3"/><rect x="120" y="22" width="180" height="96" rx="14" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>' +
+      s += '<path stroke-linejoin="round" d="M30 70 H120 M300 70 H420 V98" fill="none" stroke="' + wire + '" stroke-width="3"/><rect x="120" y="22" width="180" height="96" rx="14" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>' +
         '<text x="210" y="50" text-anchor="middle" font-family="var(--sans)" font-size="13" fill="var(--ink-3)">' + esc(t({ tr: 'yalnız biri açıksa', en: 'exactly one on' })) + '</text>' + sw(130, 92, A, 'A').replace('stroke-width="5"', 'stroke-width="4"') + sw(240, 92, B, 'B').replace('stroke-width="5"', 'stroke-width="4"');
     }
     s += '<circle cx="420" cy="122" r="26" fill="' + (lit ? 'var(--on)' : 'var(--off)') + '" stroke="' + (lit ? 'var(--on-deep)' : 'var(--off-ring)') + '" stroke-width="2.5"' + (lit ? ' style="filter:drop-shadow(0 0 12px var(--on-glow))"' : '') + '/>';

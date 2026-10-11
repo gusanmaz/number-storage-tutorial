@@ -29,8 +29,8 @@
   --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
-  --measure: 44rem;
-  --wide: 58rem;
+  --measure: 50rem;
+  --wide: 50rem;
   --head-h: 54px;
   color-scheme: light;
 }
@@ -126,8 +126,8 @@ button { font: inherit; color: inherit; }
 
 /* ---------- sayfa iskeleti ---------- */
 main { padding-top: var(--head-h); overflow-x: clip; }
-.prose { max-width: var(--measure); margin: 0 auto; padding: 0 clamp(16px, 4vw, 0px); }
-@media (max-width: 640px) { .prose { padding: 0 18px; } }
+.prose { max-width: calc(var(--measure) + 48px); margin: 0 auto; padding: 0 24px; }
+@media (max-width: 640px) { .prose, .opener, .end, .foot, .journey { padding-left: 18px; padding-right: 18px; } }
 .prose > * + * { margin-top: 1.05em; }
 .prose p, .prose li { hyphens: auto; }
 .prose h2 { font-size: clamp(1.55rem, 3.4vw, 2.05rem); font-weight: 600; line-height: 1.18; letter-spacing: -0.015em; margin-top: 2.6em; }
@@ -156,19 +156,19 @@ mark { background: var(--hl); color: inherit; padding: 0 0.15em; border-radius: 
 @media (max-width: 640px) { code { white-space: normal; overflow-wrap: anywhere; } }
 
 /* ---------- bölüm açılışı ---------- */
-.opener { max-width: calc(var(--measure) + 2 * clamp(18px, 4vw, 32px)); margin: 0 auto; padding: clamp(2.5rem, 8vw, 6rem) clamp(18px, 4vw, 32px) clamp(1.5rem, 4vw, 3rem); }
+.opener { max-width: calc(var(--measure) + 48px); margin: 0 auto; padding: clamp(2.5rem, 8vw, 6rem) 24px clamp(1.5rem, 4vw, 3rem); }
 .opener .kicker, .cover .kicker { font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-deep); display: flex; align-items: center; gap: 0.8rem; }
 .opener .kicker .bits { display: inline-flex; gap: 4px; }
 .opener .kicker .bits i { width: 10px; height: 10px; border-radius: 50%; background: var(--off); }
 .opener .kicker .bits i.on { background: var(--on); box-shadow: 0 0 8px var(--on-glow); }
 .opener h1 { font-size: clamp(2.6rem, 7.5vw, 4.6rem); font-weight: 600; line-height: 1; letter-spacing: -0.035em; margin: 0.25em 0 0.35em; }
-.opener .lede { max-width: 40rem; font-size: clamp(1.1rem, 2.2vw, 1.35rem); }
+.opener .lede { max-width: none; font-size: clamp(1.1rem, 2.2vw, 1.35rem); }
 .opener .meta { font-family: var(--sans); font-size: 13.5px; color: var(--ink-3); margin-top: 1.4rem; display: flex; gap: 1.2rem; flex-wrap: wrap; }
 
 /* ---------- figürler ---------- */
 .fig {
   position: relative;
-  width: min(var(--wide), calc(100vw - 32px)); margin-left: calc((100% - min(var(--wide), calc(100vw - 32px))) / 2);
+  width: 100%; margin-left: 0;
   background: var(--paper-2);
   border: 1px solid var(--rule); border-radius: 20px;
   padding: clamp(1.4rem, 3.5vw, 2.4rem) 0 clamp(1.1rem, 2.5vw, 1.6rem);
@@ -176,10 +176,10 @@ mark { background: var(--hl); color: inherit; padding: 0 0.15em; border-radius: 
   font-family: var(--sans); font-size: 16px; line-height: 1.55;
 }
 .prose > .fig + * { margin-top: 0; }
-.fig-in { margin: 0 auto; padding: 0 clamp(14px, 3.5vw, 36px); }
-.fig.narrow .fig-in { max-width: 46rem; }
+.fig-in { margin: 0 auto; padding: 0 clamp(14px, 3vw, 28px); }
+.fig.narrow .fig-in { max-width: none; }
 @media (max-width: 640px) { .fig { width: 100vw; margin-left: calc(50% - 50vw); border-radius: 0; border-left: 0; border-right: 0; } }
-.fig-cap { margin: 1.4rem 0 0; padding: 1rem clamp(14px, 3.5vw, 36px) 0; border-top: 1px dashed var(--rule-2); font-size: 15px; color: var(--ink-2); line-height: 1.55; }
+.fig-cap { margin: 1.4rem 0 0; padding: 1rem clamp(14px, 3vw, 28px) 0; border-top: 1px dashed var(--rule-2); font-size: 15px; color: var(--ink-2); line-height: 1.55; }
 .fig-cap b { color: var(--ink); font-weight: 650; }
 .fig-cap .fn { font-family: var(--mono); font-size: 12.5px; color: var(--on-deep); margin-right: 0.5rem; letter-spacing: 0.05em; }
 .fig .center { display: flex; justify-content: center; flex-wrap: wrap; align-items: center; gap: 0.8rem; }
@@ -362,7 +362,7 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .quiz-score { font-family: var(--mono); font-size: 13px; color: var(--ink-3); text-align: right; margin-top: 0.5rem; }
 
 /* ---------- bölüm sonu ---------- */
-.end { max-width: var(--wide); margin: 5rem auto 0; padding: 0 clamp(16px, 4vw, 32px); font-family: var(--sans); }
+.end { max-width: calc(var(--measure) + 48px); margin: 5rem auto 0; padding: 0 24px; font-family: var(--sans); }
 .end-next { display: block; text-decoration: none; border-top: 2px solid var(--ink); padding: 1.6rem 0 2rem; }
 .end-next small { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-deep); margin-bottom: 0.4rem; }
 .end-next span { font-family: var(--serif); font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; }
@@ -370,7 +370,7 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .end-next:hover span { color: var(--on-deep); }
 .end-next p { color: var(--ink-2); font-size: 16px; margin-top: 0.5rem; max-width: 40rem; }
 .end-prev { font-size: 14px; color: var(--ink-3); }
-.foot { max-width: var(--wide); margin: 2.5rem auto 0; padding: 1.5rem clamp(16px, 4vw, 32px) 3rem; border-top: 1px solid var(--rule); font-family: var(--sans); font-size: 13.5px; color: var(--ink-3); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
+.foot { max-width: calc(var(--measure) + 48px); margin: 2.5rem auto 0; padding: 1.5rem 24px 3rem; border-top: 1px solid var(--rule); font-family: var(--sans); font-size: 13.5px; color: var(--ink-3); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem; }
 .foot a { color: var(--ink-2); }
 
 /* ---------- küçük ortak parçalar ---------- */
@@ -407,7 +407,7 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .cover-row .chr { font-family: var(--mono); font-size: 15px; color: var(--ink-2); width: 1.8rem; text-align: left; margin-left: 0.5rem; font-weight: 600; }
 .cover-cta { margin-top: 2.2rem; display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; font-family: var(--sans); }
 .cover-hint { font-family: var(--sans); font-size: 13.5px; color: var(--ink-3); margin-top: 1rem; }
-.journey { max-width: var(--wide); margin: 0 auto; padding: 2rem clamp(16px, 4vw, 32px) 0; }
+.journey { max-width: calc(var(--measure) + 48px); margin: 0 auto; padding: 2rem 24px 0; }
 .journey ol { list-style: none; padding: 0; counter-reset: c; }
 .journey li a { display: grid; grid-template-columns: 4.5rem 1fr auto; align-items: baseline; gap: 1rem; padding: 1.3rem 0; border-top: 1px solid var(--rule); text-decoration: none; }
 .journey li:last-child a { border-bottom: 1px solid var(--rule); }
@@ -879,7 +879,7 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 /* ============================================================
    Kendini sına — özet
    ============================================================ */
-.sheet { width: min(var(--wide), calc(100vw - 32px)); margin: 1.5rem 0 0 50%; transform: translateX(-50%); display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.8rem; font-family: var(--sans); font-size: 14px; line-height: 1.5; }
+.sheet { width: 100%; margin: 1.5rem 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.8rem; font-family: var(--sans); font-size: 14px; line-height: 1.5; }
 .sc-card { background: var(--card); border-radius: 12px; padding: 0.9rem 1rem; box-shadow: inset 0 0 0 1px var(--rule); break-inside: avoid; }
 .sc-card h3 { font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-deep); margin-bottom: 0.5rem; }
 .sc-card ul { padding-left: 1.1rem; margin: 0; display: grid; gap: 0.25rem; }
@@ -907,8 +907,8 @@ textarea.inp { width: 100%; resize: vertical; font-size: 1rem; line-height: 1.5;
 .chap-nav a.cur { color: var(--ink); border-left-color: var(--on); font-weight: 600; }
 .chap-nav a.cur small { color: var(--on-deep); }
 .chap-nav .chap-nav-try { margin-top: 1.2rem; font-size: 13px; color: var(--ink-3); }
-@media (min-width: 1400px) {
-  .chap-nav { display: block; position: fixed; top: calc(var(--head-h) + 2.4rem); left: max(20px, calc((100vw - var(--wide)) / 2 - 260px)); width: 228px; max-height: calc(100vh - var(--head-h) - 4rem); overflow-y: auto; z-index: 5; }
+@media (min-width: 1360px) {
+  .chap-nav { display: block; position: fixed; top: calc(var(--head-h) + 2.4rem); left: max(16px, calc((100vw - var(--measure)) / 2 - 272px)); width: 228px; max-height: calc(100vh - var(--head-h) - 4rem); overflow-y: auto; z-index: 5; }
 }
 .toc-sec { max-width: 60rem; margin: 0 auto 2.2rem; }
 .toc-sec h3 { font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-deep); margin-bottom: 0.6rem; }
